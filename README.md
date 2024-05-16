@@ -90,8 +90,8 @@ This project was developed with passion and dedication by the Leasy team:
 
 - [Ofir Goldberg](https://github.com/ofirgoldofir) - Backend Developer
 - [Ronen Sivak](https://github.com/RonenSiv) - Frontend Developer
-- [Omer Groman](https://github.com/omergroman) - Machine Learning Engineer
-- [Ofir Goldberg](https://github.com/ofirgoldofir), [Omer Groman](https://github.com/omergroman), [Ronen Sivak](https://github.com/RonenSiv) - UX/UI Designers
+- [Omer Groman](https://github.com/zildogga) - Machine Learning Engineer
+- [Ofir Goldberg](https://github.com/ofirgoldofir), [Omer Groman](https://github.com/zildogga), [Ronen Sivak](https://github.com/RonenSiv) - UX/UI Designers
 
 ## License
 
