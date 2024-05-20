@@ -52,7 +52,7 @@ Before you begin, ensure you have met the following requirements:
       ```
    - Run the backend server:
      ```bash
-     python app.py
+     php artisan serve
      ```
 3. **Frontend Setup**
    - Navigate to the frontend directory and install dependencies:
