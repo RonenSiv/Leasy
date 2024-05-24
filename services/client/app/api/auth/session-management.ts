@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt, encrypt } from "@/app/api/auth/auth-utils";
 
-export const sessionExpirationTime = 60;
+export const sessionExpirationTime = 60 * 100;
 
 export const createSession = async (data: any) => {
   const expires = getMoreSessionTime();
@@ -11,7 +11,7 @@ export const createSession = async (data: any) => {
   return cookies().set("session", session, { expires, httpOnly: true });
 };
 
-export const getSession = async () => {
+export const getCurrentSession = async () => {
   const session = cookies().get("session")?.value;
   if (!session) return null;
   return await decrypt(session);

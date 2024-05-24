@@ -97,7 +97,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         <input
           type={type}
           id={label}
-          className={`relative bg-gray-50 border ${statusInputClasses[status]} text-gray-900 text-sm rounded-lg block w-full p-2.5 ${className}`}
+          className={`relative bg-gray-50 border ${statusInputClasses[status]} text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none ${className}`}
           placeholder={placeholder}
           required={required}
           onChange={onChange}
