@@ -7,11 +7,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 
+export type FormFieldStatus = "none" | "warning" | "error" | "info";
+
 interface FormFieldProps {
   label?: string;
   type?: "email" | "password" | "text" | "url" | "search";
   name?: string;
-  status?: "none" | "warning" | "error" | "info";
+  status?: FormFieldStatus;
   statusMessage?: string;
   informativeLabel?: boolean;
   informativeLabelMessage?: string;
@@ -20,6 +22,10 @@ interface FormFieldProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   className?: string;
 }
+
+const generateRandomId = () => {
+  return "tooltip-" + Math.random().toString(36).substr(2, 9);
+};
 
 export const FormField: React.FC<FormFieldProps> = ({
   label,
@@ -70,6 +76,8 @@ export const FormField: React.FC<FormFieldProps> = ({
     none: "text-gray-300",
   };
 
+  const infoLabelId = generateRandomId();
+
   return (
     <div className="mb-5">
       <label
@@ -81,7 +89,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           <FontAwesomeIcon
             icon={faInfoCircle}
             className="text-blue-500"
-            data-tooltip-id="infoeLabelTooltip"
+            data-tooltip-id={infoLabelId}
           />
         )}
       </label>
@@ -101,13 +109,13 @@ export const FormField: React.FC<FormFieldProps> = ({
           </div>
         )}
       </div>
-      {statusMessage && (
+      {status !== "none" && statusMessage && (
         <p className={`mt-2 text-sm ${statusMessageClasses[status]}`}>
           {statusMessage}
         </p>
       )}
       <ReactTooltip
-        id="infoeLabelTooltip"
+        id={infoLabelId}
         place="right"
         content={informativeLabelMessage}
         variant={"info"}

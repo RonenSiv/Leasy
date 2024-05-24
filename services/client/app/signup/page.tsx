@@ -3,15 +3,19 @@ import { CardGrid } from "@/app/components/CardGrid";
 import React from "react";
 import { Card } from "@/app/components/Card";
 import Link from "next/link";
-import { LoginForm } from "@/app/components/LoginForm";
 import { redirect } from "next/navigation";
-import { FormData, login } from "@/app/api/auth/auth";
+import { FormData, signup } from "@/app/api/auth/auth";
+import { SignupForm } from "@/app/components/SignupForm";
 
-export default function Login() {
-  const setFormData = async (data: FormData) => {
+interface SignUpFormData extends FormData {
+  fullName: string;
+}
+
+export default function Signup() {
+  const setFormData = async (data: SignUpFormData) => {
     "use server";
     // TODO: handle logic when DB is present
-    await login(data);
+    await signup(data);
     redirect("/");
   };
 
@@ -19,18 +23,18 @@ export default function Login() {
     <CardGrid cols={2}>
       <div className="my-auto">
         <Card
-          title="Login"
+          title="Sign Up"
           subtitle={
             <p>
-              Doesn’t have an account?{" "}
-              <Link href={"/signup"} className={"text-[#2CA15D]"}>
+              Already have an account?{" "}
+              <Link href={"/login"} className={"text-[#2CA15D]"}>
                 {" "}
-                Sign Up
+                Login Up
               </Link>
             </p>
           }
         >
-          <LoginForm setFormData={setFormData} />
+          <SignupForm setFormData={setFormData} />
         </Card>
       </div>
       <div className="flex flex-col justify-center items-center">
