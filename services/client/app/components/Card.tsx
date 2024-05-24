@@ -18,7 +18,7 @@ export const Card: React.FC<CardProps> = ({
   footerSeparator,
 }) => {
   return (
-    <div className="p-8 bg-white border border-gray-200 rounded-lg shadow max-w-xl">
+    <div className="p-8 m-8 bg-white border border-gray-200 rounded-lg shadow max-w-xl">
       <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">
         {title}
       </h5>

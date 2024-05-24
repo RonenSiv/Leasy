@@ -1,11 +1,15 @@
 import { createSession, endSession } from "@/app/api/auth/session-management";
 
-export interface formData {
+export interface FormData {
   email: string;
   password: string;
 }
 
-export const login = async (data: formData) => {
+interface SignupFormData extends FormData {
+  fullName: string;
+}
+
+export const login = async (data: FormData) => {
   // TODO fetch real data
   const user = {
     email: data.email,
@@ -17,4 +21,9 @@ export const login = async (data: formData) => {
 
 export const logout = async () => {
   await endSession();
+};
+
+export const signup = async (data: SignupFormData) => {
+  const createdUser = data;
+  await createSession(createdUser);
 };

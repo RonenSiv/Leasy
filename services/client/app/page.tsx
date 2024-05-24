@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { CardGrid } from "@/app/components/CardGrid";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -15,12 +16,13 @@ export default function Home() {
             study time
           </p>
         </div>
-        <button
+        <Link
           type="button"
           className="focus:outline-none text-white bg-[#39CF78] hover:bg-[#2ba964] focus:ring-none font-medium rounded-lg text-sm px-5 py-2.5 mt-14 self-start"
+          href="/signup"
         >
           Try it now for free
-        </button>
+        </Link>
       </div>
       <Image
         src="/main.png"
