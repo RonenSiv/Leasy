@@ -3,6 +3,7 @@
 import { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import { UploadProcess } from "@/app/dashboard/upload/page";
+import { Spinner } from "@/app/components/Spinner";
 
 export default function UploadForm({
   handleUpload,
@@ -10,11 +11,13 @@ export default function UploadForm({
   handleUpload: (arg: UploadProcess) => void;
 }) {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    setThumbnail(null);
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("video/")) {
-      generateThumbnail(file);
       await uploadFile(file);
+      generateThumbnail(file);
     }
   };
 
@@ -41,15 +44,13 @@ export default function UploadForm({
   };
 
   const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
+      setIsUploading(true);
       const response = await fetch("/api/upload", {
         method: "POST",
-        body: formData,
+        body: file,
       });
-
+      setIsUploading(false);
       if (response.ok) {
         handleUpload(UploadProcess.UPLOAD_SUCCEED);
       } else {
@@ -77,6 +78,7 @@ export default function UploadForm({
           />
         </label>
       </form>
+      {isUploading && <Spinner />}
       {thumbnail && (
         <div>
           <Image

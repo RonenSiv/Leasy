@@ -6,6 +6,7 @@ import { Navbar } from "@/app/components/Navbar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import { GradientCircle } from "@/app/components/GradientCircle";
+import Progress from "@/app/components/Progress";
 
 config.autoAddCss = false;
 
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <Progress />
         <GradientCircle
           dimensions={500}
           position={{ x: "-3%", y: "60%" }}

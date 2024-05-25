@@ -9,20 +9,29 @@ interface CardProps {
   headerSeparator?: boolean;
   footerSeparator?: boolean;
   className?: string;
-  maxWidth?:
-    | "xs"
-    | "sm"
-    | "md"
-    | "lg "
-    | "xl"
-    | "2xl"
-    | "3xl"
-    | "4xl"
-    | "5xl"
-    | "6xl"
-    | "7xl"
-    | undefined;
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | undefined;
+  bgColor?: string;
 }
+
+const getCardWidth = (maxWidth: string | undefined) => {
+  switch (maxWidth) {
+    case "sm":
+      return "640px";
+    case "md":
+      return "760px";
+    case "lg":
+      return "1024px";
+    case "xl":
+      return "1280px";
+    case "2xl":
+      return "1536px";
+    case "3xl":
+      return "1920px";
+
+    default:
+      return "1024px";
+  }
+};
 
 export const Card: React.FC<CardProps> = ({
   title,
@@ -32,16 +41,23 @@ export const Card: React.FC<CardProps> = ({
   footer,
   headerSeparator,
   footerSeparator,
-  maxWidth = "xl",
+  maxWidth,
+  bgColor,
   className,
 }) => {
-  const widthClass = `max-w-${maxWidth}`;
+  const width = getCardWidth(maxWidth);
+
   return (
     <div
-      className={`p-8 m-8 bg-white border border-gray-200 rounded-lg shadow ${widthClass} ${className}`}
+      className={`p-8 m-8 border border-gray-200 rounded-lg shadow bg-white ${className}`}
+      style={{
+        backgroundColor: bgColor,
+        maxWidth: width,
+      }}
     >
       <h5
-        className={`mb-2 text-2xl font-bold tracking-tight ${!titleColor ? "text-gray-900" : `text-[${titleColor}]`}`}
+        className={`mb-2 text-2xl font-bold tracking-tight `}
+        style={{ color: titleColor }}
       >
         {title}
       </h5>

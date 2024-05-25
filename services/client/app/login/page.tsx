@@ -12,7 +12,7 @@ export default function Login() {
     "use server";
     // TODO: handle logic when DB is present
     await login(data);
-    redirect("/");
+    redirect("/dashboard");
   };
 
   return (

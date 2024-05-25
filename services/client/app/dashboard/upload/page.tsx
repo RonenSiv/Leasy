@@ -35,10 +35,9 @@ export default function Upload() {
     <Card
       title="Upload Video"
       titleColor="#2CA15D"
-      className="justify-content-center text-center w-screen"
-      maxWidth="5xl"
+      className="justify-content-center text-center w-screen "
     >
-      <Card className="bg-[#EFFFF6]" maxWidth="5xl">
+      <Card bgColor="#EFFFF6">
         {showUploadProcess()}
         <div className="flex flex-col justify-items-center py-10">
           <div className="flex justify-center items-center">
