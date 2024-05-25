@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt, encrypt } from "@/app/api/auth/auth-utils";
+import { decrypt, encrypt } from "@/app/model/auth/auth-utils";
 
 export const sessionExpirationTime = 60 * 100;
 

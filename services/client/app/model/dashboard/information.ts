@@ -1,4 +1,4 @@
-import { getCurrentSession } from "@/app/api/auth/session-management";
+import { getCurrentSession } from "@/app/model/auth/session-management";
 
 export interface DashboardHistoryType {
   video: string;

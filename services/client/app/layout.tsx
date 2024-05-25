@@ -3,12 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/app/components/Navbar";
-import "@fortawesome/fontawesome-svg-core/styles.css";
-import { config } from "@fortawesome/fontawesome-svg-core";
 import { GradientCircle } from "@/app/components/GradientCircle";
 import Progress from "@/app/components/Progress";
-
-config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });
 

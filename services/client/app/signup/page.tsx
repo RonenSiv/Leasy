@@ -4,7 +4,7 @@ import React from "react";
 import { Card } from "@/app/components/Card";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FormData, signup } from "@/app/api/auth/auth";
+import { FormData, signup } from "@/app/model/auth/auth";
 import { SignupForm } from "@/app/components/SignupForm";
 
 interface SignUpFormData extends FormData {

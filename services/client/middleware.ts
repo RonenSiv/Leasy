@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/app/api/auth/session-management";
+import { updateSession } from "@/app/model/auth/session-management";
 
 export const middleware = async (request: NextRequest) => {
   const currentUser = request.cookies.get("session")?.value;

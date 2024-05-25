@@ -4,6 +4,7 @@ import { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import { UploadProcess } from "@/app/dashboard/upload/page";
 import { Spinner } from "@/app/components/Spinner";
+import { IoMdCloudUpload } from "react-icons/io";
 
 export default function UploadForm({
   handleUpload,
@@ -66,8 +67,9 @@ export default function UploadForm({
     <div className="flex flex-row gap-4">
       <form className="inline-flex flex-col justify-center justify-items-center gap-4">
         <label>
-          <div className="text-[#2CA15D] hover:cursor-pointer underline">
-            Upload a file
+          <div className="flex flex-row gap-2 justify-center items-center text-[#2CA15D] hover:cursor-pointer ">
+            <div className="underline">Upload a file</div>
+            <IoMdCloudUpload />
           </div>
           <input
             className="hidden"

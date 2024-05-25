@@ -1,4 +1,8 @@
-import { createSession, endSession } from "@/app/api/auth/session-management";
+import {
+  createSession,
+  endSession,
+  getCurrentSession,
+} from "@/app/model/auth/session-management";
 
 export interface FormData {
   email: string;
@@ -26,4 +30,11 @@ export const logout = async () => {
 export const signup = async (data: SignupFormData) => {
   const createdUser = data;
   await createSession(createdUser);
+};
+
+export const isLoggedIn = async () => {
+  // check if user is logged in
+  const session = await getCurrentSession();
+  console.log("session", session);
+  return !!session;
 };

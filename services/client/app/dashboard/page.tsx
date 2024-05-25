@@ -1,4 +1,4 @@
-import { getUserHistory } from "@/app/api/dashboard/information";
+import { getUserHistory } from "@/app/model/dashboard/information";
 import { redirect } from "next/navigation";
 
 export default async function Dashboard() {

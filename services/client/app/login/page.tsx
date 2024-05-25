@@ -5,7 +5,7 @@ import { Card } from "@/app/components/Card";
 import Link from "next/link";
 import { LoginForm } from "@/app/components/LoginForm";
 import { redirect } from "next/navigation";
-import { FormData, login } from "@/app/api/auth/auth";
+import { FormData, login } from "@/app/model/auth/auth";
 
 export default function Login() {
   const setFormData = async (data: FormData) => {

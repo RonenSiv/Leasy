@@ -1,11 +1,11 @@
 import React, { ChangeEvent } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faExclamationTriangle,
-  faInfoCircle,
-  faTimesCircle,
-} from "@fortawesome/free-solid-svg-icons";
+
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import {
+  IoIosCloseCircleOutline,
+  IoIosInformationCircleOutline,
+  IoIosWarning,
+} from "react-icons/io";
 
 export type FormFieldStatus = "none" | "warning" | "error" | "info";
 
@@ -43,20 +43,14 @@ export const FormField: React.FC<FormFieldProps> = ({
   const getStatusIcon = () => {
     switch (status) {
       case "warning":
-        return (
-          <FontAwesomeIcon
-            icon={faExclamationTriangle}
-            className="text-yellow-500"
-          />
-        );
+        return <IoIosWarning className="text-yellow-500" />;
+
       case "error":
-        return (
-          <FontAwesomeIcon icon={faTimesCircle} className="text-red-500" />
-        );
+        return <IoIosCloseCircleOutline className="text-red-500" />;
+
       case "info":
-        return (
-          <FontAwesomeIcon icon={faInfoCircle} className="text-blue-500" />
-        );
+        return <IoIosInformationCircleOutline className="text-blue-500" />;
+
       default:
         return null;
     }
@@ -86,8 +80,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       >
         {label} {required && <span className="text-red-500">*</span>}{" "}
         {informativeLabel && (
-          <FontAwesomeIcon
-            icon={faInfoCircle}
+          <IoIosInformationCircleOutline
             className="text-blue-500"
             data-tooltip-id={infoLabelId}
           />

@@ -43,7 +43,7 @@ export const LinkSubmission = () => {
           />
           <button
             type="submit"
-            className="bg-white border border-gray-300 text-[#2CA15D] px-6 py-2 rounded-3xl"
+            className="bg-white border border-gray-300 text-[#2CA15D] px-6 py-2 rounded-3xl hover:bg-gray-100 hover:cursor-pointer"
           >
             Upload
           </button>
