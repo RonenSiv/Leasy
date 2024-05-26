@@ -4,15 +4,16 @@ import React from "react";
 import { Card } from "@/app/components/Card";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FormData, signup } from "@/app/model/auth/auth";
+import { FormData, SignupFormData } from "@/app/model/auth/data-types";
 import { SignupForm } from "@/app/components/SignupForm";
+import { signup } from "@/app/model/auth/client.base";
 
 interface SignUpFormData extends FormData {
   fullName: string;
 }
 
 export default function Signup() {
-  const setFormData = async (data: SignUpFormData) => {
+  const setFormData = async (data: SignupFormData) => {
     "use server";
     // TODO: handle logic when DB is present
     await signup(data);

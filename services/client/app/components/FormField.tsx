@@ -76,12 +76,12 @@ export const FormField: React.FC<FormFieldProps> = ({
     <div className="mb-5">
       <label
         htmlFor={label}
-        className={`block mb-2 text-sm font-medium text-gray-900`}
+        className={`flex mb-2 text-sm font-medium text-gray-900  items-center`}
       >
         {label} {required && <span className="text-red-500">*</span>}{" "}
         {informativeLabel && (
           <IoIosInformationCircleOutline
-            className="text-blue-500"
+            className="text-blue-500 inline-flex ml-1 cursor-pointer justify-center items-center focus:outline-none hover:text-blue-700"
             data-tooltip-id={infoLabelId}
           />
         )}

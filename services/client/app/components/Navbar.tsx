@@ -1,14 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { SideMenu } from "@/app/components/SideMenu";
+import { usePathname } from "next/navigation";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (open) {
+      setOpen(false);
+    }
+  }, [pathname]);
+
   const toggleDrawer = () => {
-    console.log("toggleDrawer");
     setOpen((prevState) => !prevState);
   };
 

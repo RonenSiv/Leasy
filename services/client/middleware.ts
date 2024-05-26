@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/app/model/auth/session-management";
+import { getServerClient } from "@/app/model/auth/client.server";
 
 export const middleware = async (request: NextRequest) => {
-  const currentUser = request.cookies.get("session")?.value;
+  const requestHeaders = new Headers(request.headers);
+  const requestUrl = request.url;
+  requestHeaders.set("x-middleware-request-url", requestUrl);
+  const res = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+  const client = getServerClient({
+    cookieStore: request.cookies,
+  });
+  const isLoggedIn = client.loggedIn();
   const currentPath = request.nextUrl.pathname;
 
   if (
-    !currentUser &&
+    !isLoggedIn &&
     !currentPath.startsWith("/login") &&
     !currentPath.startsWith("/signup") &&
     currentPath !== "/"
@@ -15,14 +26,14 @@ export const middleware = async (request: NextRequest) => {
   }
 
   if (
-    currentUser &&
+    isLoggedIn &&
     (request.nextUrl.pathname.startsWith("/login") ||
       request.nextUrl.pathname.startsWith("/signup"))
   ) {
-    return Response.redirect(new URL("/", request.url));
+    return Response.redirect(new URL("/dashboard", request.url));
   }
-  await updateSession(request);
-  return NextResponse.next();
+
+  return res;
 };
 
 export const config = {
