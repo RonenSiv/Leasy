@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { SideMenu } from "@/app/components/SideMenu";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     if (open) {
@@ -28,6 +29,8 @@ export const Navbar = () => {
           width={150}
           height={150}
           alt="Picture leasy logo"
+          className="hover:cursor-pointer"
+          onClick={() => router.push("/")}
         />
         <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse hover:cursor-pointer">
           <FaRegCircleUser size="30" onClick={toggleDrawer} />
