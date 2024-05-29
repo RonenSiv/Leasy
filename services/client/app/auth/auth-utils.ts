@@ -1,8 +1,8 @@
 import { jwtVerify, SignJWT } from "jose";
-import { sessionExpirationTime } from "@/app/api/auth/session-management";
 
 const secretKey = "secret";
 const key = new TextEncoder().encode(secretKey);
+export const sessionExpirationTime = 60;
 
 export const encrypt = async (payload: any) => {
   return await new SignJWT(payload)

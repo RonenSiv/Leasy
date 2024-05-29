@@ -30,6 +30,14 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
     fullName: undefined,
   });
 
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    length: false,
+    lowercase: false,
+    uppercase: false,
+    specialChar: false,
+    number: false,
+  });
+
   const statusMsg = {
     email: "Invalid email format",
     password: "Invalid password, check password requirements",
@@ -65,6 +73,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
     });
 
     return isValidEmail && isStrongPassword && isValidName && arePasswordsEqual;
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setErrors({ ...errors, password: false });
+    const password = e.target.value;
+    setPasswordCriteria({
+      length: password.length >= 10,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      specialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+      number: /[0-9]/.test(password),
+    });
   };
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -123,10 +143,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
         placeholder="Enter your password"
         status={status.password}
         statusMessage={statusMsg.password}
-        informativeLabel
-        informativeLabelMessage="Password must be at least 8 characters long and contain: uppercase letter, number and a symbol"
         name="password"
-        onChange={() => setErrors({ ...errors, password: false })}
+        onChange={handlePasswordChange}
         required
       />
       <FormField
@@ -139,9 +157,56 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
         onChange={() => setErrors({ ...errors, rePassword: false })}
         required
       />
+      <ul className="max-w-md space-y-1 list-inside text-gray-400 text-sm my-2">
+        <li className="flex items-center">
+          <svg
+            className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 flex-shrink-0"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill={passwordCriteria.length ? "#39CF78" : "#d1d5db"}
+            viewBox="0 0 20 20"
+          >
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+          </svg>
+          At least 8 characters
+        </li>
+        <li className="flex items-center">
+          <svg
+            className="w-3.5 h-3.5 me-2 flex-shrink-0"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill={
+              passwordCriteria.uppercase && passwordCriteria.lowercase
+                ? "#39CF78"
+                : "#d1d5db"
+            }
+            viewBox="0 0 20 20"
+          >
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+          </svg>
+          At least one lowercase character and one uppercase character
+        </li>
+        <li className="flex items-center">
+          <svg
+            className="w-3.5 h-3.5 me-2 flex-shrink-0"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill={
+              passwordCriteria.number && passwordCriteria.specialChar
+                ? "#39CF78"
+                : "#d1d5db"
+            }
+            viewBox="0 0 20 20"
+          >
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+          </svg>
+          At least one number and special character, e.g., ! @ #
+        </li>
+      </ul>
+
       <button
         type="submit"
-        className="text-white bg-[#2CA15D] hover:bg-[#1F7D45] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
+        className="text-white dark:text-gray-800 bg-action hover:bg-[#41e084] dark:hover:bg-[#2CA15D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
       >
         Sign Up
       </button>

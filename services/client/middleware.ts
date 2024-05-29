@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/app/api/auth/session-management";
+import { updateSession } from "@/app/auth/auth";
 
 export const middleware = async (request: NextRequest) => {
+  if (process.env.NODE_ENV === "development") return NextResponse.next();
   const currentUser = request.cookies.get("session")?.value;
   const currentPath = request.nextUrl.pathname;
 
@@ -13,6 +14,7 @@ export const middleware = async (request: NextRequest) => {
   ) {
     return Response.redirect(new URL("/login", request.url));
   }
+  await updateSession(request);
 
   if (
     currentUser &&
@@ -21,7 +23,6 @@ export const middleware = async (request: NextRequest) => {
   ) {
     return Response.redirect(new URL("/", request.url));
   }
-  await updateSession(request);
   return NextResponse.next();
 };
 

@@ -1,18 +1,17 @@
-import { cookies } from "next/headers";
+import Cookies from "js-cookie";
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt, encrypt } from "@/app/api/auth/auth-utils";
+import { decrypt, encrypt, sessionExpirationTime } from "@/app/auth/auth-utils";
 
-export const sessionExpirationTime = 60;
-
-export const createSession = async (data: any) => {
-  const expires = getMoreSessionTime();
-  const session = await encrypt({ data, expires });
-
-  return cookies().set("session", session, { expires, httpOnly: true });
+export const startSession = async (payload: any) => {
+  Cookies.set("session", await encrypt(payload), {
+    expires: new Date(Date.now() + sessionExpirationTime * 1000),
+    httpOnly: true,
+  });
+  console.log("Session started");
 };
 
 export const getSession = async () => {
-  const session = cookies().get("session")?.value;
+  const session = Cookies.get("session");
   if (!session) return null;
   return await decrypt(session);
 };
@@ -34,8 +33,8 @@ export const updateSession = async (request: NextRequest) => {
   return res;
 };
 
-export const endSession = async () => {
-  cookies().set("session", "", { expires: new Date(0) });
+export const endSession = () => {
+  Cookies.remove("session");
 };
 
 export const getMoreSessionTime = () => {

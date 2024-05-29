@@ -1,18 +1,26 @@
+"use client";
+
 import Image from "next/image";
 import { CardGrid } from "@/app/components/CardGrid";
 import React from "react";
 import { Card } from "@/app/components/Card";
 import Link from "next/link";
 import { LoginForm } from "@/app/components/LoginForm";
-import { redirect } from "next/navigation";
-import { FormData, login } from "@/app/api/auth/auth";
+import { FormData, getClient } from "@/app/auth/client";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 
-export default function Login() {
+const LoginNoSsr = dynamic(() => Promise.resolve(LoginComp), {
+  ssr: false,
+});
+
+function LoginComp() {
+  const router = useRouter();
+
   const setFormData = async (data: FormData) => {
-    "use server";
-    // TODO: handle logic when DB is present
-    await login(data);
-    redirect("/");
+    const { email, password } = data;
+    await getClient().login({ email, password });
+    router.push("/dashboard");
   };
 
   return (
@@ -23,7 +31,7 @@ export default function Login() {
           subtitle={
             <p>
               Doesn’t have an account?{" "}
-              <Link href={"/signup"} className={"text-[#2CA15D]"}>
+              <Link href={"/signup"} className={"text-action"}>
                 {" "}
                 Sign Up
               </Link>
@@ -45,4 +53,8 @@ export default function Login() {
       </div>
     </CardGrid>
   );
+}
+
+export default function Login() {
+  return <LoginNoSsr />;
 }
