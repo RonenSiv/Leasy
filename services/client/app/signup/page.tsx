@@ -4,9 +4,9 @@ import React from "react";
 import { Card } from "@/app/components/Card";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FormData, SignupFormData } from "@/app/model/auth/data-types";
+import { FormData, getClient, SignupFormData } from "@/app/auth/client";
 import { SignupForm } from "@/app/components/SignupForm";
-import { signup } from "@/app/model/auth/client.base";
+import { encrypt } from "@/app/auth/auth-utils";
 
 interface SignUpFormData extends FormData {
   fullName: string;
@@ -16,7 +16,23 @@ export default function Signup() {
   const setFormData = async (data: SignupFormData) => {
     "use server";
     // TODO: handle logic when DB is present
-    await signup(data);
+    if (process.env.NODE_ENV === "development") {
+      const token = await encrypt({
+        email: data.email,
+        password: data.password,
+      });
+      console.log(token);
+      return token;
+    }
+    const response = await fetch("/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${await getClient().auth().getAccessToken()}`,
+      },
+      body: JSON.stringify(data),
+    });
+
     redirect("/");
   };
 
@@ -28,7 +44,7 @@ export default function Signup() {
           subtitle={
             <p>
               Already have an account?{" "}
-              <Link href={"/login"} className={"text-[#2CA15D]"}>
+              <Link href={"/login"} className={"text-action"}>
                 {" "}
                 Login Up
               </Link>

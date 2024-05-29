@@ -1,10 +1,30 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import Image from "next/image";
-import { UploadProcess } from "@/app/dashboard/upload/page";
+import { UploadProcess } from "@/app/constants/enums";
 import { Spinner } from "@/app/components/Spinner";
-import { IoMdCloudUpload } from "react-icons/io";
+
+const UploadTemplate = () => {
+  return (
+    <>
+      <div>
+        <Image
+          src={"/upload.svg"}
+          alt={"upload image"}
+          width="75"
+          height="75"
+        />
+      </div>
+      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+        <span className="font-semibold">Click to upload</span> or drag and drop
+      </p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        MP3, MP4 or WebM only, 100MB max
+      </p>
+    </>
+  );
+};
 
 export default function UploadForm({
   handleUpload,
@@ -13,16 +33,16 @@ export default function UploadForm({
 }) {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setThumbnail(null);
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("video/")) {
       await uploadFile(file);
-      generateThumbnail(file);
     }
   };
 
-  const generateThumbnail = (file: File) => {
+  const generateThumbnail = async (file: File) => {
     const videoElement = document.createElement("video");
     const canvasElement = document.createElement("canvas");
     const context = canvasElement.getContext("2d");
@@ -54,8 +74,11 @@ export default function UploadForm({
       setIsUploading(false);
       if (response.ok) {
         handleUpload(UploadProcess.UPLOAD_SUCCEED);
+        await generateThumbnail(file);
+        return true;
       } else {
         handleUpload(UploadProcess.UPLOAD_FAILED);
+        return false;
       }
     } catch (error) {
       console.error("Error uploading video:", error);
@@ -63,35 +86,45 @@ export default function UploadForm({
     }
   };
 
+  if (isUploading) {
+    return (
+      <div className="flex justify-center items-center h-52">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-row gap-4">
-      <form className="inline-flex flex-col justify-center justify-items-center gap-4">
-        <label>
-          <div className="flex flex-row gap-2 justify-center items-center text-[#2CA15D] hover:cursor-pointer ">
-            <div className="underline">Upload a file</div>
-            <IoMdCloudUpload />
-          </div>
-          <input
-            className="hidden"
-            type="file"
-            name="file"
-            accept="video/*"
-            onChange={handleFileChange}
-          />
-        </label>
-      </form>
-      {isUploading && <Spinner />}
-      {thumbnail && (
-        <div>
-          <Image
-            src={thumbnail}
-            alt="Video thumbnail"
-            width={150}
-            height={150}
-            className="max-w-full h-auto"
-          />
+    <div className="flex justify-center items-center">
+      <label
+        htmlFor="dropzone-file"
+        className="flex flex-col items-center justify-center w-full h-52 border-2 border-gray-300 dark:border-gray-400 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-600"
+      >
+        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          {thumbnail ? (
+            <div>
+              <Image
+                src={thumbnail}
+                alt="Video thumbnail"
+                width={100}
+                height={100}
+                sizes={"50px"}
+                className="max-w-1/2 h-auto"
+              />
+            </div>
+          ) : (
+            <UploadTemplate />
+          )}
         </div>
-      )}
+        <input
+          id="dropzone-file"
+          type="file"
+          name="file"
+          accept="video/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+      </label>
     </div>
   );
 }

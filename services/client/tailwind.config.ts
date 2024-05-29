@@ -16,5 +16,12 @@ const config: Config = {
     },
   },
   plugins: [],
+  darkMode: "class",
+  variants: {
+    extend: {
+      backgroundColor: ["dark"],
+      textColor: ["dark"],
+    },
+  },
 };
 export default config;

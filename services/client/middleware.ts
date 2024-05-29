@@ -1,39 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerClient } from "@/app/model/auth/client.server";
+import { updateSession } from "@/app/auth/auth";
 
 export const middleware = async (request: NextRequest) => {
-  const requestHeaders = new Headers(request.headers);
-  const requestUrl = request.url;
-  requestHeaders.set("x-middleware-request-url", requestUrl);
-  const res = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-  const client = getServerClient({
-    cookieStore: request.cookies,
-  });
-  const isLoggedIn = client.loggedIn();
+  if (process.env.NODE_ENV === "development") return NextResponse.next();
+  const currentUser = request.cookies.get("session")?.value;
   const currentPath = request.nextUrl.pathname;
 
   if (
-    !isLoggedIn &&
+    !currentUser &&
     !currentPath.startsWith("/login") &&
     !currentPath.startsWith("/signup") &&
     currentPath !== "/"
   ) {
     return Response.redirect(new URL("/login", request.url));
   }
+  await updateSession(request);
 
   if (
-    isLoggedIn &&
+    currentUser &&
     (request.nextUrl.pathname.startsWith("/login") ||
       request.nextUrl.pathname.startsWith("/signup"))
   ) {
-    return Response.redirect(new URL("/dashboard", request.url));
+    return Response.redirect(new URL("/", request.url));
   }
-
-  return res;
+  return NextResponse.next();
 };
 
 export const config = {

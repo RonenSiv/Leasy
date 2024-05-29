@@ -1,229 +1,261 @@
-"use client";
+import React, { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
-import React from "react";
+import { useClickAway } from "react-use";
+import {
+  AiOutlineCloudUpload,
+  AiOutlineForm,
+  AiOutlineRollback,
+  AiOutlineSetting,
+  AiOutlineUpload,
+} from "react-icons/ai";
+import { BiHomeSmile, BiLogIn, BiLogOut, BiUser } from "react-icons/bi";
 import Link from "next/link";
-import { routesLinks } from "@/app/routes/routes";
-import { getBrowserClient } from "@/app/model/auth/client.browser";
-import { useRouter } from "next/navigation";
-import { FaRegCircleUser } from "react-icons/fa6";
+import Image from "next/image";
 
-const sideVariants = {
-  closed: {
-    transition: { duration: 0 },
+const profileLinks = [
+  { title: "Your profile", Icon: BiUser, href: "/" },
+  { title: "Your uploads", Icon: AiOutlineCloudUpload, href: "/dashboard" },
+  {
+    title: "Upload a new video",
+    Icon: AiOutlineUpload,
+    href: "/dashboard/upload",
   },
-  open: {
+];
+
+const loggedInItems = [
+  [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
+  profileLinks,
+  [
+    { title: "Settings", Icon: AiOutlineSetting, href: "/" },
+    { title: "Logout", Icon: BiLogOut, href: "/logout", danger: true },
+  ],
+];
+
+const visitorItems = [
+  [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
+  [{ title: "Settings", Icon: AiOutlineSetting, href: "/" }],
+
+  [
+    { title: "Login", Icon: BiLogIn, href: "/login" },
+    { title: "Signup", Icon: AiOutlineForm, href: "/signup" },
+  ],
+];
+
+const framerSidebarBackground = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0, transition: { delay: 0.2 } },
+  transition: { duration: 0.3 },
+};
+
+const framerSidebarPanel = {
+  initial: { x: "100%" },
+  animate: { x: 0 },
+  exit: { x: "200%" },
+  transition: { duration: 0.3 },
+};
+
+const framerText = (delay: number) => {
+  return {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
     transition: {
-      staggerChildren: 0.08,
-      staggerDirection: 1,
+      delay: 0.1 + delay / 10,
     },
-  },
-  openButton: {
-    opacity: 1,
-    transition: { duration: 0.2 },
-  },
-  closedButton: {
-    opacity: 0,
-    transition: { duration: 0.1 },
+  };
+};
+
+const framerIcon = {
+  initial: { scale: 0 },
+  animate: { scale: 1 },
+  transition: {
+    type: "spring",
+    stiffness: 260,
+    damping: 20,
+    delay: 0.4,
   },
 };
 
-export const SideMenu = ({
-  open,
-  toggleMenu,
-}: {
-  open: boolean;
-  toggleMenu: () => void;
-}) => {
-  const client = getBrowserClient();
-  const router = useRouter();
-
-  const handleLoginLogout = async () => {
-    if (client.loggedIn()) {
-      client.logout();
-      router.push("/login");
-    } else {
-      router.push("/login");
-    }
-  };
+const LoggedInContent: React.FC<{
+  toggleSidebar: () => void;
+}> = ({ toggleSidebar }) => {
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            exit={{ opacity: 0 }}
-            className="fixed top-0 left-0 w-full h-full bg-black z-40"
-            onClick={toggleMenu}
-          />
-          <motion.aside
-            initial={{ width: 0 }}
-            animate={{
-              width: 300,
-            }}
-            exit={{
-              width: 0,
-              transition: { delay: 0, duration: 0.3 },
-            }}
-            className="fixed top-0 right-0 h-full bg-white z-50 px-8"
-          >
-            <div className="flex flex-col justify-center p-4">
-              <Image
-                src={"/signup.png"}
-                alt={"auth picture"}
-                width={1600}
-                height={1600}
-                className="w-[10vw] max-sm:w-[50vw] h-auto"
+    <>
+      <div>
+        <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 dark:border-gray-800">
+          <span>
+            <div className="flex items-center gap-4">
+              <img
+                className="w-10 h-10 rounded-full"
+                src="https://ui-avatars.com/api/?name=John+Doee&background=random&color=fff"
+                alt="profile"
               />
-              <motion.h1
-                className="mb-4 text-3xl font-extrabold text-gray-900 md:text-5xl lg:text-4xl text-center"
-                initial="closed"
-                animate="open"
-                exit="closed"
-                variants={sideVariants}
-              >
-                <motion.span
-                  className="text-transparent bg-clip-text bg-gradient-to-r to-[#39F6CD] from-[#41EB88]"
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  variants={sideVariants}
-                >
-                  Leasy
-                </motion.span>{" "}
-                Learning Made Easy
-              </motion.h1>
-            </div>
-            {client.loggedIn() ? (
-              <div className="flex flex-col justify-start items-center h-full">
-                <motion.div
-                  className="justify-self-start  container flex flex-col items-start justify-start gap-3 mx-auto"
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  variants={sideVariants}
-                >
-                  {routesLinks.map(({ name, to, id, icon }) => (
-                    <Link
-                      key={id}
-                      href={to}
-                      className="inline-flex items-center justify-center p-5 text-base font-medium text-gray-700 rounded-lg bg-[#41EB88] hover:text-gray-900 hover:bg-[#39F6CD]"
-                    >
-                      <div className="flex flex-row items-center gap-4 w-full">
-                        {
-                          // @ts-ignore
-                          icon()
-                        }{" "}
-                        <span className="w-full">{name}</span>
-                      </div>
-                      <svg
-                        className="w-4 h-4 ms-2 rtl:rotate-180"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 14 10"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M1 5h12m0 0L9 1m4 4L9 9"
-                        />
-                      </svg>
-                    </Link>
-                  ))}
-                  <motion.button
-                    type="submit"
-                    className="inline-flex items-center justify-center p-5 text-base font-medium text-gray-700 rounded-lg bg-[#2DC4A4] hover:bg-[#1E967D] hover:text-gray-900"
-                    initial="closedButton"
-                    animate="openButton"
-                    exit="closedButton"
-                    variants={sideVariants}
-                    onClick={handleLoginLogout}
-                  >
-                    <div className="flex flex-row items-center gap-4 w-full">
-                      <FaRegCircleUser size="20" />
-                      {client.loggedIn() ? "Logout" : "Login"}
-                    </div>
-                    <svg
-                      className="w-4 h-4 ms-2 rtl:rotate-180"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 14 10"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 5h12m0 0L9 1m4 4L9 9"
-                      />
-                    </svg>
-                  </motion.button>
-                </motion.div>
+              <div className="font-medium">
+                <div>Jese Leos</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  your@email.com
+                </div>
               </div>
-            ) : (
-              <motion.div
-                className="flex flex-col justify-start items-start h-full gap-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <motion.p
-                  className="text-lg font-normal text-gray-500 lg:text-lg  text-center"
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  variants={sideVariants}
-                >
-                  Leasy is a platform that makes learning easy and fun. With
-                  Leasy, you can learn anything you want, anytime you want.
-                </motion.p>
-                <motion.p
-                  className="text-lg font-normal text-gray-500 lg:text-sm  text-center"
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  variants={sideVariants}
-                >
-                  Looking to learn something new? Sign up now and start learning
-                </motion.p>
-                <motion.button
-                  type="submit"
-                  className="text-white bg-[#2DC4A4] hover:bg-[#1E967D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
-                  initial="closedButton"
-                  animate="openButton"
-                  exit="closedButton"
-                  variants={sideVariants}
-                  onClick={() => {
-                    toggleMenu();
-                    router.push("/login");
-                  }}
-                >
-                  Login
-                </motion.button>
-                <motion.button
-                  type="submit"
-                  className="text-white bg-[#1E965A] hover:bg-[#0F693C] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
-                  initial="closedButton"
-                  animate="openButton"
-                  exit="closedButton"
-                  variants={sideVariants}
-                  onClick={() => {
-                    toggleMenu();
-                    router.push("/signup");
-                  }}
-                >
-                  Sign Up
-                </motion.button>
-              </motion.div>
-            )}
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>
+            </div>
+          </span>
+          <button
+            onClick={toggleSidebar}
+            className="p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-100 hover:border-gray-300 hover:cursor-pointer duration-200 dark:border-gray-800 dark:hover:bg-gray-700"
+            aria-label="close sidebar"
+          >
+            <AiOutlineRollback className="text-gray-800 dark:text-gray-200" />
+          </button>
+        </div>
+        <ul>
+          {loggedInItems.map((group, groupIdx) => {
+            if (Array.isArray(group)) {
+              return (
+                <React.Fragment key={groupIdx}>
+                  {group.map((item, idx) => {
+                    const { title, href, Icon, danger } = item;
+                    return (
+                      <li key={title}>
+                        <Link
+                          onClick={toggleSidebar}
+                          href={href}
+                          className={`flex items-center justify-between gap-5 p-5 transition-all ${danger ? "hover:bg-red-300 dark:hover:bg-red-500" : "hover:bg-gray-100 dark:hover:bg-gray-700"} hover:cursor-pointer duration-200 `}
+                        >
+                          <motion.span
+                            {...framerText(idx)}
+                            className="text-gray-900 dark:text-gray-200"
+                          >
+                            {title}
+                          </motion.span>
+                          <motion.div {...framerIcon}>
+                            <Icon className="text-2xl text-gray-800 dark:text-gray-200" />
+                          </motion.div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                  <hr className="border-t-2 border-gray-200 dark:border-gray-800" />
+                </React.Fragment>
+              );
+            }
+          })}
+        </ul>
+      </div>
+    </>
+  );
+};
+
+const VisitorContent: React.FC<{
+  toggleSidebar: () => void;
+}> = ({ toggleSidebar }) => {
+  return (
+    <>
+      <div>
+        <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 dark:border-gray-800">
+          <span>
+            <div className="flex items-center gap-4">
+              <Image
+                className="w-12 h-12 rounded-full"
+                src="/signup.png"
+                alt="profile"
+                width={100}
+                height={100}
+              />
+              <div className="font-medium">
+                <div>Hi there</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <Link href="/login" onClick={toggleSidebar}>
+                    Login
+                  </Link>{" "}
+                  or{" "}
+                  <Link href="/signup" onClick={toggleSidebar}>
+                    Signup
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </span>
+          <button
+            onClick={toggleSidebar}
+            className="p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-100 hover:border-gray-300 hover:cursor-pointer duration-200 dark:border-gray-800 dark:hover:bg-gray-700"
+            aria-label="close sidebar"
+          >
+            <AiOutlineRollback className="text-gray-800 dark:text-gray-200" />
+          </button>
+        </div>
+        <ul>
+          {visitorItems.map((group, groupIdx) => {
+            if (Array.isArray(group)) {
+              return (
+                <React.Fragment key={groupIdx}>
+                  {group.map((item, idx) => {
+                    const { title, href, Icon } = item;
+                    return (
+                      <li key={title}>
+                        <Link
+                          onClick={toggleSidebar}
+                          href={href}
+                          className="flex items-center justify-between gap-5 p-5 transition-all hover:bg-gray-100 hover:cursor-pointer duration-200 dark:hover:bg-gray-700"
+                        >
+                          <motion.span
+                            {...framerText(idx)}
+                            className="text-gray-900 dark:text-gray-200"
+                          >
+                            {title}
+                          </motion.span>
+                          <motion.div {...framerIcon}>
+                            <Icon className="text-2xl text-gray-800 dark:text-gray-200" />
+                          </motion.div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                  <hr className="border-t-2 border-gray-200 dark:border-gray-800" />
+                </React.Fragment>
+              );
+            }
+          })}
+        </ul>
+      </div>
+    </>
+  );
+};
+
+export const Sidebar = () => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useClickAway(ref, () => setOpen(false));
+  const toggleSidebar = () => setOpen((prev) => !prev);
+  return (
+    <>
+      <button onClick={toggleSidebar} aria-label="toggle sidebar">
+        <img
+          className="w-10 h-10 rounded-full"
+          src="https://ui-avatars.com/api/?name=John+Doee&background=random&color=fff"
+          alt="profile"
+        />
+      </button>
+      <AnimatePresence mode="wait" initial={false}>
+        {open && (
+          <>
+            <motion.div
+              {...framerSidebarBackground}
+              aria-hidden="true"
+              className="fixed bottom-0 left-0 right-0 top-0 z-40 bg-[rgba(0,0,0,0.1)] backdrop-blur-sm dark:bg-[rgba(0,0,0,0.4)]"
+            ></motion.div>
+            <motion.div
+              {...framerSidebarPanel}
+              className="fixed top-0 bottom-0 right-0 z-50 w-full h-screen max-w-xs border-r-2 border-gray-200 bg-white text-black dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+              ref={ref}
+              aria-label="Sidebar"
+            >
+              <div className={"flex flex-col justify-start w-full h-full"}>
+                {/*<LoggedInContent toggleSidebar={toggleSidebar} />*/}
+                <VisitorContent toggleSidebar={toggleSidebar} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };

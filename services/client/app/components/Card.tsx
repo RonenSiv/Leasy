@@ -1,8 +1,10 @@
+"use client";
 import React from "react";
+import { useTheme } from "next-themes";
 
 interface CardProps {
   title?: React.ReactNode;
-  titleColor?: string;
+  titleColor?: string[];
   subtitle?: React.ReactNode;
   children?: React.ReactNode;
   footer?: React.ReactNode;
@@ -10,7 +12,7 @@ interface CardProps {
   footerSeparator?: boolean;
   className?: string;
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | undefined;
-  bgColor?: string;
+  bgColor?: string[];
 }
 
 const getCardWidth = (maxWidth: string | undefined) => {
@@ -27,7 +29,6 @@ const getCardWidth = (maxWidth: string | undefined) => {
       return "1536px";
     case "3xl":
       return "1920px";
-
     default:
       return "1024px";
   }
@@ -46,25 +47,29 @@ export const Card: React.FC<CardProps> = ({
   className,
 }) => {
   const width = getCardWidth(maxWidth);
-
+  const { systemTheme, theme, setTheme } = useTheme();
   return (
     <div
-      className={`p-8 m-8 border border-gray-200 rounded-lg shadow bg-white ${className}`}
+      className={`p-8 m-8 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 ${className}`}
       style={{
-        backgroundColor: bgColor,
+        backgroundColor: theme === "light" ? bgColor?.[0] : bgColor?.[1],
         maxWidth: width,
       }}
     >
       <h5
-        className={`mb-2 text-2xl font-bold tracking-tight `}
-        style={{ color: titleColor }}
+        className={`mb-2 text-2xl font-bold tracking-tight dark:text-gray-200`}
+        style={{ color: theme === "light" ? titleColor?.[0] : titleColor?.[1] }}
       >
         {title}
       </h5>
       {subtitle}
-      {headerSeparator && <hr />}
+      {headerSeparator && (
+        <hr className="border-gray-300 dark:border-gray-600" />
+      )}
       {children}
-      {footerSeparator && <hr />}
+      {footerSeparator && (
+        <hr className="border-gray-300 dark:border-gray-600" />
+      )}
       {footer}
     </div>
   );

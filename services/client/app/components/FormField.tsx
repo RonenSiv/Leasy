@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from "react";
-
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import {
   IoIosCloseCircleOutline,
@@ -43,31 +42,34 @@ export const FormField: React.FC<FormFieldProps> = ({
   const getStatusIcon = () => {
     switch (status) {
       case "warning":
-        return <IoIosWarning className="text-yellow-500" />;
-
+        return (
+          <IoIosWarning className="text-yellow-500 dark:text-yellow-400" />
+        );
       case "error":
-        return <IoIosCloseCircleOutline className="text-red-500" />;
-
+        return (
+          <IoIosCloseCircleOutline className="text-red-500 dark:text-red-400" />
+        );
       case "info":
-        return <IoIosInformationCircleOutline className="text-blue-500" />;
-
+        return (
+          <IoIosInformationCircleOutline className="text-blue-500 dark:text-blue-400" />
+        );
       default:
         return null;
     }
   };
 
   const statusInputClasses = {
-    warning: "border-yellow-500",
-    error: "border-red-500",
-    info: "border-blue-500",
-    none: "border-gray-300",
+    warning: "border-yellow-500 dark:border-yellow-400",
+    error: "border-red-500 dark:border-red-400",
+    info: "border-blue-500 dark:border-blue-400",
+    none: "border-gray-300 dark:border-gray-600",
   };
 
   const statusMessageClasses = {
-    warning: "text-yellow-500",
-    error: "text-red-500",
-    info: "text-blue-500",
-    none: "text-gray-300",
+    warning: "text-yellow-500 dark:text-yellow-400",
+    error: "text-red-500 dark:text-red-400",
+    info: "text-blue-500 dark:text-blue-400",
+    none: "text-gray-300 dark:text-gray-500",
   };
 
   const infoLabelId = generateRandomId();
@@ -76,12 +78,15 @@ export const FormField: React.FC<FormFieldProps> = ({
     <div className="mb-5">
       <label
         htmlFor={label}
-        className={`flex mb-2 text-sm font-medium text-gray-900  items-center`}
+        className={`flex mb-2 text-sm font-medium text-gray-900 dark:text-gray-100 items-center`}
       >
-        {label} {required && <span className="text-red-500">*</span>}{" "}
+        {label}{" "}
+        {required && (
+          <span className="text-blue-400 dark:text-red-400 ml-1"> *</span>
+        )}{" "}
         {informativeLabel && (
           <IoIosInformationCircleOutline
-            className="text-blue-500 inline-flex ml-1 cursor-pointer justify-center items-center focus:outline-none hover:text-blue-700"
+            className="text-blue-500 dark:text-blue-400 inline-flex ml-1 cursor-pointer justify-center items-center focus:outline-none hover:text-blue-700 dark:hover:text-blue-300"
             data-tooltip-id={infoLabelId}
           />
         )}
@@ -90,7 +95,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         <input
           type={type}
           id={label}
-          className={`relative bg-gray-50 border ${statusInputClasses[status]} text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none ${className}`}
+          className={`relative bg-gray-50 dark:bg-gray-800 border ${statusInputClasses[status]} text-gray-900 dark:text-gray-100 text-sm rounded-lg block w-full p-2.5 outline-none ${className}`}
           placeholder={placeholder}
           required={required}
           onChange={onChange}

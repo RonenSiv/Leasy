@@ -6,10 +6,8 @@ import React from "react";
 import { Card } from "@/app/components/Card";
 import Link from "next/link";
 import { LoginForm } from "@/app/components/LoginForm";
-import { FormData } from "@/app/model/auth/data-types";
-import { ClientProvider } from "@/app/provider/ClientProvider";
+import { FormData, getClient } from "@/app/auth/client";
 import dynamic from "next/dynamic";
-import { useClientAuthSession } from "@/app/hooks/useClientAuthSession";
 import { useRouter } from "next/navigation";
 
 const LoginNoSsr = dynamic(() => Promise.resolve(LoginComp), {
@@ -17,11 +15,11 @@ const LoginNoSsr = dynamic(() => Promise.resolve(LoginComp), {
 });
 
 function LoginComp() {
-  const clientSession = useClientAuthSession();
   const router = useRouter();
+
   const setFormData = async (data: FormData) => {
     const { email, password } = data;
-    await clientSession.client.login(email, password);
+    await getClient().login({ email, password });
     router.push("/dashboard");
   };
 
@@ -33,7 +31,7 @@ function LoginComp() {
           subtitle={
             <p>
               Doesn’t have an account?{" "}
-              <Link href={"/signup"} className={"text-[#2CA15D]"}>
+              <Link href={"/signup"} className={"text-action"}>
                 {" "}
                 Sign Up
               </Link>
@@ -58,9 +56,5 @@ function LoginComp() {
 }
 
 export default function Login() {
-  return (
-    <ClientProvider>
-      <LoginNoSsr />
-    </ClientProvider>
-  );
+  return <LoginNoSsr />;
 }

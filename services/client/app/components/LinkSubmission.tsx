@@ -39,16 +39,18 @@ export const LinkSubmission = () => {
             placeholder="Enter video URL"
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
-            className="border border-gray-300 rounded-3xl px-6 py-2 mr-4 flex-1 outline-none"
+            className="border border-gray-300 dark:border-gray-500 rounded-3xl px-6 py-2 mr-4 flex-1 outline-none bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100"
           />
           <button
             type="submit"
-            className="bg-white border border-gray-300 text-[#2CA15D] px-6 py-2 rounded-3xl hover:bg-gray-100 hover:cursor-pointer"
+            className="bg-white bg-action border border-green-300 dark:border-green-700 text-white dark:text-gray-900 px-6 py-2 rounded-3xl hover:bg-green-800 dark:hover:bg-green-500 hover:cursor-pointer"
           >
             Upload
           </button>
         </div>
-        {message && <div className="text-red-500">{message}</div>}
+        {message && (
+          <div className="text-red-500 dark:text-red-400">{message}</div>
+        )}
       </div>
     </form>
   );

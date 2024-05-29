@@ -51,7 +51,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ setFormData }) => {
       )}
       <button
         type="submit"
-        className="text-white bg-[#2CA15D] hover:bg-[#1F7D45] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
+        className="text-white dark:text-gray-800 bg-action hover:bg-[#41e084] dark:hover:bg-[#2CA15D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
       >
         Login
       </button>
