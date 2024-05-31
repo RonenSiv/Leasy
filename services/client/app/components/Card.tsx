@@ -13,6 +13,8 @@ interface CardProps {
   className?: string;
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | undefined;
   bgColor?: string[];
+  stretchVertically?: boolean;
+  stretchHorizontally?: boolean;
 }
 
 const getCardWidth = (maxWidth: string | undefined) => {
@@ -45,15 +47,20 @@ export const Card: React.FC<CardProps> = ({
   maxWidth,
   bgColor,
   className,
+  stretchVertically,
+  stretchHorizontally,
 }) => {
   const width = getCardWidth(maxWidth);
   const { systemTheme, theme, setTheme } = useTheme();
   return (
     <div
-      className={`p-8 m-8 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 ${className}`}
+      className={`p-8 m-8 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
       style={{
         backgroundColor: theme === "light" ? bgColor?.[0] : bgColor?.[1],
-        maxWidth: width,
+        maxWidth: !stretchVertically ? width : "100%",
+        width: !stretchVertically ? undefined : "100%",
+        height: !stretchHorizontally ? undefined : "100%",
+        minHeight: !stretchHorizontally ? undefined : "50%",
       }}
     >
       <h5
