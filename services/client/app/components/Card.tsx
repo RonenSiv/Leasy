@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "next-themes";
+import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
 
 interface CardProps {
   title?: React.ReactNode;
@@ -15,6 +16,7 @@ interface CardProps {
   bgColor?: string[];
   stretchVertically?: boolean;
   stretchHorizontally?: boolean;
+  expandable?: boolean;
 }
 
 const getCardWidth = (maxWidth: string | undefined) => {
@@ -49,20 +51,39 @@ export const Card: React.FC<CardProps> = ({
   className,
   stretchVertically,
   stretchHorizontally,
+  expandable,
 }) => {
   const width = getCardWidth(maxWidth);
   const { systemTheme, theme, setTheme } = useTheme();
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const toggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
+  };
+
   return (
     <div
-      className={`p-8 m-8 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
+      className={`absolute ${isFullScreen ? "inset-0 z-50" : "relative m-8"} p-8 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
       style={{
         backgroundColor: theme === "light" ? bgColor?.[0] : bgColor?.[1],
         maxWidth: !stretchVertically ? width : "100%",
         width: !stretchVertically ? undefined : "100%",
         height: !stretchHorizontally ? undefined : "100%",
-        minHeight: !stretchHorizontally ? undefined : "50%",
+        minHeight: !stretchHorizontally
+          ? undefined
+          : isFullScreen
+            ? "100%"
+            : "50%",
       }}
     >
+      {/* place close button on the left */}
+      {expandable && (
+        <button
+          className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500"
+          onClick={toggleFullScreen}
+        >
+          {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}
+        </button>
+      )}
       <h5
         className={`mb-2 text-2xl font-bold tracking-tight dark:text-gray-200`}
         style={{ color: theme === "light" ? titleColor?.[0] : titleColor?.[1] }}
