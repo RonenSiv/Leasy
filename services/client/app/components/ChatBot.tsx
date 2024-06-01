@@ -3,14 +3,9 @@ import { Card } from "@/app/components/Card";
 import { InputCta } from "@/app/components/InputCta";
 import { ChatBubble } from "@/app/components/ChatBubble";
 
-export default function ChatBot() {
+export default function ChatBot({ expanded = false }: { expanded?: boolean }) {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
-
-  const [isFullScreen, setIsFullScreen] = useState(false);
-  const toggleFullScreen = () => {
-    setIsFullScreen(!isFullScreen);
-  };
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -25,7 +20,12 @@ export default function ChatBot() {
   };
 
   return (
-    <Card stretchVertically stretchHorizontally expandable className={"pb-2"}>
+    <Card
+      stretchVertically
+      stretchHorizontally
+      expandable
+      className={`pb-2 ${expanded ? "mx-0" : ""}`}
+    >
       <div className="relative flex flex-col justify-between max-h-full h-full overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-white dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800 px-2">
         <div className={"flex flex-col gap-4"}>
           <ChatBubble

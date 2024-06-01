@@ -37,11 +37,11 @@ export default function RootLayout({
             duration={25}
             reverse
           />
-          <div className="flex flex-col items-center justify-start h-screen relative custom-scrollbar">
+          <div className="flex flex-col items-center justify-start h-screen  relative custom-scrollbar">
             <header>
               <Navbar />
             </header>
-            <main className="flex-grow flex-1 flex flex-col items-center justify-center">
+            <main className="flex-grow flex-1 flex flex-col items-center justify-center ">
               {children}
             </main>
           </div>

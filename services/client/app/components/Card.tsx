@@ -78,7 +78,7 @@ export const Card: React.FC<CardProps> = ({
       {/* place close button on the left */}
       {expandable && (
         <button
-          className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500"
+          className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full"
           onClick={toggleFullScreen}
         >
           {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}

@@ -1,9 +1,11 @@
+import React from "react";
+
 export const VideoComponent = async ({
   fileName,
   handleVideoError,
 }: {
-  fileName: string;
-  handleVideoError: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void;
+  fileName?: { url: string; captionsUrl: string };
+  handleVideoError?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void;
 }) => {
   const getVideoUrl = async (fileName: string) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -15,19 +17,14 @@ export const VideoComponent = async ({
       },
     };
   };
-  const { data } = await getVideoUrl(fileName);
-  const { url, captionsUrl } = data;
+  // const { url, captionsUrl } = fileName;
 
   return (
-    <video
-      controls
-      preload="none"
-      aria-label="Video player"
-      className="w-full h-full"
-      onError={(e) => handleVideoError(e)}
-    >
-      <source src={url} type="video/mp4" />
-      <track src={captionsUrl} kind="subtitles" srcLang="en" label="English" />
+    <video className="w-full h-full" controls onError={handleVideoError}>
+      <source
+        src={`https://www.w3schools.com/html/mov_bbb.mp4`}
+        type="video/mp4"
+      />
       Your browser does not support the video tag.
     </video>
   );

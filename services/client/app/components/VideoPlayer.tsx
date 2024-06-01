@@ -1,4 +1,6 @@
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
+import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
+import { VideoComponent } from "@/app/components/VideoComponent";
 
 const VideoPlaceholder = () => (
   <div
@@ -19,8 +21,17 @@ const VideoPlaceholder = () => (
   </div>
 );
 
-export const VideoPlayer = ({ videoId }: { videoId: string }) => {
+export const VideoPlayer = ({
+  videoId,
+  isFullScreen,
+  toggleFullScreen,
+}: {
+  videoId: string;
+  isFullScreen?: boolean;
+  toggleFullScreen?: () => void;
+}) => {
   const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef<HTMLDivElement>(null);
 
   const handleVideoError = (
     e: React.SyntheticEvent<HTMLVideoElement, Event>,
@@ -34,11 +45,20 @@ export const VideoPlayer = ({ videoId }: { videoId: string }) => {
       {videoError ? (
         <div>Error: The video failed to load.</div>
       ) : (
-        // <VideoComponent
-        //   fileName={videoId}
-        //   handleVideoError={handleVideoError}
-        // />
-        <VideoPlaceholder />
+        <div
+          ref={videoRef}
+          className={`relative flex flex-col w-full h-full border border-gray-200 shadow bg-white dark:bg-gray-800 dark:border-gray-700 rounded-lg`}
+        >
+          <div className="flex items-center justify-center h-full w-full">
+            <button
+              className="absolute top-0 right-0 p-2 m-2 z-[5] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full"
+              onClick={toggleFullScreen}
+            >
+              {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}
+            </button>
+            <VideoComponent />
+          </div>
+        </div>
       )}
     </Suspense>
   );

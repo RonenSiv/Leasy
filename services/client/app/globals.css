@@ -16,6 +16,7 @@
     }
 }
 
+html,
 body {
     color: rgb(var(--foreground-rgb));
     background: linear-gradient(
@@ -23,15 +24,17 @@ body {
             transparent,
             rgb(var(--background-end-rgb))
     ) rgb(var(--background-start-rgb));
+    height: auto;
+    min-height: 100vh;
 }
 
 @layer utilities {
     .text-balance {
-        text-wrap: normal;
+        text-wrap: balance;
     }
 
     body {
-        @apply dark:bg-gray-800 bg-white text-gray-900 dark:text-gray-200;
+        @apply dark:bg-gray-800 h-full bg-white text-gray-900 dark:text-gray-200;
     }
 
     .text-action {
@@ -68,3 +71,4 @@ body {
     scrollbar-width: thin; /* Scrollbar width */
     scrollbar-color: #888 #f1f1f1; /* Scrollbar thumb and track color */
 }
+
