@@ -12,8 +12,7 @@ export const Navbar = () => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { systemTheme, theme, setTheme } = useTheme();
-  const currentTheme = theme === "system" ? systemTheme : theme;
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (open) {

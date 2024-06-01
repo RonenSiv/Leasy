@@ -249,8 +249,8 @@ export const Sidebar = () => {
               aria-label="Sidebar"
             >
               <div className={"flex flex-col justify-start w-full h-full"}>
-                {/*<LoggedInContent toggleSidebar={toggleSidebar} />*/}
-                <VisitorContent toggleSidebar={toggleSidebar} />
+                <LoggedInContent toggleSidebar={toggleSidebar} />
+                {/*<VisitorContent toggleSidebar={toggleSidebar} />*/}
               </div>
             </motion.div>
           </>

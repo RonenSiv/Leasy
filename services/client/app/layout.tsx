@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className}`}>
         <ThemeProvider attribute="class">
           <Suspense>
             <Progress />
@@ -37,11 +37,11 @@ export default function RootLayout({
             duration={25}
             reverse
           />
-          <div className="flex flex-col items-center justify-start min-h-screen relative">
+          <div className="flex flex-col items-center justify-start h-screen  relative custom-scrollbar">
             <header>
               <Navbar />
             </header>
-            <main className="flex-grow flex flex-col items-center justify-center">
+            <main className="flex-grow flex-1 flex flex-col items-center justify-center ">
               {children}
             </main>
           </div>
