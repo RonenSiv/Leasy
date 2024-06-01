@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { CardGrid } from "@/app/components/Cards/CardGrid";
+import { CardGrid } from "@/app/components/ui/cards/CardGrid";
 import React from "react";
-import { Card } from "@/app/components/Cards/Card";
+import { Card } from "@/app/components/ui/cards/Card";
 import Link from "next/link";
 import { LoginForm } from "@/app/components/Forms/LoginForm";
 
@@ -22,6 +22,7 @@ export default function Login() {
           }
         >
           <LoginForm />
+          {/*<Form />*/}
         </Card>
       </div>
       <div className="flex flex-col justify-center items-center">

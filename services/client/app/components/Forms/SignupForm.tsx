@@ -1,131 +1,118 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FormField, FormFieldStatus } from "@/app/components/Forms/FormField";
-import { registerFormValidator } from "@/app/validators/validators";
+import { FormField } from "@/app/components/Forms/FormField";
 import { registerUser } from "@/app/actions/actions";
+import { useForm } from "react-hook-form";
+import {
+  registerFormSchema,
+  RegisterFormSchema,
+} from "@/app/lib/schemas/useFormSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useFormState } from "react-dom";
+
+interface PasswordCriteria {
+  length: boolean;
+  uppercase: boolean;
+  lowercase: boolean;
+  number: boolean;
+  specialChar: boolean;
+}
 
 export const SignupForm = () => {
   const formRef = React.useRef<HTMLFormElement>(null);
-  const [errors, setErrors] = useState<{ [key: string]: boolean }>({
-    email: false,
-    password: false,
-    confirmPassword: false,
-    fullName: false,
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormSchema>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      fullName: "",
+    },
   });
 
-  const [status, setStatus] = useState<{
-    [key: string]: FormFieldStatus | undefined;
-  }>({
-    email: undefined,
-    password: undefined,
-    confirmPassword: undefined,
-    fullName: undefined,
+  const [state, formAction] = useFormState(registerUser, {
+    success: undefined,
   });
 
-  const [passwordCriteria, setPasswordCriteria] = useState({
+  const [passwordCriteria, setPasswordCriteria] = useState<PasswordCriteria>({
     length: false,
-    lowercase: false,
     uppercase: false,
-    specialChar: false,
+    lowercase: false,
     number: false,
+    specialChar: false,
   });
 
-  const statusMsg = {
-    email: "Invalid email format",
-    password: "Invalid password, check password requirements",
-    confirmPassword: "Passwords do not match",
-    fullName: "Invalid name length",
-  };
+  const password = watch("password", "");
 
   useEffect(() => {
-    setStatus((prevStatus) => ({
-      ...prevStatus,
-      email: errors.email ? "error" : undefined,
-      password: errors.password ? "error" : undefined,
-      confirmPassword: errors.confirmPassword ? "error" : undefined,
-      fullName: errors.fullName ? "error" : undefined,
-    }));
-  }, [errors]);
-
-  const handleValidation = (formData: {
-    email: string;
-    password: string;
-    fullName: string;
-    confirmPassword: string;
-  }) => {
-    const formValidator = registerFormValidator(formData);
-    setErrors({
-      ...formValidator.data,
-    });
-
-    return formValidator.result;
-  };
-
-  const handleRegisterValidation = (data: FormData) => {
-    const email = data.get("email") as string;
-    const password = data.get("password") as string;
-    const confirmPassword = data.get("confirm-password") as string;
-    const fullName = data.get("full-name") as string;
-
-    handleValidation({ email, password, fullName, confirmPassword });
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setErrors({ ...errors, password: false });
-    const password = e.target.value;
     setPasswordCriteria({
-      length: password.length >= 10,
-      lowercase: /[a-z]/.test(password),
+      length: password.length >= 8,
       uppercase: /[A-Z]/.test(password),
-      specialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+      lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
     });
-  };
+  }, [password]);
 
   return (
-    <form className="max-w-sm mx-auto mt-5" action={registerUser} ref={formRef}>
+    <form
+      className="max-w-sm mx-auto mt-5"
+      action={formAction}
+      onSubmit={(e) => {
+        e.preventDefault();
+        state.success = false;
+        handleSubmit(() => {
+          formAction(new FormData(formRef.current!));
+        })(e);
+      }}
+      ref={formRef}
+    >
       <FormField
-        label="Email Address"
+        label="Your email"
         type="email"
         placeholder="you@example.com"
-        status={status.email}
-        statusMessage={statusMsg.email}
+        status={errors.email ? "error" : "none"}
+        statusMessage={errors.email?.message}
         name="email"
-        onChange={() => setErrors({ ...errors, email: false })}
-        required
-      />
-      <FormField
-        label="Full Name"
-        type="text"
-        placeholder="Enter your full name"
-        status={status.fullName}
-        statusMessage={statusMsg.fullName}
-        name="full-name"
-        informativeLabel
-        informativeLabelMessage="Name must be at least 2 words, each between 2 and 40 characters"
-        onChange={() => setErrors({ ...errors, fullName: false })}
+        register={register("email")}
         required
       />
       <FormField
         label="Password"
         type="password"
-        placeholder="Enter your password"
-        status={status.password}
-        statusMessage={statusMsg.password}
+        placeholder="Password"
+        status={errors.password ? "error" : "none"}
+        statusMessage={errors.password?.message}
         name="password"
-        onChange={handlePasswordChange}
+        register={register("password")}
         required
       />
       <FormField
         label="Confirm Password"
         type="password"
-        placeholder="Enter your password"
-        status={status.confirmPassword || status.password}
-        statusMessage={statusMsg.confirmPassword || statusMsg.password}
-        name="confirm-password"
-        onChange={() => setErrors({ ...errors, confirmPassword: false })}
+        placeholder="Re-enter Password"
+        status={errors.confirmPassword ? "error" : "none"}
+        statusMessage={errors.confirmPassword?.message}
+        name="confirmPassword"
+        register={register("confirmPassword")}
         required
       />
+      <FormField
+        label="Full Name"
+        type="text"
+        placeholder="John Doe"
+        status={errors.fullName ? "error" : "none"}
+        statusMessage={errors.fullName?.message}
+        name="fullName"
+        register={register("fullName")}
+        required
+      />
+
       <ul className="max-w-md space-y-1 list-inside text-gray-400 text-sm my-2">
         <li className="flex items-center">
           <svg
@@ -176,10 +163,6 @@ export const SignupForm = () => {
       <button
         type="submit"
         className="text-white dark:text-gray-800 bg-action hover:bg-[#41e084] dark:hover:bg-[#2CA15D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
-        onClick={(e) => {
-          const formData = new FormData(formRef.current!);
-          handleRegisterValidation(formData);
-        }}
       >
         Sign Up
       </button>

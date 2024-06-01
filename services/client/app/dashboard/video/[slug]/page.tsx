@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { VideoPlayer } from "@/app/components/VideoPlayer/VideoPlayer";
+import { VideoPlayer } from "@/app/components/ui/video-player/VideoPlayer";
 import { useParams } from "next/navigation";
 import ChatBot from "@/app/components/Chat/ChatBot";
-import { StudyCardTabs } from "@/app/components/StudyCardTabs";
+import { StudyCardTabs } from "@/app/components/ui/cards/StudyCardTabs";
+import { studyTabsContent } from "@/app/constants/constants";
 
 export default function VideoPage() {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -18,7 +19,9 @@ export default function VideoPage() {
   };
   return (
     <div className={`flex gap-8 w-[95vw] max-h-[80vh] p-8`}>
-      {isFullScreen && <StudyCardTabs vertical absolute />}
+      {isFullScreen && (
+        <StudyCardTabs vertical absolute content={studyTabsContent} />
+      )}
       <div className="flex w-full h-full justify-start items-start justify-items-start">
         <div className="relative flex flex-col w-full h-full items-center justify-start">
           <div
@@ -37,7 +40,7 @@ export default function VideoPage() {
       </div>
       {!isFullScreen && (
         <div className="w-full h-full">
-          <StudyCardTabs />
+          <StudyCardTabs content={studyTabsContent} />
         </div>
       )}
     </div>

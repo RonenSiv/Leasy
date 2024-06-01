@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { CardGrid } from "@/app/components/Cards/CardGrid";
+import { CardGrid } from "@/app/components/ui/cards/CardGrid";
 import React from "react";
-import { Card } from "@/app/components/Cards/Card";
+import { Card } from "@/app/components/ui/cards/Card";
 import Link from "next/link";
 import { SignupForm } from "@/app/components/Forms/SignupForm";
 

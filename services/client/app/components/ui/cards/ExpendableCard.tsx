@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useTheme } from "next-themes";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
-import { CardProps } from "@/app/components/Cards/Card";
-import { getCardWidth } from "@/app/components/Cards/utils";
+import { CardProps } from "@/app/components/ui/cards/Card";
+import { getCardWidth } from "@/app/components/ui/cards/utils";
 
 export const ExpendableCard: React.FC<CardProps> = ({
   title,

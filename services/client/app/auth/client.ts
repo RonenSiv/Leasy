@@ -3,8 +3,8 @@ import { endSession, getSession, startSession } from "@/app/auth/auth";
 import { encrypt } from "@/app/auth/auth-utils";
 
 export interface FormData {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
 }
 
 export interface SignupFormData extends FormData {

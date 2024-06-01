@@ -2,35 +2,62 @@
 import { getClient } from "@/app/auth/client";
 import { redirect } from "next/navigation";
 import {
-  loginFormValidator,
-  registerFormValidator,
-} from "@/app/validators/validators";
+  loginFormSchema,
+  registerFormSchema,
+} from "@/app/lib/schemas/useFormSchema";
 
-const loginUser = async (data: FormData) => {
-  const email = data.get("email") as string;
-  const password = data.get("password") as string;
-
-  if (!loginFormValidator({ email, password }).result) {
-    return;
+const loginUser = async (
+  prevState: FormState,
+  data: FormData,
+): Promise<FormState> => {
+  const formData = Object.fromEntries(data);
+  const parsed = loginFormSchema.safeParse(formData);
+  const { email, password } = parsed.data || {};
+  if (!parsed.success) {
+    const fields: Record<string, string> = {};
+    for (const key of Object.keys(formData)) {
+      fields[key] = formData[key].toString();
+    }
+    return {
+      success: false,
+      fields,
+      issues: parsed.error.issues.map((issue) => issue.message),
+    };
   }
+
   await getClient().login({ email, password });
   redirect("/dashboard");
+  return { success: true };
 };
 
-const registerUser = async (data: FormData) => {
-  const email = data.get("email") as string;
-  const password = data.get("password") as string;
-  const confirmPassword = data.get("confirm-password") as string;
-  const fullName = data.get("full-name") as string;
-
-  if (
-    !registerFormValidator({ email, password, fullName, confirmPassword })
-      .result
-  ) {
-    return;
+const registerUser = async (
+  prevState: FormState,
+  data: FormData,
+): Promise<FormState> => {
+  const formData = Object.fromEntries(data);
+  const parsed = registerFormSchema.safeParse(formData);
+  if (!parsed.success) {
+    const fields: Record<string, string> = {};
+    for (const key of Object.keys(formData)) {
+      fields[key] = formData[key].toString();
+    }
+    return {
+      success: false,
+      fields,
+      issues: parsed.error.issues.map((issue) => issue.message),
+    };
   }
+
+  const { email, password, fullName } = parsed.data;
   await getClient().signup({ email, password, fullName });
   redirect("/dashboard");
+  return { success: true };
+};
+
+export type FormState = {
+  success: boolean | undefined;
+  fields?: Record<string, string>;
+  issues?: string[];
 };
 
 export { loginUser, registerUser };

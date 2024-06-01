@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useState } from "react";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
-import { VideoComponent } from "@/app/components/VideoPlayer/VideoComponent";
+import { VideoComponent } from "@/app/components/ui/video-player/VideoComponent";
 
 const VideoPlaceholder = () => (
   <div

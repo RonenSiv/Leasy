@@ -3,9 +3,9 @@
 import React, { ChangeEvent, useState } from "react";
 import Image from "next/image";
 import { UploadProcess } from "@/app/constants/enums";
-import { Spinner } from "@/app/components/Spinner";
+import { Spinner } from "@/app/components/ui/Spinner";
 
-const UploadTemplate = () => {
+export const UploadTemplate = () => {
   return (
     <>
       <div>

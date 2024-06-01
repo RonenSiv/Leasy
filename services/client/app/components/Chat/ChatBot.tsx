@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { InputCta } from "@/app/components/InputCta";
+import { InputCta } from "@/app/components/Forms/InputCta";
 import { ChatBubble } from "@/app/components/Chat/ChatBubble";
-import { ExpendableCard } from "@/app/components/Cards/ExpendableCard";
+import { ExpendableCard } from "@/app/components/ui/cards/ExpendableCard";
 
 export default function ChatBot({ expanded = false }: { expanded?: boolean }) {
   const [prompt, setPrompt] = useState("");
