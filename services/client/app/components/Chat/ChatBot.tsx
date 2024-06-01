@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Card } from "@/app/components/Card";
 import { InputCta } from "@/app/components/InputCta";
-import { ChatBubble } from "@/app/components/ChatBubble";
+import { ChatBubble } from "@/app/components/Chat/ChatBubble";
+import { ExpendableCard } from "@/app/components/Cards/ExpendableCard";
 
 export default function ChatBot({ expanded = false }: { expanded?: boolean }) {
   const [prompt, setPrompt] = useState("");
@@ -20,10 +20,9 @@ export default function ChatBot({ expanded = false }: { expanded?: boolean }) {
   };
 
   return (
-    <Card
+    <ExpendableCard
       stretchVertically
       stretchHorizontally
-      expandable
       className={`pb-2 ${expanded ? "mx-0" : ""}`}
     >
       <div className="relative flex flex-col justify-between max-h-full h-full overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-white dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800 px-2">
@@ -93,6 +92,6 @@ export default function ChatBot({ expanded = false }: { expanded?: boolean }) {
           </form>
         </div>
       </div>
-    </Card>
+    </ExpendableCard>
   );
 }

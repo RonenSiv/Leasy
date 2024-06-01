@@ -26,19 +26,39 @@ const UploadTemplate = () => {
   );
 };
 
-export default function UploadForm({
-  handleUpload,
-}: {
-  handleUpload: (arg: UploadProcess) => void;
-}) {
+export default function UploadForm() {
   const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [didUpload, setDidUpload] = useState<any>(UploadProcess.DIDNT_UPLOAD);
+
+  const handleUpload = (succeed: number) => {
+    setDidUpload(succeed);
+  };
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     setThumbnail(null);
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("video/")) {
       await uploadFile(file);
+    }
+  };
+
+  const showUploadProcess = () => {
+    switch (didUpload) {
+      case UploadProcess.DIDNT_UPLOAD:
+        return null;
+      case UploadProcess.UPLOAD_SUCCEED:
+        return (
+          <div className="text-green-300 dark:text-green-500">
+            Upload succeed!
+          </div>
+        );
+      case UploadProcess.UPLOAD_FAILED:
+        return (
+          <div className="text-red-500 dark:text-red-700">Upload failed!</div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -95,36 +115,41 @@ export default function UploadForm({
   }
 
   return (
-    <div className="flex justify-center items-center">
-      <label
-        htmlFor="dropzone-file"
-        className="flex flex-col items-center justify-center w-full h-52 border-2 border-gray-300 dark:border-gray-400 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-600"
-      >
-        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-          {thumbnail ? (
-            <div>
-              <Image
-                src={thumbnail}
-                alt="Video thumbnail"
-                width={100}
-                height={100}
-                sizes={"50px"}
-                className="max-w-1/2 h-auto"
-              />
+    <>
+      {showUploadProcess()}
+      <span className="ml-1">
+        <div className="flex justify-center items-center">
+          <label
+            htmlFor="dropzone-file"
+            className="flex flex-col items-center justify-center w-full h-52 border-2 border-gray-300 dark:border-gray-400 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-600"
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              {thumbnail ? (
+                <div>
+                  <Image
+                    src={thumbnail}
+                    alt="Video thumbnail"
+                    width={100}
+                    height={100}
+                    sizes={"50px"}
+                    className="max-w-1/2 h-auto"
+                  />
+                </div>
+              ) : (
+                <UploadTemplate />
+              )}
             </div>
-          ) : (
-            <UploadTemplate />
-          )}
+            <input
+              id="dropzone-file"
+              type="file"
+              name="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
         </div>
-        <input
-          id="dropzone-file"
-          type="file"
-          name="file"
-          accept="video/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </label>
-    </div>
+      </span>
+    </>
   );
 }

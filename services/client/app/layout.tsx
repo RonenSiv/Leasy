@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/app/components/Navbar";
+import { Navbar } from "@/app/components/Navbar/Navbar";
 import { GradientCircle } from "@/app/components/GradientCircle";
 import Progress from "@/app/components/Progress";
 import { ThemeProvider } from "next-themes";

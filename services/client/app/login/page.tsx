@@ -1,28 +1,11 @@
-"use client";
-
 import Image from "next/image";
-import { CardGrid } from "@/app/components/CardGrid";
+import { CardGrid } from "@/app/components/Cards/CardGrid";
 import React from "react";
-import { Card } from "@/app/components/Card";
+import { Card } from "@/app/components/Cards/Card";
 import Link from "next/link";
-import { LoginForm } from "@/app/components/LoginForm";
-import { FormData, getClient } from "@/app/auth/client";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { LoginForm } from "@/app/components/Forms/LoginForm";
 
-const LoginNoSsr = dynamic(() => Promise.resolve(LoginComp), {
-  ssr: false,
-});
-
-function LoginComp() {
-  const router = useRouter();
-
-  const setFormData = async (data: FormData) => {
-    const { email, password } = data;
-    await getClient().login({ email, password });
-    router.push("/dashboard");
-  };
-
+export default function Login() {
   return (
     <CardGrid cols={2}>
       <div className="my-auto">
@@ -38,7 +21,7 @@ function LoginComp() {
             </p>
           }
         >
-          <LoginForm setFormData={setFormData} />
+          <LoginForm />
         </Card>
       </div>
       <div className="flex flex-col justify-center items-center">
@@ -53,8 +36,4 @@ function LoginComp() {
       </div>
     </CardGrid>
   );
-}
-
-export default function Login() {
-  return <LoginNoSsr />;
 }

@@ -1,23 +1,15 @@
 "use client";
-import React, { FormEventHandler, useEffect, useState } from "react";
-import { FormField, FormFieldStatus } from "@/app/components/FormField";
-import validator from "validator";
+import React, { useEffect, useState } from "react";
+import { FormField, FormFieldStatus } from "@/app/components/Forms/FormField";
+import { registerFormValidator } from "@/app/validators/validators";
+import { registerUser } from "@/app/actions/actions";
 
-interface FormData {
-  email: string;
-  password: string;
-  fullName: string;
-}
-
-interface SignupFormProps {
-  setFormData: (data: FormData) => void;
-}
-
-export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
+export const SignupForm = () => {
+  const formRef = React.useRef<HTMLFormElement>(null);
   const [errors, setErrors] = useState<{ [key: string]: boolean }>({
     email: false,
     password: false,
-    rePassword: false,
+    confirmPassword: false,
     fullName: false,
   });
 
@@ -26,7 +18,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
   }>({
     email: undefined,
     password: undefined,
-    rePassword: undefined,
+    confirmPassword: undefined,
     fullName: undefined,
   });
 
@@ -41,7 +33,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
   const statusMsg = {
     email: "Invalid email format",
     password: "Invalid password, check password requirements",
-    rePassword: "Passwords do not match",
+    confirmPassword: "Passwords do not match",
     fullName: "Invalid name length",
   };
 
@@ -50,29 +42,32 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
       ...prevStatus,
       email: errors.email ? "error" : undefined,
       password: errors.password ? "error" : undefined,
-      rePassword: errors.rePassword ? "error" : undefined,
+      confirmPassword: errors.confirmPassword ? "error" : undefined,
       fullName: errors.fullName ? "error" : undefined,
     }));
   }, [errors]);
 
-  const handleValidation = (formData: FormData & { rePassword: string }) => {
-    const fullNameValidator = /^[a-zA-Z]{2,40}( [a-zA-Z]{2,40})+$/;
-    const isValidEmail = validator.isEmail(formData.email);
-    const isStrongPassword = validator.isStrongPassword(formData.password);
-    const isValidName = fullNameValidator.test(formData.fullName);
-    const arePasswordsEqual = validator.equals(
-      formData.password,
-      formData.rePassword,
-    );
-
+  const handleValidation = (formData: {
+    email: string;
+    password: string;
+    fullName: string;
+    confirmPassword: string;
+  }) => {
+    const formValidator = registerFormValidator(formData);
     setErrors({
-      email: !isValidEmail,
-      password: !isStrongPassword,
-      rePassword: !arePasswordsEqual,
-      fullName: !isValidName,
+      ...formValidator.data,
     });
 
-    return isValidEmail && isStrongPassword && isValidName && arePasswordsEqual;
+    return formValidator.result;
+  };
+
+  const handleRegisterValidation = (data: FormData) => {
+    const email = data.get("email") as string;
+    const password = data.get("password") as string;
+    const confirmPassword = data.get("confirm-password") as string;
+    const fullName = data.get("full-name") as string;
+
+    handleValidation({ email, password, fullName, confirmPassword });
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,34 +82,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
     });
   };
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const {
-      email,
-      password,
-      "confirm-password": rePassword,
-      "full-name": fullName,
-    } = Object.fromEntries(formData.entries());
-
-    if (
-      handleValidation({
-        email: email ? (email as string) : "",
-        password: password ? (password as string) : "",
-        rePassword: rePassword ? (rePassword as string) : "",
-        fullName: fullName ? (fullName as string) : "",
-      })
-    ) {
-      setFormData({
-        email: email ? (email as string) : "",
-        password: password ? (password as string) : "",
-        fullName: fullName ? (fullName as string) : "",
-      });
-    }
-  };
-
   return (
-    <form className="max-w-sm mx-auto mt-5" onSubmit={handleSubmit}>
+    <form className="max-w-sm mx-auto mt-5" action={registerUser} ref={formRef}>
       <FormField
         label="Email Address"
         type="email"
@@ -151,10 +120,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
         label="Confirm Password"
         type="password"
         placeholder="Enter your password"
-        status={status.rePassword || status.password}
-        statusMessage={statusMsg.rePassword || statusMsg.password}
+        status={status.confirmPassword || status.password}
+        statusMessage={statusMsg.confirmPassword || statusMsg.password}
         name="confirm-password"
-        onChange={() => setErrors({ ...errors, rePassword: false })}
+        onChange={() => setErrors({ ...errors, confirmPassword: false })}
         required
       />
       <ul className="max-w-md space-y-1 list-inside text-gray-400 text-sm my-2">
@@ -207,6 +176,10 @@ export const SignupForm: React.FC<SignupFormProps> = ({ setFormData }) => {
       <button
         type="submit"
         className="text-white dark:text-gray-800 bg-action hover:bg-[#41e084] dark:hover:bg-[#2CA15D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
+        onClick={(e) => {
+          const formData = new FormData(formRef.current!);
+          handleRegisterValidation(formData);
+        }}
       >
         Sign Up
       </button>

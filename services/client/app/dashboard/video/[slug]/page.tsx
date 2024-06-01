@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { VideoPlayer } from "@/app/components/VideoPlayer";
+import { VideoPlayer } from "@/app/components/VideoPlayer/VideoPlayer";
 import { useParams } from "next/navigation";
-import ChatBot from "@/app/components/ChatBot";
+import ChatBot from "@/app/components/Chat/ChatBot";
 import { StudyCardTabs } from "@/app/components/StudyCardTabs";
 
 export default function VideoPage() {

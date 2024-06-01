@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { CardGrid } from "@/app/components/CardGrid";
+import { CardGrid } from "@/app/components/Cards/CardGrid";
 import Link from "next/link";
 
 export default function Home() {

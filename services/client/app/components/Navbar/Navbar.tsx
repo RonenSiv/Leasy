@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Sidebar } from "@/app/components/SideMenu";
+import { Sidebar } from "@/app/components/Navbar/SideMenu";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { IoIosMoon } from "react-icons/io";

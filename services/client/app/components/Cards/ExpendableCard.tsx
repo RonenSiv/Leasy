@@ -1,44 +1,10 @@
-"use client";
 import React, { useState } from "react";
 import { useTheme } from "next-themes";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
+import { CardProps } from "@/app/components/Cards/Card";
+import { getCardWidth } from "@/app/components/Cards/utils";
 
-interface CardProps {
-  title?: React.ReactNode;
-  titleColor?: string[];
-  subtitle?: React.ReactNode;
-  children?: React.ReactNode;
-  footer?: React.ReactNode;
-  headerSeparator?: boolean;
-  footerSeparator?: boolean;
-  className?: string;
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | undefined;
-  bgColor?: string[];
-  stretchVertically?: boolean;
-  stretchHorizontally?: boolean;
-  expandable?: boolean;
-}
-
-const getCardWidth = (maxWidth: string | undefined) => {
-  switch (maxWidth) {
-    case "sm":
-      return "640px";
-    case "md":
-      return "760px";
-    case "lg":
-      return "1024px";
-    case "xl":
-      return "1280px";
-    case "2xl":
-      return "1536px";
-    case "3xl":
-      return "1920px";
-    default:
-      return "1024px";
-  }
-};
-
-export const Card: React.FC<CardProps> = ({
+export const ExpendableCard: React.FC<CardProps> = ({
   title,
   titleColor,
   subtitle,
@@ -51,7 +17,6 @@ export const Card: React.FC<CardProps> = ({
   className,
   stretchVertically,
   stretchHorizontally,
-  expandable,
 }) => {
   const width = getCardWidth(maxWidth);
   const { systemTheme, theme, setTheme } = useTheme();
@@ -68,22 +33,15 @@ export const Card: React.FC<CardProps> = ({
         maxWidth: !stretchVertically ? width : "100%",
         width: !stretchVertically ? undefined : "100%",
         height: !stretchHorizontally ? undefined : "100%",
-        minHeight: !stretchHorizontally
-          ? undefined
-          : isFullScreen
-            ? "100%"
-            : "50%",
+        minHeight: !stretchHorizontally ? undefined : "100%",
       }}
     >
-      {/* place close button on the left */}
-      {expandable && (
-        <button
-          className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full"
-          onClick={toggleFullScreen}
-        >
-          {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}
-        </button>
-      )}
+      <button
+        className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full"
+        onClick={toggleFullScreen}
+      >
+        {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}
+      </button>
       <h5
         className={`mb-2 text-2xl font-bold tracking-tight dark:text-gray-200`}
         style={{ color: theme === "light" ? titleColor?.[0] : titleColor?.[1] }}
