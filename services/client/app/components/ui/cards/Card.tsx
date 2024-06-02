@@ -31,7 +31,7 @@ export const Card: React.FC<CardProps> = ({
   stretchHorizontally,
 }) => {
   const width = getCardWidth(maxWidth);
-  const classWithBgColor = `relative m-8 p-8 border border-gray-200 rounded-lg shadow ${bgColor ? bgColor : "bg-white dark:bg-gray-800 dark:border-gray-700"} overflow-y-hidden ${className}`;
+  const classWithBgColor = `relative md:m-8 m-4 p-8 border border-gray-200 rounded-lg shadow ${bgColor ? bgColor : "bg-white dark:bg-gray-800 dark:border-gray-700"} overflow-y-hidden ${className}`;
   const classWithTextColor = `mb-2 text-2xl font-bold tracking-tight ${
     titleColor ? titleColor : "text-gray-900 dark:text-gray-200"
   }`;
