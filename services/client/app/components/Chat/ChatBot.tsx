@@ -84,7 +84,7 @@ export default function ChatBot({ expanded = false }: { expanded?: boolean }) {
         </div>
         <div
           className={
-            "sticky bottom-0 left-0 w-full px-4 pt-4 bg-white dark:bg-gray-800 pb-4"
+            "sticky md:bottom-[-1px] bottom-8 left-0 w-[100%] py-4 bg-white dark:bg-gray-800"
           }
         >
           <form onSubmit={handleSubmit}>

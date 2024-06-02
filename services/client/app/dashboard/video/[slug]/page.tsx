@@ -17,8 +17,11 @@ export default function VideoPage() {
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
   };
+
   return (
-    <div className={`flex gap-8 w-[95vw] max-h-[80vh] p-8`}>
+    <div
+      className={`flex flex-col md:flex-row gap-4 md:gap-8 w-full md:w-[95vw] max-h-[100vh] p-4 md:p-8 `}
+    >
       {isFullScreen && (
         <StudyCardTabs vertical absolute content={studyTabsContent} />
       )}
@@ -33,13 +36,13 @@ export default function VideoPage() {
               toggleFullScreen={toggleFullScreen}
             />
           </div>
-          <div className={`w-full max-h-[50%]`}>
+          <div className={`w-full h-full rounded-lg overflow-y-hidden`}>
             <ChatBot expanded />
           </div>
         </div>
       </div>
       {!isFullScreen && (
-        <div className="w-full h-full">
+        <div className="w-full h-full max-md:mt-12 max-md:bg-white max-md:dark:bg-gray-800  max-md:rounded-md">
           <StudyCardTabs content={studyTabsContent} />
         </div>
       )}

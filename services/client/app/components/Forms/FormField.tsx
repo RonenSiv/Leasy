@@ -21,6 +21,7 @@ interface FormFieldProps {
   placeholder?: string;
   className?: string;
   register: UseFormRegisterReturn;
+  noMargin?: boolean;
 }
 
 const generateRandomId = () => {
@@ -39,6 +40,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   placeholder,
   className,
   register,
+  noMargin = false,
 }) => {
   const getStatusIcon = () => {
     switch (status) {
@@ -76,7 +78,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   const infoLabelId = generateRandomId();
 
   return (
-    <div className="mb-5">
+    <div className={`${noMargin ? "" : "mb-5"} flex-1`}>
       <label
         htmlFor={name}
         className={`flex mb-2 text-sm font-medium text-gray-900 dark:text-gray-100 items-center`}

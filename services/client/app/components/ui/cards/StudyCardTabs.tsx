@@ -67,15 +67,15 @@ export const StudyCardTabs = ({
   return (
     <>
       {!vertical && (
-        <div className="w-full h-full p-4 flex flex-col gap-4">
-          <ul className="flex flex-wrap text-sm font-medium text-center border-b border-gray-700 dark:text-gray-800">
+        <div className="w-full h-full max-md:p-4 flex flex-col gap-4">
+          <ul className="flex flex-wrap text-sm font-medium text-center border-b md:border-gray-700 md:dark:text-gray-800">
             {content.map((tab, index) => (
               <li
-                className={`me-2 cursor-pointer items-center hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300 rounded-t-lg ${
+                className={`me-2 cursor-pointer items-center md:hover:text-gray-600 md:hover:bg-gray-50 md:dark:hover:bg-gray-800 md:dark:hover:text-gray-300 rounded-t-lg ${
                   currentTab === index || (currentTab === -1 && index === 0)
-                    ? "text-gray-800 bg-gray-50 dark:bg-gray-800 dark:text-gray-200"
+                    ? "md:text-gray-800 md:bg-gray-50 md:dark:bg-gray-800 md:dark:text-gray-200 bg-gray-200 dark:bg-gray-400 dark:text-gray-600"
                     : ""
-                }`}
+                } hover:bg-gray-200 dark:hover:bg-gray-400 dark:hover:text-gray-600`}
                 key={index}
                 onClick={() => setCurrentTab(index)}
               >

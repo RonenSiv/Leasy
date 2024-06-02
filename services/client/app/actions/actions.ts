@@ -2,9 +2,16 @@
 import { getClient } from "@/app/auth/client";
 import { redirect } from "next/navigation";
 import {
+  linkSubmissionSchema,
   loginFormSchema,
   registerFormSchema,
 } from "@/app/lib/schemas/useFormSchema";
+
+export type FormState = {
+  success: boolean | undefined;
+  fields?: Record<string, string>;
+  issues?: string[];
+};
 
 const loginUser = async (
   prevState: FormState,
@@ -54,10 +61,27 @@ const registerUser = async (
   return { success: true };
 };
 
-export type FormState = {
-  success: boolean | undefined;
-  fields?: Record<string, string>;
-  issues?: string[];
+const submitLink = async (
+  prevState: FormState,
+  data: FormData,
+): Promise<FormState> => {
+  const formData = Object.fromEntries(data);
+  const parsed = linkSubmissionSchema.safeParse(formData);
+  console.log(parsed.data);
+
+  if (!parsed.success) {
+    const fields: Record<string, string> = {};
+    for (const key of Object.keys(formData)) {
+      fields[key] = formData[key].toString();
+    }
+    return {
+      success: false,
+      fields,
+      issues: parsed.error.issues.map((issue) => issue.message),
+    };
+  }
+  const { url } = parsed.data;
+  return { success: true };
 };
 
-export { loginUser, registerUser };
+export { loginUser, registerUser, submitLink };

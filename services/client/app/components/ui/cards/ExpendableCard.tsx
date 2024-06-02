@@ -27,7 +27,7 @@ export const ExpendableCard: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`absolute ${isFullScreen ? "inset-0 z-50" : "relative m-8"} p-8 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
+      className={`${isFullScreen ? "absolute inset-0 z-50" : "relative m-8"} md:p-8 pd-2 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
       style={{
         backgroundColor: theme === "light" ? bgColor?.[0] : bgColor?.[1],
         maxWidth: !stretchVertically ? width : "100%",
@@ -37,7 +37,7 @@ export const ExpendableCard: React.FC<CardProps> = ({
       }}
     >
       <button
-        className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full"
+        className="absolute top-0 right-0 p-2 m-2 z-[100] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full max-md:hidden"
         onClick={toggleFullScreen}
       >
         {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}

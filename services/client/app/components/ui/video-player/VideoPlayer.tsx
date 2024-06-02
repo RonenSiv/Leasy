@@ -51,7 +51,7 @@ export const VideoPlayer = ({
         >
           <div className="flex items-center justify-center h-full w-full">
             <button
-              className="absolute top-0 right-0 p-2 m-2 z-[5] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full"
+              className="absolute top-0 right-0 p-2 m-2 z-[5] text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-100 rounded-full max-md:hidden"
               onClick={toggleFullScreen}
             >
               {isFullScreen ? <FaCompressAlt /> : <FaExpandAlt />}

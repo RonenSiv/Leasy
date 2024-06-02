@@ -12,14 +12,16 @@ export default function Upload() {
     >
       <Card bgColor="bg-[#EFFFF6] dark:bg-[#212b3a]">
         <DropZone />
-        <div className="flex items-center justify-center py-16">
+        <div className="flex items-center justify-center py-16 w-full">
           <hr className="w-full border-t-1 border-gray-300 dark:border-gray-600" />
           <span className="px-4 font-bold bg-transparent text-gray-500 dark:text-gray-400">
             OR
           </span>
           <hr className="w-full border-t-1 border-gray-300 dark:border-gray-600" />
         </div>
-        <LinkSubmission />
+        <div className="w-full">
+          <LinkSubmission />
+        </div>
       </Card>
     </Card>
   );

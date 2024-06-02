@@ -35,5 +35,10 @@ export const registerFormSchema = z
     path: ["confirmPassword"],
   });
 
+export const linkSubmissionSchema = z.object({
+  url: z.string().url(),
+});
+
 export type LoginFormSchema = z.infer<typeof loginFormSchema>;
 export type RegisterFormSchema = z.infer<typeof registerFormSchema>;
+export type LinkSubmissionSchema = z.infer<typeof linkSubmissionSchema>;
