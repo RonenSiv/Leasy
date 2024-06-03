@@ -39,7 +39,7 @@ export default function Signup() {
           src="/signup.png"
           width="1600"
           height="1600"
-          className="w-[30vw] max-sm:w-[50vw] h-auto"
+          className="w-[30vw] max-sm:w-[50vw] h-auto p-8"
           alt="auth picture"
           priority
         />

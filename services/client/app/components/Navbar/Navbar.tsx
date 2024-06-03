@@ -24,7 +24,7 @@ export const Navbar = () => {
     <nav className="sticky w-full z-20 top-0 start-0">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto bg-transparent">
         <Image
-          src="/favicon.ico"
+          src={`${theme !== "light" ? "/logo-dark.png" : "/logo-light.png"}`}
           width={150}
           height={150}
           alt="Picture leasy logo"
