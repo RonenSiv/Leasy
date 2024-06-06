@@ -2,9 +2,9 @@ import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/app/components/Navbar";
-import { GradientCircle } from "@/app/components/GradientCircle";
-import Progress from "@/app/components/Progress";
+import { Navbar } from "@/app/components/Navbar/Navbar";
+import { GradientCircle } from "@/app/components/ui/GradientCircle";
+import Progress from "@/app/components/ui/Progress";
 import { ThemeProvider } from "next-themes";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -37,11 +37,11 @@ export default function RootLayout({
             duration={25}
             reverse
           />
-          <div className="flex flex-col items-center justify-start h-screen  relative custom-scrollbar">
+          <div className="flex flex-col items-center justify-start relative custom-scrollbar">
             <header>
               <Navbar />
             </header>
-            <main className="flex-grow flex-1 flex flex-col items-center justify-center ">
+            <main className="flex flex-col items-center justify-center h-full  min-h-[80vh]">
               {children}
             </main>
           </div>

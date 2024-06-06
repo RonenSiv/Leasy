@@ -17,7 +17,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
       {from === "agent" && (
         <Image
           className="w-14 h-14 rounded-full"
-          src={"/signup.png"}
+          src={"/oracle.svg"}
           alt="Avatar image"
           width={50}
           height={50}

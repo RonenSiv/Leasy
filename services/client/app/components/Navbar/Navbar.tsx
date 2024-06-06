@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { Sidebar } from "@/app/components/SideMenu";
+import { Sidebar } from "@/app/components/Navbar/SideMenu";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { IoIosMoon } from "react-icons/io";
@@ -21,10 +21,10 @@ export const Navbar = () => {
   }, [pathname]);
 
   return (
-    <nav className="sticky w-full z-20 top-0 start-0">
+    <nav className="sticky w-full z-20 top-0 start-0 h-[15vh]">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto bg-transparent">
         <Image
-          src="/favicon.ico"
+          src={`${theme !== "light" ? "/logo-dark.png" : "/logo-light.png"}`}
           width={150}
           height={150}
           alt="Picture leasy logo"

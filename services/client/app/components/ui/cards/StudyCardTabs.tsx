@@ -1,22 +1,7 @@
 import React, { useState } from "react";
-import { CgTranscript } from "react-icons/cg";
-import { MdSummarize } from "react-icons/md";
-import { FaBrain } from "react-icons/fa6";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconType } from "react-icons";
-
-enum Tab {
-  NONE = -1,
-  TRANSCRIPT,
-  SUMMARY,
-  TEST,
-}
-
-const tabContent = [
-  { title: "Transcription", icon: CgTranscript },
-  { title: "Summary", icon: MdSummarize },
-  { title: "Test yourself", icon: FaBrain },
-];
+import { Tab } from "@/app/constants/enums";
 
 const verticalTabVariants = {
   closed: { x: 0, opacity: 0 },
@@ -71,24 +56,26 @@ const AnimatedTab = ({
 export const StudyCardTabs = ({
   vertical = false,
   absolute = false,
+  content,
 }: {
   vertical?: boolean;
   absolute?: boolean;
+  content: { title: string; icon: IconType }[];
 }) => {
   const [currentTab, setCurrentTab] = useState(Tab.NONE);
   const [currentTabHover, setCurrentTabHover] = useState<Tab | null>(null);
   return (
     <>
       {!vertical && (
-        <div className="w-full h-full p-4 flex flex-col gap-4">
-          <ul className="flex flex-wrap text-sm font-medium text-center border-b border-gray-700 dark:text-gray-800">
-            {tabContent.map((tab, index) => (
+        <div className="w-full flex flex-col gap-4 h-screen">
+          <ul className="flex flex-wrap text-sm font-medium text-center border-b md:border-gray-700 md:dark:text-gray-800">
+            {content.map((tab, index) => (
               <li
-                className={`me-2 cursor-pointer items-center hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300 rounded-t-lg ${
+                className={`me-2 cursor-pointer items-center md:hover:text-gray-600 md:hover:bg-gray-50 md:dark:hover:bg-gray-800 md:dark:hover:text-gray-300 rounded-t-lg ${
                   currentTab === index || (currentTab === -1 && index === 0)
-                    ? "text-gray-800 bg-gray-50 dark:bg-gray-800 dark:text-gray-200"
+                    ? "md:text-gray-800 md:bg-gray-50 md:dark:bg-gray-800 md:dark:text-gray-200 bg-gray-200 dark:bg-gray-400 dark:text-gray-600"
                     : ""
-                }`}
+                } hover:bg-gray-200 dark:hover:bg-gray-400 dark:hover:text-gray-600`}
                 key={index}
                 onClick={() => setCurrentTab(index)}
               >
@@ -117,12 +104,12 @@ export const StudyCardTabs = ({
       )}
       {vertical && (
         <div
-          className={`relative flex flex-col gap-4 ${absolute ? "relative top-0 z-[200] max-w-sm" : ""}`}
+          className={`flex flex-col h-screen h-full gap-4 ${absolute ? "sticky top-0 mr-10 md:ml-2 ml-10 left-0 z-[200] max-w-sm" : ""}`}
         >
           {currentTab !== Tab.NONE && (
             <>
               <ul className="flex-column space-y space-y-4 text-sm font-medium text-gray-700 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
-                {tabContent.map((tab, index) => (
+                {content.map((tab, index) => (
                   <li
                     className={`cursor-pointer items-center hover:text-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300 rounded-lg ${
                       currentTab === index
@@ -142,7 +129,7 @@ export const StudyCardTabs = ({
                   </li>
                 ))}
               </ul>
-              <div className="p-6 bg-gray-50 text-medium text-gray-800 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-white dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800">
+              <div className="p-6 bg-gray-50 text-medium text-gray-800 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-full w-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-white dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                   Profile Tab
                 </h3>
@@ -163,7 +150,7 @@ export const StudyCardTabs = ({
               <motion.div
                 className={`relative flex flex-col gap-4 max-xs:ms-2 w-full bg-transparent rounded-lg`}
               >
-                {tabContent.map((tab, index) => (
+                {content.map((tab, index) => (
                   <AnimatedTab
                     key={index}
                     tab={tab}

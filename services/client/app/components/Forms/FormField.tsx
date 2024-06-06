@@ -1,25 +1,27 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import {
   IoIosCloseCircleOutline,
   IoIosInformationCircleOutline,
   IoIosWarning,
 } from "react-icons/io";
+import { UseFormRegisterReturn } from "react-hook-form";
 
 export type FormFieldStatus = "none" | "warning" | "error" | "info";
 
 interface FormFieldProps {
   label?: string;
   type?: "email" | "password" | "text" | "url" | "search";
-  name?: string;
+  name: string;
   status?: FormFieldStatus;
   statusMessage?: string;
   informativeLabel?: boolean;
   informativeLabelMessage?: string;
   required?: boolean;
   placeholder?: string;
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  register: UseFormRegisterReturn;
+  noMargin?: boolean;
 }
 
 const generateRandomId = () => {
@@ -36,8 +38,9 @@ export const FormField: React.FC<FormFieldProps> = ({
   informativeLabelMessage,
   required = false,
   placeholder,
-  onChange,
   className,
+  register,
+  noMargin = false,
 }) => {
   const getStatusIcon = () => {
     switch (status) {
@@ -75,15 +78,15 @@ export const FormField: React.FC<FormFieldProps> = ({
   const infoLabelId = generateRandomId();
 
   return (
-    <div className="mb-5">
+    <div className={`${noMargin ? "" : "mb-5"} flex-1`}>
       <label
-        htmlFor={label}
+        htmlFor={name}
         className={`flex mb-2 text-sm font-medium text-gray-900 dark:text-gray-100 items-center`}
       >
-        {label}{" "}
+        {label}
         {required && (
           <span className="text-blue-400 dark:text-red-400 ml-1"> *</span>
-        )}{" "}
+        )}
         {informativeLabel && (
           <IoIosInformationCircleOutline
             className="text-blue-500 dark:text-blue-400 inline-flex ml-1 cursor-pointer justify-center items-center focus:outline-none hover:text-blue-700 dark:hover:text-blue-300"
@@ -94,12 +97,10 @@ export const FormField: React.FC<FormFieldProps> = ({
       <div className="relative">
         <input
           type={type}
-          id={label}
+          id={name}
           className={`relative bg-gray-50 dark:bg-gray-800 border ${statusInputClasses[status]} text-gray-900 dark:text-gray-100 text-sm rounded-lg block w-full p-2.5 outline-none ${className}`}
           placeholder={placeholder}
-          required={required}
-          onChange={onChange}
-          name={name}
+          {...register}
         />
         {status !== "none" && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none z-50">
@@ -107,7 +108,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           </div>
         )}
       </div>
-      {status !== "none" && statusMessage && (
+      {statusMessage && (
         <p className={`mt-2 text-sm ${statusMessageClasses[status]}`}>
           {statusMessage}
         </p>
