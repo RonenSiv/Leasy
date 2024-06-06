@@ -14,6 +14,7 @@ export interface CardProps {
   bgColor?: string;
   stretchVertically?: boolean;
   stretchHorizontally?: boolean;
+  onExpand?: () => void;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -29,6 +30,7 @@ export const Card: React.FC<CardProps> = ({
   className,
   stretchVertically,
   stretchHorizontally,
+  onExpand,
 }) => {
   const width = getCardWidth(maxWidth);
   const classWithBgColor = `relative md:m-8 m-4 p-8 border border-gray-200 rounded-lg shadow ${bgColor ? bgColor : "bg-white dark:bg-gray-800 dark:border-gray-700"} overflow-y-hidden ${className}`;

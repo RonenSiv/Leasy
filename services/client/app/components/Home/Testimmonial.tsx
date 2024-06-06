@@ -5,25 +5,33 @@ import { AnimatePresence, motion } from "framer-motion";
 const placeHolders = [
   {
     image: "https://source.unsplash.com/random/100x100?1",
-    quote: "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+    quote:
+      "I've been using Leasy for a few weeks now, and it's honestly changed the way I study. The video summaries are a lifesaver, especially when I'm trying to understand complex topics. Highly recommend!",
     author: "John Doe",
   },
   {
     image: "https://source.unsplash.com/random/100x100?2",
-    quote: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    quote:
+      "Leasy is like my personal tutor, but available anytime I need it. The quizzes are challenging and the chatbot is surprisingly helpful. It's made studying a lot less stressful for me.",
     author: "Jane Smith",
   },
   {
     image: "https://source.unsplash.com/random/100x100?3",
     quote:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+      "Leasy's video fixing feature is a game changer. It's turned my flaky videos into clear, easy-to-follow learning materials. It's like having a personal video editor for my study materials.",
     author: "Robert Brown",
   },
   {
     image: "https://source.unsplash.com/random/100x100?4",
     quote:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+      "What I love about Leasy is its versatility. Whether you're a visual learner like me or prefer reading transcriptions, it has something for everyone. It's made learning a lot more fun and efficient.",
     author: "Emily Davis",
+  },
+  {
+    image: "https://source.unsplash.com/random/100x100?5",
+    quote:
+      "The Quizzlets in Leasy have transformed my study routine. After watching a video, I can immediately test my understanding with these interactive quizzes. They're challenging, but in a good way. It's like having a pop quiz after each lesson, which really helps with my retention.",
+    author: "Alex Johnson",
   },
 ];
 
@@ -77,7 +85,7 @@ export const Testimonials = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev === placeHolders.length - 1 ? 0 : prev + 1));
-    }, 5000);
+    }, 7000);
 
     return () => clearInterval(interval);
   }, []);
@@ -108,8 +116,10 @@ export const Testimonials = () => {
                 type="button"
                 aria-label={`Testimony ${index + 1}`}
                 className={`w-2 h-2 rounded-full ${current === index ? "bg-gray-900" : "dark:bg-gray-400 bg-gray-300"}`}
-                onClick={() => handleClick(index)}
-              ></button>
+                onClick={() => {
+                  handleClick(index);
+                }}
+              />
             ))}
           </div>
         </div>

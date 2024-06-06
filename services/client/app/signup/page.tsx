@@ -16,7 +16,7 @@ export default function Signup() {
               Already have an account?{" "}
               <Link href={"/login"} className={"text-action"}>
                 {" "}
-                Login Up
+                Login
               </Link>
             </p>
           }

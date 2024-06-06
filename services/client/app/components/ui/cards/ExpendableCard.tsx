@@ -17,17 +17,19 @@ export const ExpendableCard: React.FC<CardProps> = ({
   className,
   stretchVertically,
   stretchHorizontally,
+  onExpand,
 }) => {
   const width = getCardWidth(maxWidth);
   const { systemTheme, theme, setTheme } = useTheme();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const toggleFullScreen = () => {
+    if (onExpand) onExpand();
     setIsFullScreen(!isFullScreen);
   };
 
   return (
     <div
-      className={`${isFullScreen ? "absolute inset-0 z-50" : "relative m-8"} md:p-8 pd-2 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
+      className={`${isFullScreen ? "absolute inset-0 z-50" : "relative"} md:p-8 pd-2 border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-hidden ${className}`}
       style={{
         backgroundColor: theme === "light" ? bgColor?.[0] : bgColor?.[1],
         maxWidth: !stretchVertically ? width : "100%",

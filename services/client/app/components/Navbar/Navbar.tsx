@@ -21,7 +21,7 @@ export const Navbar = () => {
   }, [pathname]);
 
   return (
-    <nav className="sticky w-full z-20 top-0 start-0">
+    <nav className="sticky w-full z-20 top-0 start-0 h-[15vh]">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto bg-transparent">
         <Image
           src={`${theme !== "light" ? "/logo-dark.png" : "/logo-light.png"}`}

@@ -20,15 +20,15 @@ export default function VideoPage() {
 
   return (
     <div
-      className={`flex flex-col md:flex-row gap-4 md:gap-8 w-full md:w-[95vw] max-h-[100vh] p-4 md:p-8 `}
+      className={`relative flex flex-col md:flex-row gap-4 md:gap-8 w-full md:w-[95vw] p-4 md:p-8 `}
     >
-      {isFullScreen && (
-        <StudyCardTabs vertical absolute content={studyTabsContent} />
-      )}
-      <div className="flex w-full h-full justify-start items-start justify-items-start">
+      <div className="flex w-full h-full justify-start items-start justify-items-start ">
+        {isFullScreen && (
+          <StudyCardTabs vertical absolute content={studyTabsContent} />
+        )}
         <div className="relative flex flex-col w-full h-full items-center justify-start">
           <div
-            className={`${!isFullScreen ? "w-full min-h-[50%]" : "sticky top-0 left-0 w-full h-full z-[49] min-h-[60vh]"}`}
+            className={`w-full ${!isFullScreen ? "h-[50vh]" : "md:sticky md:top-0 md:left-0 md:z-[49] md:h-[60vh] max-md:h-[50vh]"}`}
           >
             <VideoPlayer
               videoId={videoId}
@@ -36,7 +36,7 @@ export default function VideoPage() {
               toggleFullScreen={toggleFullScreen}
             />
           </div>
-          <div className={`w-full h-full rounded-lg overflow-y-hidden`}>
+          <div className={`w-full h-full rounded-lg `}>
             <ChatBot expanded />
           </div>
         </div>

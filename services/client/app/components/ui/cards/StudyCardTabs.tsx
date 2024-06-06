@@ -67,7 +67,7 @@ export const StudyCardTabs = ({
   return (
     <>
       {!vertical && (
-        <div className="w-full h-full max-md:p-4 flex flex-col gap-4">
+        <div className="w-full flex flex-col gap-4 h-screen">
           <ul className="flex flex-wrap text-sm font-medium text-center border-b md:border-gray-700 md:dark:text-gray-800">
             {content.map((tab, index) => (
               <li
@@ -104,7 +104,7 @@ export const StudyCardTabs = ({
       )}
       {vertical && (
         <div
-          className={`relative flex flex-col gap-4 ${absolute ? "relative top-0 z-[200] max-w-sm" : ""}`}
+          className={`flex flex-col h-screen h-full gap-4 ${absolute ? "sticky top-0 mr-10 md:ml-2 ml-10 left-0 z-[200] max-w-sm" : ""}`}
         >
           {currentTab !== Tab.NONE && (
             <>
@@ -129,7 +129,7 @@ export const StudyCardTabs = ({
                   </li>
                 ))}
               </ul>
-              <div className="p-6 bg-gray-50 text-medium text-gray-800 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-white dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800">
+              <div className="p-6 bg-gray-50 text-medium text-gray-800 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-full w-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-white dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                   Profile Tab
                 </h3>
