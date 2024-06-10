@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/app/auth/auth";
+import { updateSession } from "@/auth/auth";
 
 export const middleware = async (request: NextRequest) => {
   if (process.env.NODE_ENV === "development") return NextResponse.next();

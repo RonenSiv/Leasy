@@ -1,14 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FormField } from "@/app/components/Forms/FormField";
+import { FormField } from "@/components/Forms/FormField";
 import { registerUser } from "@/app/actions/actions";
 import { useForm } from "react-hook-form";
 import {
   registerFormSchema,
   RegisterFormSchema,
-} from "@/app/lib/schemas/useFormSchema";
+} from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
+import { Button } from "@/components/ui/button";
 
 interface PasswordCriteria {
   length: boolean;
@@ -61,7 +62,7 @@ export const SignupForm = () => {
 
   return (
     <form
-      className="max-w-sm mx-auto mt-5"
+      className="max-w-sm mt-5"
       action={formAction}
       onSubmit={(e) => {
         e.preventDefault();
@@ -156,16 +157,13 @@ export const SignupForm = () => {
           >
             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
           </svg>
-          At least one number and special character, e.g., ! @ #
+          At least one number and special character, e.g., ! @
         </li>
       </ul>
 
-      <button
-        type="submit"
-        className="text-white dark:text-gray-800 bg-action hover:bg-[#41e084] dark:hover:bg-[#2CA15D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
-      >
+      <Button type="submit" className="w-full">
         Sign Up
-      </button>
+      </Button>
     </form>
   );
 };

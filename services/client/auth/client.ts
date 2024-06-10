@@ -1,6 +1,6 @@
 import axios from "axios";
-import { endSession, getSession, startSession } from "@/app/auth/auth";
-import { encrypt } from "@/app/auth/auth-utils";
+import { endSession, getSession, startSession } from "@/auth/auth";
+import { encrypt } from "@/auth/auth-utils";
 
 export interface FormData {
   email?: string;

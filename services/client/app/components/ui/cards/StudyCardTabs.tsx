@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconType } from "react-icons";
-import { Tab } from "@/app/constants/enums";
+import { Tab } from "@/constants/enums";
 
 const verticalTabVariants = {
   closed: { x: 0, opacity: 0 },

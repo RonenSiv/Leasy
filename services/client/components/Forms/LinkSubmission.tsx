@@ -4,11 +4,11 @@ import { useForm } from "react-hook-form";
 import {
   linkSubmissionSchema,
   LinkSubmissionSchema,
-} from "@/app/lib/schemas/useFormSchema";
+} from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { submitLink } from "@/app/actions/actions";
-import { FormField } from "@/app/components/Forms/FormField";
+import { FormField } from "@/components/Forms/FormField";
 
 export const LinkSubmission = () => {
   const {

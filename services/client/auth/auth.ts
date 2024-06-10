@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt, encrypt, sessionExpirationTime } from "@/app/auth/auth-utils";
+import { decrypt, encrypt, sessionExpirationTime } from "@/auth/auth-utils";
 
 export const startSession = async (payload: any) => {
   Cookies.set("session", await encrypt(payload), {

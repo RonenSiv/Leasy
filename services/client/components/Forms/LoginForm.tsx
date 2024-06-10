@@ -1,14 +1,12 @@
 "use client";
 import React, { useRef } from "react";
-import { FormField } from "@/app/components/Forms/FormField";
+import { FormField } from "@/components/Forms/FormField";
 import { loginUser } from "@/app/actions/actions";
 import { useForm } from "react-hook-form";
-import {
-  loginFormSchema,
-  LoginFormSchema,
-} from "@/app/lib/schemas/useFormSchema";
+import { loginFormSchema, LoginFormSchema } from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
+import { Button } from "@/components/ui/button";
 
 export const LoginForm = () => {
   const {
@@ -29,7 +27,7 @@ export const LoginForm = () => {
 
   return (
     <form
-      className="max-w-sm mx-auto mt-5"
+      className="max-w-sm mt-5"
       ref={formRef}
       action={formAction}
       onSubmit={(e) => {
@@ -76,12 +74,9 @@ export const LoginForm = () => {
       {errors.email && (
         <div className="pb-5 text-red-500">Invalid email or password</div>
       )}
-      <button
-        type="submit"
-        className="text-white dark:text-gray-800 bg-action hover:bg-[#41e084] dark:hover:bg-[#2CA15D] font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
-      >
+      <Button type="submit" className="w-full">
         Login
-      </button>
+      </Button>
     </form>
   );
 };

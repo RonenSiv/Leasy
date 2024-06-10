@@ -2,7 +2,7 @@
 
 import React, { ChangeEvent, useState } from "react";
 import Image from "next/image";
-import { UploadProcess } from "@/app/constants/enums";
+import { UploadProcess } from "@/constants/enums";
 import { Spinner } from "@/app/components/ui/Spinner";
 
 export const UploadTemplate = () => {

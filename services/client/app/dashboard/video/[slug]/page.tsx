@@ -1,11 +1,34 @@
 "use client";
 
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import React, { useState } from "react";
-import { VideoPlayer } from "@/app/components/ui/video-player/VideoPlayer";
 import { useParams } from "next/navigation";
-import ChatBot from "@/app/components/Chat/ChatBot";
-import { StudyCardTabs } from "@/app/components/ui/cards/StudyCardTabs";
-import { studyTabsContent } from "@/app/constants/constants";
+import { VideoPlayer } from "@/app/components/ui/video-player/VideoPlayer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { MdExpand } from "react-icons/md";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+const ChatDrawer = () => {
+  return (
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button className="absolute top-2 right-2 bg-transparent hover:bg-transparent text-secondary-foreground hover:scale-110">
+          <MdExpand />
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="mx-auto w-full h-full"></div>
+      </DrawerContent>
+    </Drawer>
+  );
+};
 
 export default function VideoPage() {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -17,35 +40,128 @@ export default function VideoPage() {
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
   };
-
   return (
-    <div
-      className={`relative flex flex-col md:flex-row gap-4 md:gap-8 w-full md:w-[95vw] p-4 md:p-8 `}
-    >
-      <div className="flex w-full h-full justify-start items-start justify-items-start ">
-        {isFullScreen && (
-          <StudyCardTabs vertical absolute content={studyTabsContent} />
-        )}
-        <div className="relative flex flex-col w-full h-full items-center justify-start">
-          <div
-            className={`w-full ${!isFullScreen ? "h-[50vh]" : "md:sticky md:top-0 md:left-0 md:z-[49] md:h-[60vh] max-md:h-[50vh]"}`}
+    <section className="flex flex-col items-center justify-center w-full min-h-screen h-full flex-1">
+      <ResizablePanelGroup
+        direction="vertical"
+        className="w-full h-full flex-1 border-0 gap-4"
+      >
+        <ResizablePanel>
+          <ResizablePanelGroup
+            direction="horizontal"
+            className="w-full h-full flex-1 border-0 gap-4"
           >
-            <VideoPlayer
-              videoId={videoId}
-              isFullScreen={isFullScreen}
-              toggleFullScreen={toggleFullScreen}
-            />
-          </div>
-          <div className={`w-full h-full rounded-lg `}>
-            <ChatBot expanded />
-          </div>
-        </div>
-      </div>
-      {!isFullScreen && (
-        <div className="w-full h-full max-md:mt-12 max-md:bg-white max-md:dark:bg-gray-800  max-md:rounded-md">
-          <StudyCardTabs content={studyTabsContent} />
-        </div>
-      )}
-    </div>
+            <ResizablePanel minSize={50}>
+              <VideoPlayer
+                videoId={videoId}
+                isFullScreen={isFullScreen}
+                toggleFullScreen={toggleFullScreen}
+              />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel minSize={25}>
+              <Tabs
+                defaultValue="transcription"
+                className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar h-full bg-background"
+              >
+                <TabsList className={"flex justify-center gap-4"}>
+                  <TabsTrigger value="transcription">Transcription</TabsTrigger>
+                  <TabsTrigger value="summary">Summary</TabsTrigger>
+                  <TabsTrigger value="quizzlet">Quizzlet</TabsTrigger>
+                </TabsList>
+                <ScrollArea className="w-full h-full pb-16 px-4">
+                  <TabsContent value="transcription">
+                    <div>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Aut est natus nulla repellat suscipit. Ad aperiam
+                      consectetur consequuntur eius eos ipsam maiores nostrum
+                      pariatur quam, rem sequi sint temporibus vel!
+                    </div>
+                    <div>
+                      A ab aliquam amet animi architecto aspernatur atque autem
+                      culpa ea, ipsa itaque iusto laboriosam maxime minima nisi
+                      nostrum omnis, provident quas rem saepe sapiente unde
+                      veniam voluptas? Facere, possimus?
+                    </div>
+                    <div>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Aut est natus nulla repellat suscipit. Ad aperiam
+                      consectetur consequuntur eius eos ipsam maiores nostrum
+                      pariatur quam, rem sequi sint temporibus vel!
+                    </div>
+                    <div>
+                      A ab aliquam amet animi architecto aspernatur atque autem
+                      culpa ea, ipsa itaque iusto laboriosam maxime minima nisi
+                      nostrum omnis, provident quas rem saepe sapiente unde
+                      veniam voluptas? Facere, possimus?
+                    </div>
+                    <div>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Aut est natus nulla repellat suscipit. Ad aperiam
+                      consectetur consequuntur eius eos ipsam maiores nostrum
+                      pariatur quam, rem sequi sint temporibus vel!
+                    </div>
+                    <div>
+                      A ab aliquam amet animi architecto aspernatur atque autem
+                      culpa ea, ipsa itaque iusto laboriosam maxime minima nisi
+                      nostrum omnis, provident quas rem saepe sapiente unde
+                      veniam voluptas? Facere, possimus?
+                    </div>
+                    <div>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Aut est natus nulla repellat suscipit. Ad aperiam
+                      consectetur consequuntur eius eos ipsam maiores nostrum
+                      pariatur quam, rem sequi sint temporibus vel!
+                    </div>
+                    <div>
+                      A ab aliquam amet animi architecto aspernatur atque autem
+                      culpa ea, ipsa itaque iusto laboriosam maxime minima nisi
+                      nostrum omnis, provident quas rem saepe sapiente unde
+                      veniam voluptas? Facere, possimus?
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="summary">
+                    <div>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Aut est natus nulla repellat suscipit. Ad aperiam
+                      consectetur consequuntur eius eos ipsam maiores nostrum
+                      pariatur quam, rem sequi sint temporibus vel!
+                    </div>
+                    <div>
+                      A ab aliquam amet animi architecto aspernatur atque autem
+                      culpa ea, ipsa itaque iusto laboriosam maxime minima nisi
+                      nostrum omnis, provident quas rem saepe sapiente unde
+                      veniam voluptas? Facere, possimus?
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="quizzlet">
+                    <div>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Aut est natus nulla repellat suscipit. Ad aperiam
+                      consectetur consequuntur eius eos ipsam maiores nostrum
+                      pariatur quam, rem sequi sint temporibus vel!
+                    </div>
+                    <div>
+                      A ab aliquam amet animi architecto aspernatur atque autem
+                      culpa ea, ipsa itaque iusto laboriosam maxime minima nisi
+                      nostrum omnis, provident quas rem saepe sapiente unde
+                      veniam voluptas? Facere, possimus?
+                    </div>
+                  </TabsContent>
+                </ScrollArea>
+              </Tabs>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel minSize={25}>
+          <Card className="relative w-full h-full">
+            <CardContent>
+              <ChatDrawer />
+            </CardContent>
+          </Card>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </section>
   );
 }

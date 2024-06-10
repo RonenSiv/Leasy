@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { IoIosMoon } from "react-icons/io";
 import { IoSunny } from "react-icons/io5";
+import { Separator } from "@/components/ui/separator";
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -21,8 +22,8 @@ export const Navbar = () => {
   }, [pathname]);
 
   return (
-    <nav className="sticky w-full z-20 top-0 start-0 h-[15vh]">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto bg-transparent">
+    <nav>
+      <div className="flex flex-wrap items-center justify-between mx-auto bg-transparent">
         <Image
           src={`${theme !== "light" ? "/logo-dark.png" : "/logo-light.png"}`}
           width={150}
@@ -47,7 +48,12 @@ export const Navbar = () => {
           <Sidebar />
         </div>
       </div>
-      <hr className="h-0.5 border-t-0 dark:bg-neutral-100 bg-neutral-700 w-[95vw] opacity-65 rounded-3xl mx-auto" />
+      <Separator
+        className="w-full h-0.5 mx-auto bg-foreground opacity-30"
+        style={{
+          minWidth: "600px",
+        }}
+      />
     </nav>
   );
 };

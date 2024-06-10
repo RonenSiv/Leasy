@@ -1,11 +1,8 @@
-import React, { Suspense } from "react";
+import React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/app/components/Navbar/Navbar";
-import { GradientCircle } from "@/app/components/ui/GradientCircle";
-import Progress from "@/app/components/ui/Progress";
-import { ThemeProvider } from "next-themes";
+import { LayoutProvider } from "@/layouts/LayoutProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,30 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className}`}>
-        <ThemeProvider attribute="class">
-          <Suspense>
-            <Progress />
-          </Suspense>
-          <GradientCircle
-            dimensions={500}
-            position={{ x: "-3%", y: "60%" }}
-            duration={15}
-          />
-          <GradientCircle
-            dimensions={1100}
-            position={{ x: "40%", y: "-50%" }}
-            duration={25}
-            reverse
-          />
-          <div className="flex flex-col items-center justify-start relative custom-scrollbar">
-            <header>
-              <Navbar />
-            </header>
-            <main className="flex flex-col items-center justify-center h-full  min-h-[80vh]">
-              {children}
-            </main>
-          </div>
-        </ThemeProvider>
+        <LayoutProvider>{children}</LayoutProvider>
       </body>
     </html>
   );

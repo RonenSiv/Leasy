@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { InputCta } from "@/app/components/Forms/InputCta";
+import { InputCta } from "@/components/Forms/InputCta";
 import { ChatBubble } from "@/app/components/Chat/ChatBubble";
 import { ExpendableCard } from "@/app/components/ui/cards/ExpendableCard";
 

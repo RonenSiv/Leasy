@@ -1,11 +1,11 @@
 "use server";
-import { getClient } from "@/app/auth/client";
+import { getClient } from "@/auth/client";
 import { redirect } from "next/navigation";
 import {
   linkSubmissionSchema,
   loginFormSchema,
   registerFormSchema,
-} from "@/app/lib/schemas/useFormSchema";
+} from "@/lib/schemas/useFormSchema";
 
 export type FormState = {
   success: boolean | undefined;

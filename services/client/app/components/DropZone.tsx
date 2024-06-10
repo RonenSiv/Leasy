@@ -2,7 +2,7 @@
 import React, { CSSProperties, FC, useEffect, useState } from "react";
 import { DropzoneState, useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { UploadTemplate } from "@/app/components/Forms/UploadForm";
+import { UploadTemplate } from "@/components/Forms/UploadForm";
 import { Spinner } from "@/app/components/ui/Spinner";
 
 const thumb: CSSProperties = {
