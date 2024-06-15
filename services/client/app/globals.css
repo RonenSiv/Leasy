@@ -13,11 +13,11 @@
         --popover-foreground: 240 10% 3.9%;
         --primary: 142.1 76.2% 36.3%;
         --primary-foreground: 355.7 100% 97.3%;
-        --secondary: 240 4.8% 95.9%;
+        --secondary: 240 5.9% 90%;
         --secondary-foreground: 240 5.9% 10%;
         --muted: 240 4.8% 95.9%;
         --muted-foreground: 240 3.8% 46.1%;
-        --accent: 240 4.8% 95.9%;
+        --accent: 240 5.9% 90%;
         --accent-foreground: 240 5.9% 10%;
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 98%;
@@ -42,8 +42,8 @@
         --popover-foreground: 0 0% 95%;
         --primary: 142.1 70.6% 45.3%;
         --primary-foreground: 144.9 80.4% 10%;
-        --secondary: 240 3.7% 15.9%;
-        --secondary-foreground: 0 0% 98%;
+        --secondary: 0 0% 9%;
+        --secondary-foreground: 0 0% 95%;
         --muted: 0 0% 15%;
         --muted-foreground: 240 5% 64.9%;
         --accent: 217.78, 19.71%, 26.86%;
@@ -100,4 +100,8 @@
 .custom-scrollbar {
     scrollbar-width: thin; /* Scrollbar width */
     scrollbar-color: #888 #f1f1f1; /* Scrollbar thumb and track color */
+}
+
+.react-grid-item.react-grid-placeholder {
+    background-color: rgba(0, 0, 0, 0.5);
 }

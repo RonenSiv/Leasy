@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import {
   linkSubmissionSchema,
@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { submitLink } from "@/app/actions/actions";
 import { FormField } from "@/components/Forms/FormField";
+import { toast } from "sonner";
 
 export const LinkSubmission = () => {
   const {
@@ -25,7 +26,13 @@ export const LinkSubmission = () => {
   const [state, formAction] = useFormState(submitLink, {
     success: false,
   });
-  console.log(errors, state);
+  useEffect(() => {
+    if (state.success) {
+      toast.success("File uploaded successfully");
+    } else if (!state.issues) {
+      toast.error("Failed to upload the file");
+    }
+  }, [state.success]);
   // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
   //   console.log(videoUrl);

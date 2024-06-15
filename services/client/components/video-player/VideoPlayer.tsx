@@ -1,6 +1,6 @@
 import React, { Suspense, useRef, useState } from "react";
 import { FaCompressAlt, FaExpandAlt } from "react-icons/fa";
-import { VideoComponent } from "@/app/components/ui/video-player/VideoComponent";
+import { VideoComponent } from "@/components/video-player/VideoComponent";
 
 const VideoPlaceholder = () => (
   <div
@@ -33,12 +33,12 @@ export const VideoPlayer = ({
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLDivElement>(null);
 
-  const handleVideoError = (
-    e: React.SyntheticEvent<HTMLVideoElement, Event>,
-  ) => {
-    console.error("Video error:", e);
-    setVideoError(true);
-  };
+  // const handleVideoError = (
+  //   e: React.SyntheticEvent<HTMLVideoElement, Event>,
+  // ) => {
+  //   console.error("Video error:", e);
+  //   setVideoError(true);
+  // };
 
   return (
     <Suspense fallback={<VideoPlaceholder />}>

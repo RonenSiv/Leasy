@@ -87,3 +87,23 @@ export const getMessageFromCode = (resultCode: string) => {
       return "Logged in!";
   }
 };
+
+export const saveToLS = (key: string, value: any) => {
+  if (global.localStorage) {
+    global.localStorage.setItem(
+      "rgl-8",
+      JSON.stringify({
+        [key]: value,
+      }),
+    );
+  }
+};
+
+export const loadFromLS = (key: string) => {
+  if (global.localStorage) {
+    const data = global.localStorage.getItem("rgl-8");
+    if (data) {
+      return JSON.parse(data)[key];
+    }
+  }
+};

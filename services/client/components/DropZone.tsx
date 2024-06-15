@@ -3,7 +3,8 @@ import React, { CSSProperties, FC, useEffect, useState } from "react";
 import { DropzoneState, useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { UploadTemplate } from "@/components/Forms/UploadForm";
-import { Spinner } from "@/app/components/ui/Spinner";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
 
 const thumb: CSSProperties = {
   display: "inline-flex",
@@ -31,6 +32,7 @@ const DropZone: FC = () => {
       setFiles(
         acceptedFiles.map((file: File) => {
           const preview = URL.createObjectURL(file);
+          toast.success("File uploaded successfully");
           return { ...file, preview } as FileWithPreview;
         }),
       );
@@ -58,6 +60,7 @@ const DropZone: FC = () => {
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL("image/png"));
         } else {
+          toast.error("Failed to get canvas context");
           reject(new Error("Failed to get canvas context"));
         }
         video.pause();

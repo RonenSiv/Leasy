@@ -7,16 +7,16 @@ export const VideoComponent = async ({
   fileName?: { url: string; captionsUrl: string };
   handleVideoError?: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => void;
 }) => {
-  const getVideoUrl = async (fileName: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    // TODO: Implement this function to fetch the video URL and captions URL
-    return {
-      data: {
-        url: "https://example.com/video.mp4",
-        captionsUrl: "https://example.com/captions.vtt",
-      },
-    };
-  };
+  // const getVideoUrl = async (fileName: string) => {
+  //   await new Promise((resolve) => setTimeout(resolve, 1000));
+  //   // TODO: Implement this function to fetch the video URL and captions URL
+  //   return {
+  //     data: {
+  //       url: "https://example.com/video.mp4",
+  //       captionsUrl: "https://example.com/captions.vtt",
+  //     },
+  //   };
+  // };
   // const { url, captionsUrl } = fileName;
 
   return (
