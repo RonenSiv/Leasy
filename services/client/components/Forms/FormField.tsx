@@ -6,10 +6,11 @@ import {
   IoIosWarning,
 } from "react-icons/io";
 import { UseFormRegisterReturn } from "react-hook-form";
+import { cn } from "@/lib/utils/utils";
 
 export type FormFieldStatus = "none" | "warning" | "error" | "info";
 
-interface FormFieldProps {
+interface FormFieldProps extends React.HTMLProps<HTMLInputElement> {
   label?: string;
   type?: "email" | "password" | "text" | "url" | "search";
   name: string;
@@ -41,6 +42,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   className,
   register,
   noMargin = false,
+  ...props
 }) => {
   const getStatusIcon = () => {
     switch (status) {
@@ -98,9 +100,13 @@ export const FormField: React.FC<FormFieldProps> = ({
         <input
           type={type}
           id={name}
-          className={`relative bg-gray-50 dark:bg-gray-800 border ${statusInputClasses[status]} text-gray-900 dark:text-gray-100 text-sm rounded-lg block w-full p-2.5 outline-none ${className}`}
+          className={cn(
+            "relative bg-gray-50 dark:bg-gray-800 border ${statusInputClasses[status]} text-gray-900 dark:text-gray-100 text-sm rounded-lg block w-full p-2.5 outline-none disabled:bg-muted dark:disabled:bg-accent disabled:hover:cursor-not-allowed",
+            className,
+          )}
           placeholder={placeholder}
           {...register}
+          {...props}
         />
         {status !== "none" && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none z-50">

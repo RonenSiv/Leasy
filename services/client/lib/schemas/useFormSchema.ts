@@ -39,6 +39,14 @@ export const linkSubmissionSchema = z.object({
   url: z.string().url(),
 });
 
+export const profileSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  bio: z.string().max(160, "Bio must be at most 160 characters long"),
+  email: z.string().email("Invalid email address"),
+  password: passwordSchema,
+});
+
 export type LoginFormSchema = z.infer<typeof loginFormSchema>;
 export type RegisterFormSchema = z.infer<typeof registerFormSchema>;
 export type LinkSubmissionSchema = z.infer<typeof linkSubmissionSchema>;
+export type ProfileSchema = z.infer<typeof profileSchema>;
