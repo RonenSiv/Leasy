@@ -30,6 +30,7 @@
         --foreground-rgb: 0, 0, 0;
         --background-start-rgb: 65, 235, 136;
         --background-end-rgb: 57, 246, 205;
+        --skeleton: 240 5.9% 90%;
     }
 
     .dark {
@@ -58,6 +59,7 @@
         --foreground-rgb: 0, 0, 0;
         --background-start-rgb: 65, 235, 136;
         --background-end-rgb: 57, 246, 205;
+        --skeleton: 240 5% 64.9%;
     }
 }
 

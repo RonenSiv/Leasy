@@ -57,6 +57,10 @@ const config = {
           hover: "hsl(var(--link-hover))",
         },
         ghost: "hsl(var(--background-transparent))",
+        skeleton: {
+          DEFAULT: "hsl(var(--skeleton))",
+          foreground: "hsl(var(--skeleton-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

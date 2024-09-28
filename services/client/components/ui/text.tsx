@@ -79,7 +79,7 @@ const Type = ({
 };
 
 const Text = React.forwardRef<HTMLParagraphElement, TextProps>(
-  ({ className, type = "normal", tagName = "p", size = "md", ...props }) => {
+  ({ className, type = "normal", tagName = "div", size = "md", ...props }) => {
     return (
       <Tag
         tagName={tagName}

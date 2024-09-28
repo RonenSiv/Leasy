@@ -5,6 +5,7 @@ import React, {
   FC,
   ReactNode,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import {
@@ -81,6 +82,7 @@ interface SettingsContextType {
   privacySettingsOptions: () => SettingsOptionType[];
   supportSettingsOptions: () => SettingsOptionType[];
   contentOfSelectedOption: () => ReactNode;
+  isLoading: boolean;
 }
 
 const mapSettingsOptions = new Map<string, SettingsOption>();
@@ -96,9 +98,24 @@ export const SettingsProvider: FC<{ children?: ReactNode }> = (props) => {
   const [selectedOption, setSelectedOption] = useState<SettingsOption>(
     SettingsOption.DASHBOARD,
   );
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    // Set initial state based on URL hash
+    const hash = window.location.hash.slice(1);
+    const option = settingsOptions.find(
+      (opt) => opt.title.toLowerCase().replace(/\s+/g, "-") === hash,
+    );
+    if (option) {
+      setSelectedOption(mapSettingsOptions.get(option.title)!);
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleSelectOption = (option: string) => {
     setSelectedOption(mapSettingsOptions.get(option)!);
+    // Update URL with anchor
+    const anchor = option.toLowerCase().replace(/\s+/g, "-");
+    window.history.pushState(null, "", `#${anchor}`);
   };
 
   const currentSelectedSettingOption = () => {
@@ -136,6 +153,7 @@ export const SettingsProvider: FC<{ children?: ReactNode }> = (props) => {
         privacySettingsOptions,
         supportSettingsOptions,
         contentOfSelectedOption,
+        isLoading,
       }}
     >
       {props.children}

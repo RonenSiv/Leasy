@@ -1,7 +1,6 @@
 import React from "react";
 import { Header } from "@/components/ui/header";
 import { Text } from "@/components/ui/text";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ImageUp, Pencil } from "lucide-react";
 import { FormField } from "@/components/Forms/form-field";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import { ProfileSchema, profileSchema } from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,15 +42,46 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useClient } from "@/providers/client-provider";
+import { ClientAvatar } from "@/components/client-avatar";
+import { imageSchema } from "@/lib/schemas/useImageSchema";
+import { Spinner } from "@/components/ui/spinner";
+import FileInput from "@/components/ui/file-input";
 
 const SettingsAccountImage = () => {
-  const { avatar } = useClient();
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(imageSchema),
+  });
+  type ImageFormData = {
+    image: FileList;
+  };
+
+  const handleImageUpload = async (data: FieldValues) => {
+    setLoading(true);
+    try {
+      console.log("Uploading image...", data.image[0]);
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Image uploaded successfully");
+      reset();
+    } catch (error) {
+      console.error("Image upload failed", error);
+    } finally {
+      setLoading(false);
+      setOpen(false);
+    }
+  };
+
   return (
     <div className={"relative flex h-full w-full justify-center items-center"}>
-      <Avatar className={"h-full w-full"}>
-        <AvatarImage src={avatar} />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
+      <ClientAvatar width={"200px"} height={"200px"} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -65,7 +95,10 @@ const SettingsAccountImage = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuGroup>
-            <DropdownMenuItem className={"flex gap-2"}>
+            <DropdownMenuItem
+              className={"flex gap-2"}
+              onClick={() => setOpen(true)}
+            >
               <ImageUp />
               <Text size={"sm"}>Upload new image</Text>
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
@@ -73,6 +106,62 @@ const SettingsAccountImage = () => {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Dialog Modal for Image Upload */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg p-6 shadow-xl">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-lg font-semibold">
+              Upload New Profile Picture
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              Select a new image file to update your profile picture. Supported
+              formats: JPG, PNG.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(handleImageUpload)} id="image-upload">
+            <div>
+              <Label htmlFor="image-upload" className="text-sm font-medium">
+                Choose Image
+              </Label>
+              <FileInput
+                id="image-upload"
+                accept="image/*"
+                onChange={(files) => {
+                  console.log("Selected image", files);
+                }}
+                register={register("image")}
+                disabled={loading}
+              />
+              {errors.image && (
+                <p className="text-sm text-red-600 mt-1">
+                  {/* @ts-ignore */}
+                  {errors?.image?.message}
+                </p>
+              )}
+            </div>
+            <DialogFooter className="flex justify-end space-x-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="default"
+                disabled={loading}
+                className="relative"
+              >
+                {loading && <Spinner />}
+                {loading ? "Uploading..." : "Upload Image"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -293,7 +382,7 @@ const EmailChangeButton = ({
         </span>
       </TooltipTrigger>
       <TooltipContent>
-        <p>Click here to change your email address.</p>
+        <span>Click here to change your email address.</span>
       </TooltipContent>
     </Tooltip>
   );
@@ -315,7 +404,7 @@ const PasswordChangeButton = ({
         </span>
       </TooltipTrigger>
       <TooltipContent>
-        <p>Click here to change your password.</p>
+        <span>Click here to change your password.</span>
       </TooltipContent>
     </Tooltip>
   );

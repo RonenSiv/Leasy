@@ -9,7 +9,7 @@ import {
   AiOutlineSetting,
   AiOutlineUpload,
 } from "react-icons/ai";
-import { BiHomeSmile, BiLogIn, BiLogOut, BiUser } from "react-icons/bi";
+import { BiHomeSmile, BiLogIn, BiLogOut } from "react-icons/bi";
 import Link from "next/link";
 import Image from "next/image";
 import { ClientAvatar } from "@/components/client-avatar";
@@ -17,7 +17,6 @@ import { Spinner } from "../ui/spinner";
 import { RxHamburgerMenu } from "react-icons/rx";
 
 const profileLinks = [
-  { title: "Your profile", Icon: BiUser, href: "/" },
   { title: "Your uploads", Icon: AiOutlineCloudUpload, href: "/dashboard" },
   {
     title: "Upload a new video",
@@ -28,7 +27,7 @@ const profileLinks = [
 
 const visitorItems = [
   [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
-  [{ title: "Settings", Icon: AiOutlineSetting, href: "/" }],
+  [{ title: "Account Settings", Icon: AiOutlineSetting, href: "/" }],
 
   [
     { title: "Login", Icon: BiLogIn, href: "/login" },
@@ -79,7 +78,11 @@ const LoggedInContent: React.FC<{
     [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
     profileLinks,
     [
-      { title: "Settings", Icon: AiOutlineSetting, href: "/settings/profile" },
+      {
+        title: "Account Settings",
+        Icon: AiOutlineSetting,
+        href: "/settings/profile",
+      },
       {
         title: "Logout",
         Icon: BiLogOut,
