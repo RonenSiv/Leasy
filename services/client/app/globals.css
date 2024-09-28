@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
     :root {
+        /* Default Colors */
         --background: 180, 9.09%, 97.84%;
         --foreground: 240 10% 3.9%;
         --card: 180, 9.09%, 97.84%;
@@ -33,6 +33,7 @@
         --skeleton: 240 5.9% 90%;
     }
 
+    /* Dark Mode */
     .dark {
         --background: 215, 27.91%, 16.86%;
         --background-transparent: 215, 27.91%, 16.86%, 0;
@@ -61,8 +62,125 @@
         --background-end-rgb: 57, 246, 205;
         --skeleton: 240 5% 64.9%;
     }
-}
 
+    /* High Contrast Mode - Light */
+    body[data-contrast="high-contrast"] {
+        --background: 0, 0%, 0%;
+        --foreground: 0, 0%, 100%;
+        --card: 0, 0%, 20%;
+        --card-foreground: 0, 0%, 100%;
+        --popover: 0, 0%, 20%;
+        --popover-foreground: 0, 0%, 100%;
+        --primary: 0, 100%, 50%;
+        --primary-foreground: 0, 0%, 100%;
+        --secondary: 0, 0%, 30%;
+        --secondary-foreground: 0, 0%, 100%;
+        --muted: 0, 0%, 15%;
+        --muted-foreground: 0, 0%, 100%;
+        --accent: 60, 100%, 50%;
+        --accent-foreground: 0, 0%, 100%;
+        --destructive: 0, 100%, 50%;
+        --destructive-foreground: 0, 0%, 100%;
+        --border: 0, 0%, 100%;
+        --input: 0, 0%, 20%;
+        --ring: 0, 100%, 50%;
+        --link: 240, 100%, 70%;
+        --link-hover: 240, 100%, 90%;
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+        --skeleton: 0, 0%, 100%;
+    }
+
+    /* High Contrast Mode - Dark */
+    .dark body[data-contrast="high-contrast"] {
+        --background: 0, 0%, 20%;
+        --foreground: 0, 0%, 100%;
+        --card: 0, 0%, 30%;
+        --card-foreground: 0, 0%, 100%;
+        --popover: 0, 0%, 30%;
+        --popover-foreground: 0, 0%, 100%;
+        --primary: 0, 100%, 60%;
+        --primary-foreground: 0, 0%, 100%;
+        --secondary: 0, 0%, 40%;
+        --secondary-foreground: 0, 0%, 100%;
+        --muted: 0, 0%, 25%;
+        --muted-foreground: 0, 0%, 100%;
+        --accent: 60, 100%, 60%;
+        --accent-foreground: 0, 0%, 100%;
+        --destructive: 0, 100%, 60%;
+        --destructive-foreground: 0, 0%, 100%;
+        --border: 0, 0%, 100%;
+        --input: 0, 0%, 30%;
+        --ring: 0, 100%, 60%;
+        --link: 240, 100%, 80%;
+        --link-hover: 240, 100%, 100%;
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 30%;
+        --background-end-rgb: 0, 0, 30%;
+        --skeleton: 0, 0%, 100%;
+    }
+
+    /* Protanopia Mode - Light */
+    body[data-colorblind="protanopia"] {
+        --primary: 250 60% 50%;
+        --primary-foreground: 250 100% 100%;
+        --secondary: 60 60% 50%;
+        --secondary-foreground: 60 100% 10%;
+        --destructive: 0 84.2% 70.2%;
+        --destructive-foreground: 0 0% 98%;
+    }
+
+    /* Protanopia Mode - Dark */
+    .dark body[data-colorblind="protanopia"] {
+        --primary: 210 100% 40%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 40 100% 40%;
+        --secondary-foreground: 0 0% 100%;
+        --destructive: 0 84.2% 70.2%;
+        --destructive-foreground: 0 0% 98%;
+    }
+
+    /* Deuteranopia Mode - Light */
+    body[data-colorblind="deuteranopia"] {
+        --primary: 190 60% 50%;
+        --primary-foreground: 190 100% 100%;
+        --secondary: 90 60% 50%;
+        --secondary-foreground: 90 100% 10%;
+        --destructive: 0 84.2% 70.2%;
+        --destructive-foreground: 0 0% 98%;
+    }
+
+    /* Deuteranopia Mode - Dark */
+    .dark body[data-colorblind="deuteranopia"] {
+        --primary: 150 100% 40%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 70 100% 40%;
+        --secondary-foreground: 0 0% 100%;
+        --destructive: 0 84.2% 70.2%;
+        --destructive-foreground: 0 0% 98%;
+    }
+
+    /* Tritanopia Mode - Light */
+    body[data-colorblind="tritanopia"] {
+        --primary: 120 60% 50%;
+        --primary-foreground: 120 100% 100%;
+        --secondary: 210 60% 50%;
+        --secondary-foreground: 210 100% 10%;
+        --destructive: 0 84.2% 70.2%;
+        --destructive-foreground: 0 0% 98%;
+    }
+
+    /* Tritanopia Mode - Dark */
+    .dark body[data-colorblind="tritanopia"] {
+        --primary: 240 100% 40%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 180 100% 40%;
+        --secondary-foreground: 0 0% 100%;
+        --destructive: 0 84.2% 70.2%;
+        --destructive-foreground: 0 0% 98%;
+    }
+}
 
 @layer base {
     * {

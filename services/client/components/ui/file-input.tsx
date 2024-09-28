@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { UseFormRegisterReturn } from "react-hook-form";
-import { Input } from "@/components/ui/input"; // Import the type for register
+import { Input } from "@/components/ui/input";
 
 interface FileInputProps {
   id: string;
@@ -51,7 +51,6 @@ const FileInput: React.FC<FileInputProps> = ({
         name={register.name}
       />
 
-      {/* Custom File Input Label */}
       <button
         type="button"
         className="px-4 py-2 bg-gray-100 text-sm text-gray-700 border-r border-gray-300 hover:bg-gray-200 focus:outline-none disabled:opacity-50"
@@ -61,7 +60,6 @@ const FileInput: React.FC<FileInputProps> = ({
         Choose File
       </button>
 
-      {/* File Name Display */}
       <span className="flex-1 px-4 py-2 text-sm opacity-70 overflow-hidden">
         <span
           className="block"

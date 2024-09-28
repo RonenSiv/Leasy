@@ -26,6 +26,8 @@ import { GiArtificialIntelligence } from "react-icons/gi";
 import { RiCustomerService2Line } from "react-icons/ri";
 import { DataTable } from "@/components/settings/dashboard-table";
 import { SettingsAccount } from "@/components/settings/settings-account";
+import AppearanceSettings from "@/components/settings/settings-appearance";
+import AccessibilitySettings from "@/components/settings/settings-accessibility";
 
 type SettingsOptionType = {
   title: string;
@@ -52,6 +54,8 @@ const settingsOptions: SettingsOptionType[] = [
 const settingsContent: ReactNode[] = [
   <DataTable key={1} />,
   <SettingsAccount key={2} />,
+  <AppearanceSettings key={3} />,
+  <AccessibilitySettings key={4} />,
 ];
 
 enum SettingsOption {
