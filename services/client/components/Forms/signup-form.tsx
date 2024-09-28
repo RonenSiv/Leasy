@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FormField } from "@/components/Forms/FormField";
+import { FormField } from "@/components/Forms/form-field";
 import { registerUser } from "@/app/actions/actions";
 import { useForm } from "react-hook-form";
 import {

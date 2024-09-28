@@ -1,6 +1,6 @@
 "use client";
 
-import { useSettings } from "@/context/settings-provider";
+import { useSettings } from "@/providers/settings-provider";
 
 export const SettingsContent = () => {
   const { contentOfSelectedOption } = useSettings();

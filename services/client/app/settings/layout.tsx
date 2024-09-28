@@ -1,5 +1,5 @@
 import React from "react";
-import { SettingsProvider } from "@/context/settings-provider";
+import { SettingsProvider } from "@/providers/settings-provider";
 
 export default function Layout({
   children,

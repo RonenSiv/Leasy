@@ -8,7 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { submitLink } from "@/app/actions/actions";
-import { FormField } from "@/components/Forms/FormField";
+import { FormField } from "@/components/Forms/form-field";
 import { toast } from "sonner";
 
 export const LinkSubmission = () => {
@@ -28,9 +28,13 @@ export const LinkSubmission = () => {
   });
   useEffect(() => {
     if (state.success) {
-      toast.success("File uploaded successfully");
+      toast.success("File uploaded successfully", {
+        closeButton: true,
+      });
     } else if (!state.issues) {
-      toast.error("Failed to upload the file");
+      toast.error("Failed to upload the file", {
+        closeButton: true,
+      });
     }
   }, [state.success]);
   // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {

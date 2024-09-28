@@ -14,10 +14,9 @@ import {
   MdOutlineSubscriptions,
 } from "react-icons/md";
 import { LiaUser } from "react-icons/lia";
-import { HiOutlineBell, HiOutlinePaintBrush } from "react-icons/hi2";
+import { HiOutlinePaintBrush } from "react-icons/hi2";
 import {
   IoAccessibilityOutline,
-  IoLanguageOutline,
   IoShieldCheckmarkOutline,
 } from "react-icons/io5";
 import { FaRegComments, FaRegStickyNote } from "react-icons/fa";
@@ -39,8 +38,6 @@ const settingsOptions: SettingsOptionType[] = [
   { title: "Accessibility", icon: <IoAccessibilityOutline /> },
   { title: "Security", icon: <IoShieldCheckmarkOutline /> },
   { title: "Subscription Management", icon: <MdOutlineSubscriptions /> },
-  { title: "Notification Settings", icon: <HiOutlineBell /> },
-  { title: "Language Preferences", icon: <IoLanguageOutline /> },
   { title: "Studying Notes", icon: <FaRegStickyNote /> },
   { title: "Study Overview", icon: <GrOverview /> },
   { title: "AI Settings", icon: <GiArtificialIntelligence /> },

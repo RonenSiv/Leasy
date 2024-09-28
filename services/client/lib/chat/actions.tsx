@@ -26,7 +26,7 @@ import {
 } from "@/lib/utils/utils";
 import { Chat, Message } from "@/lib/types/types";
 import { Spinner } from "@/components/ui/spinner";
-import DropZone from "@/components/DropZone";
+import DropZone from "@/components/drop-zone";
 
 async function confirmPurchase(symbol: string, price: number, amount: number) {
   "use server";

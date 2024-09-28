@@ -3,7 +3,7 @@
 import React from "react";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { Separator } from "@/components/ui/separator";
-import { useSettings } from "@/context/settings-provider";
+import { useSettings } from "@/providers/settings-provider";
 
 export const ProfileSettings = () => {
   const {

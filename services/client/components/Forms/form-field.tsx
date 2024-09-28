@@ -105,6 +105,7 @@ export const FormField: React.FC<FormFieldProps> = ({
             className,
           )}
           placeholder={placeholder}
+          defaultValue={"tata"}
           {...register}
           {...props}
         />

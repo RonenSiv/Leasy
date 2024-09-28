@@ -9,10 +9,11 @@ import {
 } from "@/lib/utils/animationUtils";
 import { motion } from "framer-motion";
 import { buttonVariants } from "@/components/ui/button";
+import { useClient } from "@/providers/client-provider";
 
 export const Hero = () => {
+  const { isLogged } = useClient();
   const subHeaderLetters = splitTextToLetters("with ease.");
-
   return (
     <section
       className={"z-0 w-full flex items-start justify-start flex-1 h-full"}
@@ -47,7 +48,7 @@ export const Hero = () => {
           </p>
           <div className="flex gap-4">
             <Link
-              href="/signup"
+              href={isLogged ? "/dashboard" : "/login"}
               className={`${buttonVariants({ variant: "default" })} rounded-2xl px-6 py-6`}
             >
               Get started

@@ -2,7 +2,7 @@
 import React, { CSSProperties, FC, useEffect, useState } from "react";
 import { DropzoneState, useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { UploadTemplate } from "@/components/Forms/UploadForm";
+import { UploadTemplate } from "@/components/Forms/upload-form";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 
@@ -60,8 +60,8 @@ const DropZone: FC = () => {
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
           resolve(canvas.toDataURL("image/png"));
         } else {
-          toast.error("Failed to get canvas context");
-          reject(new Error("Failed to get canvas context"));
+          toast.error("Failed to get canvas providers");
+          reject(new Error("Failed to get canvas providers"));
         }
         video.pause();
         URL.revokeObjectURL(video.src);

@@ -19,9 +19,7 @@ import React from "react";
 
 export const NAVIGATION_LINKS = [
   { name: "About", link: "#" },
-  { name: "Blog", link: "#" },
   { name: "Team", link: "#" },
-  { name: "Pricing", link: "#" },
   { name: "Contact", link: "#" },
   { name: "Terms", link: "#" },
 ];

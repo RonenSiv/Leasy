@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useClickAway } from "react-use";
+import { useClient } from "@/providers/client-provider";
 import {
   AiOutlineCloudUpload,
   AiOutlineForm,
@@ -11,6 +12,9 @@ import {
 import { BiHomeSmile, BiLogIn, BiLogOut, BiUser } from "react-icons/bi";
 import Link from "next/link";
 import Image from "next/image";
+import { ClientAvatar } from "@/components/client-avatar";
+import { Spinner } from "../ui/spinner";
+import { RxHamburgerMenu } from "react-icons/rx";
 
 const profileLinks = [
   { title: "Your profile", Icon: BiUser, href: "/" },
@@ -20,15 +24,6 @@ const profileLinks = [
     Icon: AiOutlineUpload,
     href: "/dashboard/upload",
   },
-];
-
-const loggedInItems = [
-  [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
-  profileLinks,
-  [
-    { title: "Settings", Icon: AiOutlineSetting, href: "/" },
-    { title: "Logout", Icon: BiLogOut, href: "/logout", danger: true },
-  ],
 ];
 
 const visitorItems = [
@@ -79,21 +74,39 @@ const framerIcon = {
 const LoggedInContent: React.FC<{
   toggleSidebar: () => void;
 }> = ({ toggleSidebar }) => {
+  const { name, avatar, email, isLoading, logout } = useClient();
+  const loggedInItems = [
+    [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
+    profileLinks,
+    [
+      { title: "Settings", Icon: AiOutlineSetting, href: "/settings/profile" },
+      {
+        title: "Logout",
+        Icon: BiLogOut,
+        href: "/",
+        danger: true,
+        action: logout,
+      },
+    ],
+  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900 dark:border-gray-100"></div>
+      </div>
+    );
+  }
   return (
     <>
       <div>
         <div className="flex items-center justify-between p-5 border-b-2 border-gray-200 dark:border-gray-800">
           <span>
             <div className="flex items-center gap-4">
-              <img
-                className="w-10 h-10 rounded-full"
-                src="https://ui-avatars.com/api/?name=John+Doee&background=random&color=fff"
-                alt="profile"
-              />
+              <ClientAvatar width="40px" height="40px" />
               <div className="font-medium">
-                <div>Jese Leos</div>
+                <div>{name}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  your@email.com
+                  {email}
                 </div>
               </div>
             </div>
@@ -112,11 +125,16 @@ const LoggedInContent: React.FC<{
               return (
                 <React.Fragment key={groupIdx}>
                   {group.map((item, idx) => {
-                    const { title, href, Icon, danger } = item;
+                    const { title, href, Icon, danger, action } = item;
                     return (
                       <li key={title}>
                         <Link
-                          onClick={toggleSidebar}
+                          onClick={() => {
+                            toggleSidebar();
+                            if (action) {
+                              action();
+                            }
+                          }}
                           href={href}
                           className={`flex items-center justify-between gap-5 p-5 transition-all ${danger ? "hover:bg-red-300 dark:hover:bg-red-500" : "hover:bg-gray-100 dark:hover:bg-gray-700"} hover:cursor-pointer duration-200 `}
                         >
@@ -222,17 +240,18 @@ const VisitorContent: React.FC<{
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(false);
+  const { isLoading, isLogged } = useClient();
   const ref = useRef(null);
   useClickAway(ref, () => setOpen(false));
   const toggleSidebar = () => setOpen((prev) => !prev);
+  if (isLoading) {
+    <Spinner />;
+  }
   return (
     <>
       <button onClick={toggleSidebar} aria-label="toggle sidebar">
-        <img
-          className="w-10 h-10 rounded-full"
-          src="https://ui-avatars.com/api/?name=John+Doee&background=random&color=fff"
-          alt="profile"
-        />
+        {isLogged && <ClientAvatar width="40px" height="40px" />}
+        {!isLogged && <RxHamburgerMenu className="text-3xl" />}
       </button>
       <AnimatePresence mode="wait" initial={false}>
         {open && (
@@ -249,8 +268,8 @@ export const Sidebar = () => {
               aria-label="Sidebar"
             >
               <div className={"flex flex-col justify-start w-full h-full"}>
-                <LoggedInContent toggleSidebar={toggleSidebar} />
-                {/*<VisitorContent toggleSidebar={toggleSidebar} />*/}
+                {isLogged && <LoggedInContent toggleSidebar={toggleSidebar} />}
+                {!isLogged && <VisitorContent toggleSidebar={toggleSidebar} />}
               </div>
             </motion.div>
           </>

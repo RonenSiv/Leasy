@@ -1,15 +1,20 @@
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+"use client";
+import { useClient } from "@/providers/client-provider";
+import { Spinner } from "@/components/ui/spinner";
+import { ClientAvatar } from "@/components/client-avatar";
 
 export const UserData = () => {
+  const { name, avatar, isLoading } = useClient();
+  if (isLoading) {
+    return <Spinner />;
+  }
+
   return (
     <div className={"flex h-full items-start gap-4"}>
-      <Avatar className={"h-16 w-16"}>
-        <AvatarImage src="https://github.com/shadcn.png" />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
+      <ClientAvatar width="50px" height="50px" />
       <div className={"flex flex-col"}>
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-          Username
+          {name}
         </h3>
         <p className="scroll-m-20 text-gray-500 dark:text-gray-400">
           Your personal data

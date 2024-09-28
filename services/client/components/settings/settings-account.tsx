@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ImageUp, Pencil } from "lucide-react";
-import { FormField } from "@/components/Forms/FormField";
+import { FormField } from "@/components/Forms/form-field";
 import { useForm } from "react-hook-form";
 import { ProfileSchema, profileSchema } from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,12 +42,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useClient } from "@/providers/client-provider";
 
 const SettingsAccountImage = () => {
+  const { avatar } = useClient();
   return (
     <div className={"relative flex h-full w-full justify-center items-center"}>
       <Avatar className={"h-full w-full"}>
-        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarImage src={avatar} />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <DropdownMenu>
@@ -320,6 +322,7 @@ const PasswordChangeButton = ({
 };
 
 const SettingsAccountDetails = () => {
+  const { name, email, bio } = useClient();
   const {
     register,
     handleSubmit,
@@ -327,10 +330,10 @@ const SettingsAccountDetails = () => {
   } = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      fullName: "",
-      bio: "",
-      email: "",
-      password: "",
+      fullName: name,
+      bio: bio,
+      email: email,
+      password: "*********",
     },
   });
   const [dialogOpen, setDialogOpen] = React.useState({

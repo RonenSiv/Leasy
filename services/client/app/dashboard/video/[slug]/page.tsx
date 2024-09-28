@@ -6,7 +6,7 @@ import { Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { ResponsiveLayout } from "@/components/responsive-grid";
-import { VideoPlayer } from "@/components/video-player/VideoPlayer";
+import { VideoPlayer } from "@/components/video-player/video-player";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { loadFromLS, saveToLS } from "@/lib/utils/utils";

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
-import { LoginForm } from "@/components/Forms/LoginForm";
+import { LoginForm } from "@/components/Forms/login-form";
 import {
   Card,
   CardContent,

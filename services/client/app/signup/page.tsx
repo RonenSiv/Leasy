@@ -1,15 +1,15 @@
 import Image from "next/image";
 import React from "react";
-import { Card } from "@/app/components/ui/cards/Card";
 import Link from "next/link";
 import {
+  Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import { SignupForm } from "@/components/Forms/SignupForm";
+import { SignupForm } from "@/components/Forms/signup-form";
 
 export default function Signup() {
   return (
@@ -18,7 +18,7 @@ export default function Signup() {
         "flex flex-col md:flex-row gap-4 bg-background rounded-lg items-center h-full w-screen md:max-w-5xl max-w-md md:px-20"
       }
     >
-      <Card className={"w-full py-5 gap-4  min-w-[300px]"}>
+      <Card className={"w-full my-6 min-w-[300px]"}>
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>

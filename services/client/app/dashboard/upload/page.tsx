@@ -7,8 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import DropZone from "@/components/DropZone";
-import { LinkSubmission } from "@/components/Forms/LinkSubmission";
+import DropZone from "@/components/drop-zone";
+import { LinkSubmission } from "@/components/Forms/link-submission";
 
 export default function Upload() {
   return (
