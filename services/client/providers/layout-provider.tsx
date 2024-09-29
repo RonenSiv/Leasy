@@ -42,13 +42,18 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
                   minHeight: "100vh",
                 }}
               >
-                <header className={"w-full top-0 z-50 max-w-screen-xl px-4"}>
+                <header
+                  className={"w-full top-0 z-50 max-w-screen-xl px-4"}
+                  style={{
+                    zIndex: 1000,
+                  }}
+                >
                   <Navbar />
                 </header>
                 <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl p-4">
                   {children}
                 </main>
-                <footer className={"w-full z-50 max-w-screen-xl px-4"}>
+                <footer className={"z-50 w-full max-w-screen-xl px-4"}>
                   <Footer />
                 </footer>
               </div>

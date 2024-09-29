@@ -9,10 +9,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import "./styles.css"; // Scoped styles
 
 export default function TermsAndConditions() {
   return (
-    <div className="py-6 md:py-12 lg:py-16 bg-background text-foreground">
+    <div className="terms-container py-6 md:py-12 lg:py-16 bg-background text-foreground">
       <div className="container px-4 md:px-6">
         <Card className="prose prose-gray dark:prose-invert max-w-none">
           <CardContent>
@@ -126,43 +127,41 @@ export default function TermsAndConditions() {
 
               <Separator className="my-8" />
 
+              {/* FAQs Section */}
               <div className="max-w-3xl space-y-4">
                 <h2 className="text-lg font-bold">FAQs</h2>
-                <div className="space-y-4">
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="faq-1">
-                      <AccordionTrigger>
-                        What are the terms and conditions for?
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        The terms and conditions are for the use of Leasy,
-                        including the platform and services offered.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="faq-2">
-                      <AccordionTrigger>
-                        Can I link to the Leasy website?
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        Yes, the following organizations may link to our Website
-                        without prior written approval: Government agencies,
-                        search engines, news organizations, and online directory
-                        distributors.
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="faq-3">
-                      <AccordionTrigger>
-                        How do I contact Leasy about the terms and conditions?
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        If you find any issue with our terms and conditions,
-                        feel free to contact us through the contact details
-                        provided in the site’s contact section. We are happy to
-                        assist you with any queries.
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="faq-1">
+                    <AccordionTrigger>
+                      What are the terms and conditions for?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      The terms and conditions are for the use of Leasy,
+                      including the platform and services offered.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="faq-2">
+                    <AccordionTrigger>
+                      Can I link to the Leasy website?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      Yes, the following organizations may link to our Website
+                      without prior written approval: Government agencies,
+                      search engines, news organizations, and online directory
+                      distributors.
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="faq-3">
+                    <AccordionTrigger>
+                      How do I contact Leasy about the terms and conditions?
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      If you find any issue with our terms and conditions, feel
+                      free to contact us through the contact details provided in
+                      the site’s contact section.
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </div>
             </div>
           </CardContent>

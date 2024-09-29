@@ -1,0 +1,38 @@
+/* Scoped to terms-container */
+.terms-container ul {
+    list-style-type: circle;
+    padding-left: 1.5rem;
+}
+
+.terms-container ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+}
+
+.terms-container li {
+    margin-bottom: 0.5rem;
+}
+
+.terms-container h1 {
+    @apply text-3xl font-bold;
+}
+
+.terms-container h2 {
+    @apply text-2xl font-bold;
+}
+
+.terms-container h3 {
+    @apply text-xl font-bold;
+}
+
+.terms-container h4 {
+    @apply text-lg font-bold;
+}
+
+.terms-container h5 {
+    @apply text-base font-bold;
+}
+
+.terms-container p {
+    margin-bottom: 1rem;
+}
