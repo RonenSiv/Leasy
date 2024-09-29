@@ -8,12 +8,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import {
-  MdOutlineCookie,
-  MdOutlinePolicy,
-  MdOutlineSpaceDashboard,
-  MdOutlineSubscriptions,
-} from "react-icons/md";
+import { MdOutlineCookie, MdOutlineSpaceDashboard } from "react-icons/md";
 import { LiaUser } from "react-icons/lia";
 import { HiOutlinePaintBrush } from "react-icons/hi2";
 import {
@@ -21,13 +16,20 @@ import {
   IoShieldCheckmarkOutline,
 } from "react-icons/io5";
 import { FaRegComments, FaRegStickyNote } from "react-icons/fa";
-import { GrIntegration, GrOverview } from "react-icons/gr";
+import { GrOverview } from "react-icons/gr";
 import { GiArtificialIntelligence } from "react-icons/gi";
 import { RiCustomerService2Line } from "react-icons/ri";
 import { DataTable } from "@/components/settings/dashboard-table";
 import { SettingsAccount } from "@/components/settings/settings-account";
 import AppearanceSettings from "@/components/settings/settings-appearance";
 import AccessibilitySettings from "@/components/settings/settings-accessibility";
+import SecuritySettings from "@/components/settings/settings-security";
+import StudyNotes from "@/components/settings/settings-study-notes";
+import { StudyOverview } from "@/components/settings/settings-study-overview";
+import { AISettings } from "@/components/settings/settings-ai";
+import { ManageCookies } from "@/components/settings/settings-cookies";
+import { HelpAndSupport } from "@/components/settings/settings-support";
+import { Feedback } from "@/components/settings/settings-feedback";
 
 type SettingsOptionType = {
   title: string;
@@ -40,15 +42,12 @@ const settingsOptions: SettingsOptionType[] = [
   { title: "Appearance", icon: <HiOutlinePaintBrush /> },
   { title: "Accessibility", icon: <IoAccessibilityOutline /> },
   { title: "Security", icon: <IoShieldCheckmarkOutline /> },
-  { title: "Subscription Management", icon: <MdOutlineSubscriptions /> },
   { title: "Studying Notes", icon: <FaRegStickyNote /> },
   { title: "Study Overview", icon: <GrOverview /> },
   { title: "AI Settings", icon: <GiArtificialIntelligence /> },
-  { title: "Policy", icon: <MdOutlinePolicy /> },
   { title: "Manage Cookies", icon: <MdOutlineCookie /> },
   { title: "Help & Support", icon: <RiCustomerService2Line /> },
   { title: "Feedback", icon: <FaRegComments /> },
-  { title: "Integration Settings", icon: <GrIntegration /> },
 ];
 
 const settingsContent: ReactNode[] = [
@@ -56,6 +55,13 @@ const settingsContent: ReactNode[] = [
   <SettingsAccount key={2} />,
   <AppearanceSettings key={3} />,
   <AccessibilitySettings key={4} />,
+  <SecuritySettings key={5} />,
+  <StudyNotes key={6} />,
+  <StudyOverview key={7} />,
+  <AISettings key={8} />,
+  <ManageCookies key={9} />,
+  <HelpAndSupport key={10} />,
+  <Feedback key={11} />,
 ];
 
 enum SettingsOption {
@@ -64,7 +70,6 @@ enum SettingsOption {
   APPEARANCE,
   ACCESSIBILITY,
   SECURITY,
-  SUBSCRIPTION_MANAGEMENT,
   NOTIFICATION_SETTINGS,
   LANGUAGE_PREFERENCES,
   STUDYING_NOTES,
@@ -74,7 +79,6 @@ enum SettingsOption {
   MANAGE_COOKIES,
   HELP_AND_SUPPORT,
   FEEDBACK,
-  INTEGRATION_SETTINGS,
 }
 
 interface SettingsContextType {
@@ -127,19 +131,19 @@ export const SettingsProvider: FC<{ children?: ReactNode }> = (props) => {
   };
 
   const profileSettingsOptions = () => {
-    return settingsOptions.slice(0, 8);
+    return settingsOptions.slice(0, 5);
   };
 
   const studySettingsOptions = () => {
-    return settingsOptions.slice(8, 11);
+    return settingsOptions.slice(5, 8);
   };
 
   const privacySettingsOptions = () => {
-    return settingsOptions.slice(11, 13);
+    return settingsOptions.slice(8, 9);
   };
 
   const supportSettingsOptions = () => {
-    return settingsOptions.slice(13, 16);
+    return settingsOptions.slice(9, 11);
   };
 
   const contentOfSelectedOption = () => {

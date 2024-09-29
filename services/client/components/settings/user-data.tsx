@@ -10,7 +10,7 @@ export const UserData = () => {
   }
 
   return (
-    <div className={"flex h-full items-start gap-4"}>
+    <div className={"flex items-start gap-4"}>
       <ClientAvatar width="50px" height="50px" />
       <div className={"flex flex-col"}>
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
