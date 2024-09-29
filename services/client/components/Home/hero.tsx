@@ -55,7 +55,7 @@ export const Hero = () => {
               <FaArrowRightLong className="w-5 h-5 ml-2 -mr-1 font-bold" />
             </Link>
             <Link
-              href="#about"
+              href="/about"
               className={`${buttonVariants({ variant: "secondary" })} rounded-2xl px-6 py-6`}
             >
               Learn more

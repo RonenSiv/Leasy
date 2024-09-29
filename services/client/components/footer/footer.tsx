@@ -18,10 +18,10 @@ import { Separator } from "@/components/ui/separator";
 import React from "react";
 
 export const NAVIGATION_LINKS = [
-  { name: "About", link: "#" },
-  { name: "Team", link: "#" },
-  { name: "Contact", link: "#" },
-  { name: "Terms", link: "#" },
+  { name: "About", link: "/about" },
+  { name: "Team", link: "/about/team" },
+  { name: "Contact", link: "/contact" },
+  { name: "Terms", link: "/terms" },
 ];
 
 export const SOCIAL_MEDIA = [
