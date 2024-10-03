@@ -33,7 +33,7 @@ const loginUser = async (
   }
 
   await getClient().login({ email, password });
-  redirect("/dashboard");
+  redirect("/dashboard/video");
   return { success: true };
 };
 
@@ -57,7 +57,7 @@ const registerUser = async (
 
   const { email, password, fullName } = parsed.data;
   await getClient().signup({ email, password, fullName });
-  redirect("/dashboard");
+  redirect("/dashboard/upload");
   return { success: true };
 };
 
