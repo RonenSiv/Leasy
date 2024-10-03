@@ -435,7 +435,7 @@ const SettingsAccountDetails = () => {
   };
 
   return (
-    <form className={"flex flex-col gap-2 max-w-md"}>
+    <form className={"flex flex-col gap-2 md:max-w-md w-full"}>
       <FormField name={"name"} label={"Name"} register={register("fullName")} />
       <Label htmlFor="bio" className="text-sm font-medium">
         Bio
@@ -493,8 +493,12 @@ export const SettingsAccount = () => {
   return (
     <div className={"flex flex-col w-full h-full gap-2"}>
       <Header size={"lg"}>Account settings</Header>
-      <div className={"flex flex-row"}>
-        <div className={"flex-1 max-w-lg"}>
+      <div
+        className={
+          "flex md:flex-row flex-col max-md:items-center max-md:justify-center"
+        }
+      >
+        <div className={"flex-1 md:max-w-lg w-full"}>
           <SettingsAccountDetails />
         </div>
         <div className="flex w-[200px] h-[200px] flex-col gap-2 ">

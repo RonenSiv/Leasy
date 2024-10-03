@@ -19,7 +19,7 @@ import { FaRegComments, FaRegStickyNote } from "react-icons/fa";
 import { GrOverview } from "react-icons/gr";
 import { GiArtificialIntelligence } from "react-icons/gi";
 import { RiCustomerService2Line } from "react-icons/ri";
-import { DataTable } from "@/components/settings/dashboard-table";
+import { VideoStatistics } from "@/components/settings/settings-dashboard";
 import { SettingsAccount } from "@/components/settings/settings-account";
 import AppearanceSettings from "@/components/settings/settings-appearance";
 import AccessibilitySettings from "@/components/settings/settings-accessibility";
@@ -51,7 +51,7 @@ const settingsOptions: SettingsOptionType[] = [
 ];
 
 const settingsContent: ReactNode[] = [
-  <DataTable key={1} />,
+  <VideoStatistics key={1} />,
   <SettingsAccount key={2} />,
   <AppearanceSettings key={3} />,
   <AccessibilitySettings key={4} />,
@@ -108,7 +108,6 @@ export const SettingsProvider: FC<{ children?: ReactNode }> = (props) => {
   );
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    // Set initial state based on URL hash
     const hash = window.location.hash.slice(1);
     const option = settingsOptions.find(
       (opt) => opt.title.toLowerCase().replace(/\s+/g, "-") === hash,
@@ -121,7 +120,6 @@ export const SettingsProvider: FC<{ children?: ReactNode }> = (props) => {
 
   const handleSelectOption = (option: string) => {
     setSelectedOption(mapSettingsOptions.get(option)!);
-    // Update URL with anchor
     const anchor = option.toLowerCase().replace(/\s+/g, "-");
     window.history.pushState(null, "", `#${anchor}`);
   };

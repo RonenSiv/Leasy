@@ -39,3 +39,14 @@ export interface User extends Record<string, any> {
   password: string;
   salt: string;
 }
+
+export interface Video {
+  id: string;
+  title: string;
+  thumbnail: string;
+  duration: string;
+  uploadDate: string;
+  completed: boolean;
+  progress: number;
+  lastWatched: string;
+}

@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getContrastingColor, initialsToColor } from "@/utils/utils";
 import { useClient } from "@/providers/client-provider";
 import React from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { getContrastingColor, initialsToColor } from "@/lib/utils/utils";
 
 export const ClientAvatar = ({
   width,

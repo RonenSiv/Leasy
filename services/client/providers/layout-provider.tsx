@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import Progress from "@/components/ui/progress";
+import { Progress } from "@/components/progress";
 import { ThemeProvider } from "next-themes";
 import { Navbar } from "@/components/Navbar/navbar";
 import { GradientCircle } from "@/components/ui/gradient-circle";
@@ -50,9 +50,10 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
                 >
                   <Navbar />
                 </header>
-                <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl p-4">
+                <main className="flex flex-col items-center justify-center w-full max-w-screen-xl py-4">
                   {children}
                 </main>
+
                 <footer className={"z-50 w-full max-w-screen-xl px-4"}>
                   <Footer />
                 </footer>
