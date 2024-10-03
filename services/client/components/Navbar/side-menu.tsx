@@ -17,7 +17,11 @@ import { Spinner } from "../ui/spinner";
 import { RxHamburgerMenu } from "react-icons/rx";
 
 const profileLinks = [
-  { title: "Your uploads", Icon: AiOutlineCloudUpload, href: "/dashboard" },
+  {
+    title: "Your uploads",
+    Icon: AiOutlineCloudUpload,
+    href: "/dashboard/video",
+  },
   {
     title: "Upload a new video",
     Icon: AiOutlineUpload,

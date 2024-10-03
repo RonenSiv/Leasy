@@ -16,13 +16,13 @@ export const Hero = () => {
   const subHeaderLetters = splitTextToLetters("with ease.");
   return (
     <section
-      className={"z-0 w-full flex items-start justify-start flex-1 h-full"}
+      className={"z-0 w-full flex items-center justify-start flex-1 h-full"}
     >
       <div className="absolute inset-0 z-0 bg-[url('/people-collection-collage.jpg')] bg-contain h-screen">
         <div className="absolute inset-0 bg-gradient-to-r dark:from-gray-900 dark:to-green-950 from-gray-500 to-green-500 opacity-90"></div>
       </div>
       <div className="relative z-10 flex">
-        <div className="mr-auto">
+        <div className="mr-auto max-sm:flex max-sm:flex-col max-sm:items-center max-sm:justify-center">
           <h1 className="mb-4 text-4xl font-extrabold text-gray-900 dark:text-white md:text-5xl">
             <span className="text-transparent bg-clip-text bg-gradient-to-r to-[#34D399] from-[#41EC8B]">
               Summarizing your classes
@@ -39,7 +39,7 @@ export const Hero = () => {
               ))}
             </motion.div>
           </h1>
-          <p className=" mb-6 font-light lg:mb-8 md:text-lg lg:text-xl">
+          <p className="max-sm:text-center mb-6 font-light lg:mb-8 md:text-lg lg:text-xl">
             Let Leasy{" "}
             <span className="underline underline-offset-4 decoration-4 decoration-blue-400 dark:decoration-blue-600">
               summarize

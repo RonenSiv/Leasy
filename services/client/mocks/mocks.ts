@@ -162,3 +162,51 @@ export const mockVideos: Video[] = [
     lastWatched: "2023-12-20",
   },
 ];
+
+export const mockVideoTranscription = [
+  {
+    text: "In a sun-dappled forest glade, a big-eyed bunny named Big Buck Bunny peacefully enjoys nature.",
+  },
+  {
+    text: "Suddenly, three rodent bullies appear, disrupting the tranquil scene with their mischievous antics.",
+  },
+  {
+    text: "What follows is a comical tale of revenge, as our gentle hero devises clever traps to outsmart the troublemakers.",
+  },
+];
+
+export const mockVideoSummary = {
+  title: "Video Summary: Big Buck Bunny",
+  points: [
+    "Introduction to Big Buck Bunny, a gentle giant rabbit in a peaceful forest.",
+    "Arrival of three mischievous rodents who disrupt the forest's harmony.",
+    "Big Buck Bunny's transformation from a passive victim to a clever trickster.",
+    "Series of humorous traps and pranks set by Big Buck Bunny to teach the bullies a lesson.",
+    "Resolution and return to peace in the forest, with a hint of Big Buck Bunny's newfound confidence.",
+  ],
+};
+
+export const mockVideoQuizlets = [
+  {
+    id: "q1",
+    question: "Who is the main character of the video?",
+    options: [
+      "Big Buck Bunny",
+      "Little Red Riding Hood",
+      "Bugs Bunny",
+      "Peter Rabbit",
+    ],
+    correctAnswer: "Big Buck Bunny",
+  },
+  {
+    id: "q2",
+    question: "How does Big Buck Bunny respond to the bullies?",
+    options: [
+      "He runs away",
+      "He sets clever traps",
+      "He calls for help",
+      "He becomes their friend",
+    ],
+    correctAnswer: "He sets clever traps",
+  },
+];

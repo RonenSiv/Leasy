@@ -50,7 +50,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
                 >
                   <Navbar />
                 </header>
-                <main className="flex flex-col items-center justify-center w-full max-w-screen-xl py-4">
+                <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl py-4">
                   {children}
                 </main>
 
