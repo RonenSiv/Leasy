@@ -8,17 +8,17 @@ export const middleware = async (request: NextRequest) => {
 
   if (
     !currentUser &&
-    !currentPath.startsWith("/login") &&
+    !currentPath.startsWith("/authentication") &&
     !currentPath.startsWith("/signup") &&
     currentPath !== "/"
   ) {
-    return Response.redirect(new URL("/login", request.url));
+    return Response.redirect(new URL("/authentication", request.url));
   }
   await updateSession(request);
 
   if (
     currentUser &&
-    (request.nextUrl.pathname.startsWith("/login") ||
+    (request.nextUrl.pathname.startsWith("/authentication") ||
       request.nextUrl.pathname.startsWith("/signup"))
   ) {
     return Response.redirect(new URL("/", request.url));

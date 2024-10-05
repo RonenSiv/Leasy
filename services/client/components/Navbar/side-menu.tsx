@@ -34,7 +34,7 @@ const visitorItems = [
   [{ title: "Account Settings", Icon: AiOutlineSetting, href: "/" }],
 
   [
-    { title: "Login", Icon: BiLogIn, href: "/login" },
+    { title: "Login", Icon: BiLogIn, href: "/authentication" },
     { title: "Signup", Icon: AiOutlineForm, href: "/signup" },
   ],
 ];

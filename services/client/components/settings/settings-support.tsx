@@ -19,7 +19,7 @@ const faqItems = [
   {
     question: "How can I reset my password?",
     answer:
-      "To reset your password, go to the login page and click on 'Forgot Password'. Follow the instructions in the email to reset your password.",
+      "To reset your password, go to the authentication page and click on 'Forgot Password'. Follow the instructions in the email to reset your password.",
   },
   {
     question: "How do I update my account information?",

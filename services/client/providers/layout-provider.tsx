@@ -37,7 +37,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
                 reverse
               />
               <div
-                className="flex flex-col items-center justify-start relative custom-scrollbar h-full md:px-15"
+                className="flex flex-col items-center justify-start relative custom-scrollbar h-full md:px-15 overflow-x-hidden"
                 style={{
                   minHeight: "100vh",
                 }}
@@ -50,7 +50,7 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
                 >
                   <Navbar />
                 </header>
-                <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl py-4">
+                <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl py-4 overflow-x-hidden">
                   {children}
                 </main>
 

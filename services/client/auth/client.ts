@@ -25,11 +25,11 @@ export const getClient = () => {
 
     const response = await axios.post("/api/login", data);
     if (response.status !== 200) {
-      throw new Error("Invalid login");
+      throw new Error("Invalid authentication");
     }
     const token = response.data.token;
     if (!token) {
-      throw new Error("Invalid login");
+      throw new Error("Invalid authentication");
     }
     const user = {
       email: data.email,

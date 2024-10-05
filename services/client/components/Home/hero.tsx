@@ -48,7 +48,7 @@ export const Hero = () => {
           </p>
           <div className="flex gap-4">
             <Link
-              href={isLogged ? "/dashboard" : "/login"}
+              href={isLogged ? "/dashboard" : "/authentication"}
               className={`${buttonVariants({ variant: "default" })} rounded-2xl px-6 py-6`}
             >
               Get started

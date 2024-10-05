@@ -70,7 +70,7 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
     console.log("Logged out");
   };
 
-  // TODO: Implement login
+  // TODO: Implement authentication
   const login = () => {};
 
   return (
