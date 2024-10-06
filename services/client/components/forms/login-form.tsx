@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FormField } from "@/components/Forms/form-field";
+import { FormField } from "@/components/forms/form-field";
 import { loginUser } from "@/app/actions/actions";
 import { useForm } from "react-hook-form";
 import { loginFormSchema, LoginFormSchema } from "@/lib/schemas/useFormSchema";

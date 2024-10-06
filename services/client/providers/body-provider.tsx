@@ -1,6 +1,7 @@
 "use client";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Inter } from "next/font/google";
+import { NavigationEvents } from "@/components/navigation-event";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,10 @@ export const BodyProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <body className={`${inter.className}`} suppressHydrationWarning>
       {children}
+
+      <Suspense fallback={null}>
+        <NavigationEvents />
+      </Suspense>
     </body>
   );
 };

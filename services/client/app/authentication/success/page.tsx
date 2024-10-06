@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react"; // Icon for success indication
 
-export default function PostSignup() {
+export default function AuthSuccessPage() {
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-900 dark:to-gray-800">
       <Card className="w-full max-w-md shadow-xl rounded-3xl overflow-hidden">

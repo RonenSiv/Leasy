@@ -8,7 +8,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { submitLink } from "@/app/actions/actions";
-import { FormField } from "@/components/Forms/form-field";
+import { FormField } from "@/components/forms/form-field";
 import { toast } from "sonner";
 
 export const LinkSubmission = () => {

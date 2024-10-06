@@ -1,7 +1,6 @@
-import React, { Suspense } from "react";
-import { Progress } from "@/components/progress";
+import React from "react";
 import { ThemeProvider } from "next-themes";
-import { Navbar } from "@/components/Navbar/navbar";
+import { Navbar } from "@/components/navbar/navbar";
 import { GradientCircle } from "@/components/ui/gradient-circle";
 import { Footer } from "@/components/footer/footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,9 +21,6 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
           <ClientProvider>
             <Toaster position="bottom-right" richColors />
             <AI>
-              <Suspense>
-                <Progress />
-              </Suspense>
               <GradientCircle
                 dimensions={500}
                 position={{ x: "-3%", y: "60%" }}

@@ -2,7 +2,7 @@
 import React, { CSSProperties, FC, useEffect, useState } from "react";
 import { DropzoneState, useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { UploadTemplate } from "@/components/Forms/upload-form";
+import { UploadTemplate } from "@/components/forms/upload-form";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 

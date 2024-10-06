@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ImageUp, Pencil } from "lucide-react";
-import { FormField } from "@/components/Forms/form-field";
+import { FormField } from "@/components/forms/form-field";
 import { FieldValues, useForm } from "react-hook-form";
 import { ProfileSchema, profileSchema } from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";

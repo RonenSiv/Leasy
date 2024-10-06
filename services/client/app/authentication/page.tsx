@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { LoginForm } from "@/components/Forms/login-form";
-import { SignupForm } from "@/components/Forms/signup-form";
+import { LoginForm } from "@/components/forms/login-form";
+import { SignupForm } from "@/components/forms/signup-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClientImage } from "@/components/ClientImage";
 import { useMediaQuery } from "usehooks-ts";
+import { AuthenticationSkeleton } from "@/app/authentication/auth-skeleton";
 
 const WelcomeCard = ({
   isLogin,
@@ -69,6 +70,8 @@ export default function AuthenticationPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  if (!mounted) return <AuthenticationSkeleton />;
 
   return (
     <div className="flex sm:items-center justify-center flex-1 w-full">
