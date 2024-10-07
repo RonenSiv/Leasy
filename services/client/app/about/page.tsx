@@ -223,7 +223,7 @@ export default function AboutPage() {
             your educational journey with AI-powered summaries and interactive
             quizzes.
           </p>
-          <Link href="/signup" passHref>
+          <Link href="/authentication" passHref>
             <Button
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90"

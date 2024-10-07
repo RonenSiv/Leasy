@@ -7,7 +7,6 @@ import "react-resizable/css/styles.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Chat } from "@/components/chat/chat";
 import { EnhancedVideoPlayer } from "@/components/enhanced-video-player";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -20,6 +19,7 @@ import {
   mockVideoSummary,
   mockVideoTranscription,
 } from "@/mocks/mocks";
+import ChatInterface from "@/components/chatbot/chat-interface";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -230,7 +230,7 @@ const AIStudyBuddyCard: React.FC = () => (
     headerClasses="bg-gradient-to-r from-green-500 to-teal-500"
     contentClasses="p-0 h-[calc(100%-4rem)]"
   >
-    <Chat id="example-chat-id" missingKeys={[]} />
+    <ChatInterface />
   </MotionCardComponent>
 );
 
@@ -380,7 +380,7 @@ export default function VideoPage() {
               </Button>
             </SheetTrigger>
             <SheetContent className="w-full sm:max-w-md">
-              <Chat id="example-chat-id" missingKeys={[]} />
+              <ChatInterface />
             </SheetContent>
           </Sheet>
         </div>
@@ -399,10 +399,10 @@ export default function VideoPage() {
           <div key="video" ref={videoRef}>
             <VideoPlayerCard handleVideoProgress={handleVideoProgress} />
           </div>
-          <div key="chat">
+          <div key="chat" className="h-full">
             <AIStudyBuddyCard />
           </div>
-          <div key="tabs">
+          <div key="tabs" className="h-full">
             <LearningMaterialsCard
               activeTab={activeTab}
               handleTabChange={handleTabChange}

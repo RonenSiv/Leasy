@@ -188,11 +188,11 @@ const VisitorContent: React.FC<{
               <div className="font-medium">
                 <div>Hi there</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  <Link href="/login" onClick={toggleSidebar}>
+                  <Link href="/authentication" onClick={toggleSidebar}>
                     Login
                   </Link>{" "}
                   or{" "}
-                  <Link href="/signup" onClick={toggleSidebar}>
+                  <Link href="/authentication" onClick={toggleSidebar}>
                     Signup
                   </Link>
                 </div>
