@@ -1,3 +1,4 @@
+// components/chatbot/chat-interface.tsx
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -12,6 +13,7 @@ import FileUpload from "@/components/chatbot/file-upload";
 import SettingsDialog from "@/components/chatbot/settings-dialog";
 import InputForm from "@/components/chatbot/input-form";
 import ChatSkeleton from "@/components/chatbot/chat-skeleton";
+import { debounce } from "lodash";
 
 interface Message {
   role: "user" | "assistant" | "error";
@@ -42,6 +44,7 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSettingsChanged, setIsSettingsChanged] = useState(false);
   const [showScrollDownButton, setShowScrollDownButton] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true); // Tracks if user is at bottom
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
@@ -50,6 +53,7 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
 
   const mounted = useRef(false);
 
+  // Track component mount status
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -57,6 +61,7 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
     };
   }, []);
 
+  // Load saved settings from localStorage
   useEffect(() => {
     const savedKnowledge = localStorage.getItem("aiKnowledge");
     const savedPersona = localStorage.getItem("aiPersona");
@@ -64,6 +69,7 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
     if (savedPersona) setAiPersona(savedPersona);
   }, []);
 
+  // Save settings to localStorage
   const saveSettings = () => {
     localStorage.setItem("aiKnowledge", knowledge);
     localStorage.setItem("aiPersona", aiPersona);
@@ -71,67 +77,77 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
     setIsDialogOpen(false);
   };
 
+  // Reset settings to default
   const resetSettings = () => {
     setKnowledge(AIKnowledge);
     setAiPersona(AIPersona);
     setIsSettingsChanged(true);
   };
 
+  // Scroll handler to determine if user is at bottom
   const handleScroll = useCallback(() => {
     if (isAutoScrollingRef.current || !viewportRef.current) return;
 
     const { scrollTop, scrollHeight, clientHeight } = viewportRef.current;
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    const isAtBottom = distanceFromBottom < 50; // Threshold of 50px
+    const isUserAtBottom = distanceFromBottom < 50; // 50px threshold
 
-    setShowScrollDownButton(!isAtBottom);
+    setIsAtBottom(isUserAtBottom);
+    setShowScrollDownButton(!isUserAtBottom);
   }, []);
 
+  // Debounced version of handleScroll to optimize performance
+  const debouncedHandleScroll = useCallback(debounce(handleScroll, 100), [
+    handleScroll,
+  ]);
+
+  // Scroll to bottom function
   const scrollToBottom = useCallback(() => {
     if (bottomRef.current && viewportRef.current) {
       isAutoScrollingRef.current = true;
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
       setTimeout(() => {
         isAutoScrollingRef.current = false;
-      }, 500);
+      }, 500); // Duration matches the smooth scroll behavior
     }
   }, []);
 
+  // Assign viewportRef and attach debounced scroll listener
   useEffect(() => {
     if (scrollAreaRef.current && !viewportRef.current) {
       const viewport = scrollAreaRef.current.querySelector(
         "[data-radix-scroll-area-viewport]",
       ) as HTMLDivElement | null;
 
-      // Fallback: select the first div if the above selector doesn't work
-      if (!viewport) {
-        const firstDiv = scrollAreaRef.current.querySelector("div");
-        if (firstDiv) {
-          viewportRef.current = firstDiv as HTMLDivElement;
-        }
-      } else {
+      if (viewport) {
         viewportRef.current = viewport;
-      }
-
-      if (viewportRef.current) {
-        viewportRef.current.addEventListener("scroll", handleScroll);
-        handleScroll();
+        viewportRef.current.addEventListener("scroll", debouncedHandleScroll);
+        handleScroll(); // Initialize scroll state
       }
     }
-  }, [scrollAreaRef, handleScroll]);
+  }, [scrollAreaRef, debouncedHandleScroll, handleScroll]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
+  // Clean up scroll event listener on unmount
   useEffect(() => {
     return () => {
       if (viewportRef.current) {
-        viewportRef.current.removeEventListener("scroll", handleScroll);
+        viewportRef.current.removeEventListener(
+          "scroll",
+          debouncedHandleScroll,
+        );
       }
+      debouncedHandleScroll.cancel();
     };
-  }, [handleScroll]);
+  }, [debouncedHandleScroll]);
 
+  // Auto-scroll to bottom when new messages arrive if user is at bottom
+  useEffect(() => {
+    if (isAtBottom) {
+      scrollToBottom();
+    }
+  }, [messages, isAtBottom, scrollToBottom]);
+
+  // Handle message submission
   const handleSubmit = async (
     e: React.FormEvent | null,
     messageContent?: string,
@@ -141,11 +157,12 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
     if (!content.trim()) return;
 
     const userMessage: Message = { role: "user", content };
-    setMessages((prev) => [...prev, userMessage]);
+    const assistantPlaceholder: Message = { role: "assistant", content: "" };
+
+    // Append user message and assistant placeholder in a single state update
+    setMessages((prev) => [...prev, userMessage, assistantPlaceholder]);
     setInput("");
     setIsLoading(true);
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-    scrollToBottom();
 
     const combinedKnowledge =
       knowledge + "\n" + uploadedFiles.map((file) => file.content).join("\n");
@@ -157,7 +174,7 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage],
+          messages: [...messages, userMessage], // Use previous messages without placeholder
           knowledge: combinedKnowledge,
           aiPersona,
         }),
@@ -202,6 +219,7 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
     }
   };
 
+  // Handle file uploads
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
@@ -239,17 +257,23 @@ I'm here to help you with your studies. Let’s make learning fun and easy toget
     }
   };
 
+  // Remove an uploaded file
   const removeUploadedFile = (index: number) => {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Render skeleton if not mounted
   if (!mounted.current) return <ChatSkeleton />;
 
   return (
-    <div className="flex flex-col py-2 px-3 h-full relative">
+    <div className="flex flex-col h-full relative">
       {/* ScrollArea occupies the main chat area */}
       <ScrollArea className="flex-grow" ref={scrollAreaRef}>
-        <MessageList messages={messages} isLoading={isLoading} />
+        <MessageList
+          messages={messages}
+          isLoading={isLoading}
+          aria-live="polite"
+        />
         {messages.length === 1 && <Suggestions onSuggest={handleSubmit} />}
         {/* Dummy div for auto-scrolling */}
         <div ref={bottomRef} />

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { ClientImage } from "@/components/ClientImage";
+import { ClientImage } from "@/components/client-image";
 
 interface Message {
   role: "user" | "assistant" | "error";

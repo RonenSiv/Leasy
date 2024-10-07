@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/forms/login-form";
 import { SignupForm } from "@/components/forms/signup-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ClientImage } from "@/components/ClientImage";
+import { ClientImage } from "@/components/client-image";
 import { useMediaQuery } from "usehooks-ts";
 import { AuthenticationSkeleton } from "@/app/authentication/auth-skeleton";
 

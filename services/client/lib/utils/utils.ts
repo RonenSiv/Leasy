@@ -158,3 +158,9 @@ export const getContrastingColor = (bgColor: string): string => {
   // Return black for light backgrounds and white for dark backgrounds
   return luminance > 0.5 ? "#000000" : "#FFFFFF";
 };
+
+export const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+};

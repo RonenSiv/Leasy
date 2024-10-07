@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { ClientImage } from "@/components/ClientImage";
+import { ClientImage } from "@/components/client-image";
 import { z } from "zod";
 
 const messageSchema = z.object({
