@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import VideoPlayerCardSkeleton from "@/components/study-page/skeletons/video-player-skeleton";
 import LearningMaterialsCardSkeleton from "@/components/study-page/skeletons/learning-material-card-skeleton";
 import ChatSkeleton from "@/components/chatbot/chat-skeleton";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Dynamically import client components to prevent SSR issues
 const DynamicVideoPlayerCard = dynamic(
@@ -34,7 +35,9 @@ const DynamicAIStudyBuddyCard = dynamic(
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-export default function VideoPage() {
+const queryClient = new QueryClient();
+
+export default function StudyPage() {
   const [layouts, setLayouts] = useState({
     lg: [
       { i: "video", x: 0, y: 0, w: 16, h: 6, minW: 4, minH: 3 },
@@ -150,14 +153,6 @@ export default function VideoPage() {
     setStudyProgress(progress * 100);
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
   const renderContent = () => (
     <>
       {isMobile ? (
@@ -220,7 +215,7 @@ export default function VideoPage() {
   );
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <StudyHeader
         studyTime={studyTime}
         toggleStudyTimer={toggleStudyTimer}
@@ -250,6 +245,6 @@ export default function VideoPage() {
           padding: 0 3px 3px 0;
         }
       `}</style>
-    </>
+    </QueryClientProvider>
   );
 }

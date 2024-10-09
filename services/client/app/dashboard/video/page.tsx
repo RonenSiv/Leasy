@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClientImage } from "@/components/ClientImage";
+import { ClientImage } from "@/components/client-image";
 import Link from "next/link";
 import { mockVideos } from "@/mocks/mocks";
 import { Video } from "@/lib/types/types";

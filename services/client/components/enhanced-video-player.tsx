@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button"; // Adjust the import paths based on your project structure
+import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -72,21 +72,24 @@ export function EnhancedVideoPlayer({
     };
 
     video.addEventListener("timeupdate", updateTime);
-    video.addEventListener("canplay", updateDuration); // Changed event
+    video.addEventListener("canplay", updateDuration);
     video.addEventListener("play", handlePlay);
     video.addEventListener("pause", handlePause);
     video.addEventListener("error", handleError);
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        skipBackward();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        skipForward();
-      } else if (e.key === " ") {
-        e.preventDefault();
-        togglePlay();
+      // Only handle key events if the video player or its controls are focused
+      if (containerRef.current?.contains(document.activeElement)) {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          skipBackward();
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          skipForward();
+        } else if (e.key === " ") {
+          e.preventDefault();
+          togglePlay();
+        }
       }
     };
 
@@ -185,6 +188,7 @@ export function EnhancedVideoPlayer({
     <Card
       className="w-full h-full overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800"
       ref={containerRef}
+      tabIndex={0}
     >
       <CardContent className="p-0 flex flex-col h-full relative">
         <div className="relative flex-grow">

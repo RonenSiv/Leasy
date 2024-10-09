@@ -1,3 +1,4 @@
+// components/authentication-page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -9,6 +10,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClientImage } from "@/components/client-image";
 import { useMediaQuery } from "usehooks-ts";
 import { AuthenticationSkeleton } from "@/app/authentication/auth-skeleton";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const WelcomeCard = ({
   isLogin,
@@ -36,7 +40,7 @@ const WelcomeCard = ({
           </h2>
           <p className="text-lg">
             {isLogin
-              ? "To keep connected with us please authentication with your personal info"
+              ? "To keep connected with us please authenticate with your personal info"
               : "Enter your personal details and start your journey with us"}
           </p>
         </div>
@@ -74,62 +78,63 @@ export default function AuthenticationPage() {
   if (!mounted) return <AuthenticationSkeleton />;
 
   return (
-    <div className="flex sm:items-center justify-center flex-1 w-full">
-      <div className="relative w-full max-w-4xl overflow-hidden rounded-xl">
-        <div className="flex flex-col sm:flex-row">
-          {/* Render WelcomeCard only after mounting to avoid hydration error */}
-          {mounted && isScreenWide && (
-            <WelcomeCard isLogin={isLogin} onToggle={toggleView} />
-          )}
-          <motion.div
-            className={`${
-              mounted && isScreenWide ? "sm:w-1/2" : "w-full"
-            } bg-background p-12 flex flex-col max-sm:rounded-xl`}
-            initial={
-              mounted && isScreenWide
-                ? { x: isLogin ? "0%" : "-100%" }
-                : undefined
-            }
-            animate={
-              mounted && isScreenWide
-                ? { x: isLogin ? "0%" : "-100%" }
-                : undefined
-            }
-            transition={
-              mounted && isScreenWide
-                ? { duration: 0.5, ease: "easeInOut" }
-                : undefined
-            }
-          >
+    <QueryClientProvider client={queryClient}>
+      <div className="flex sm:items-center justify-center flex-1 w-full">
+        <div className="relative w-full max-w-4xl overflow-hidden rounded-xl">
+          <div className="flex flex-col sm:flex-row">
+            {mounted && isScreenWide && (
+              <WelcomeCard isLogin={isLogin} onToggle={toggleView} />
+            )}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-6 "
+              className={`${
+                mounted && isScreenWide ? "sm:w-1/2" : "w-full"
+              } bg-background p-12 flex flex-col max-sm:rounded-xl`}
+              initial={
+                mounted && isScreenWide
+                  ? { x: isLogin ? "0%" : "-100%" }
+                  : undefined
+              }
+              animate={
+                mounted && isScreenWide
+                  ? { x: isLogin ? "0%" : "-100%" }
+                  : undefined
+              }
+              transition={
+                mounted && isScreenWide
+                  ? { duration: 0.5, ease: "easeInOut" }
+                  : undefined
+              }
             >
-              <h2 className="text-3xl font-bold">
-                {isLogin ? "Sign in to Leasy" : "Create Account"}
-              </h2>
-              <ScrollArea className="sm:h-[calc(100vh-300px)] w-full">
-                {isLogin ? <LoginForm /> : <SignupForm />}
-              </ScrollArea>
-              {!mounted || !isScreenWide ? (
-                <div className="font-thin">
-                  {isLogin
-                    ? "New to Leasy? "
-                    : "Already have an account with Leasy? "}
-                  <span
-                    className="cursor-pointer text-emerald-500 underline"
-                    onClick={toggleView}
-                  >
-                    {isLogin ? "Sign Up" : "Sign In"}
-                  </span>
-                </div>
-              ) : null}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-6 "
+              >
+                <h2 className="text-3xl font-bold">
+                  {isLogin ? "Sign in to Leasy" : "Create Account"}
+                </h2>
+                <ScrollArea className="sm:h-[calc(100vh-300px)] w-full">
+                  {isLogin ? <LoginForm /> : <SignupForm />}
+                </ScrollArea>
+                {!mounted || !isScreenWide ? (
+                  <div className="font-thin">
+                    {isLogin
+                      ? "New to Leasy? "
+                      : "Already have an account with Leasy? "}
+                    <span
+                      className="cursor-pointer text-emerald-500 underline"
+                      onClick={toggleView}
+                    >
+                      {isLogin ? "Sign Up" : "Sign In"}
+                    </span>
+                  </div>
+                ) : null}
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 }

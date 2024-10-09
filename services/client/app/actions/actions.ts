@@ -33,8 +33,10 @@ const loginUser = async (
   }
 
   await getClient().login({ email, password });
+  // mock time delay
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   redirect("/dashboard/video");
-  return { success: true };
+  return { success: false };
 };
 
 const registerUser = async (

@@ -10,6 +10,8 @@ import {
 } from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 interface PasswordCriteria {
   length: boolean;
@@ -24,7 +26,7 @@ export const SignupForm = () => {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterFormSchema>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -55,25 +57,31 @@ export const SignupForm = () => {
     });
   }, [password]);
 
-  const onSubmit = async (data: RegisterFormSchema) => {
-    const formData = new FormData();
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("confirmPassword", data.confirmPassword);
-    formData.append("fullName", data.fullName);
-
-    const prevState = { success: undefined, fields: {}, issues: [] };
-
-    try {
-      const response = await registerUser(prevState, formData);
+  const signupMutation = useMutation({
+    mutationFn: async (data: RegisterFormSchema) => {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("confirmPassword", data.confirmPassword);
+      formData.append("fullName", data.fullName);
+      const prevState = { success: undefined, fields: {}, issues: [] };
+      return registerUser(prevState, formData);
+    },
+    onSuccess: (response) => {
       if (response.success) {
-        console.log("Signup successful!");
+        toast.success("Signup successful!");
       } else {
-        console.log("Signup failed!", response.issues);
+        toast.error("Signup failed: " + response?.issues?.join(", "));
       }
-    } catch (error) {
-      console.error("Unexpected error:", error);
-    }
+    },
+    onError: (error) => {
+      toast.error("An unexpected error occurred");
+      console.error("Signup error:", error);
+    },
+  });
+
+  const onSubmit = (data: RegisterFormSchema) => {
+    signupMutation.mutate(data);
   };
 
   return (
@@ -170,8 +178,12 @@ export const SignupForm = () => {
         </li>
       </ul>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Signing up..." : "Sign Up"}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={signupMutation.isPending}
+      >
+        {signupMutation.isPending ? "Signing up..." : "Sign Up"}
       </Button>
     </form>
   );

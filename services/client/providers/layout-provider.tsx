@@ -5,9 +5,10 @@ import { GradientCircle } from "@/components/ui/gradient-circle";
 import { Footer } from "@/components/footer/footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AI } from "@/lib/chat/actions";
-import { Toaster } from "sonner";
+import { Toaster as SonnarToaster } from "sonner";
 import { ClientProvider } from "@/providers/client-provider";
 import { BodyProvider } from "@/providers/body-provider";
+import { Toaster } from "react-hot-toast";
 
 interface LayoutProviderProps {
   children: React.ReactNode;
@@ -19,7 +20,8 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
       <ThemeProvider attribute="class">
         <TooltipProvider>
           <ClientProvider>
-            <Toaster position="bottom-right" richColors />
+            <SonnarToaster position="bottom-right" richColors />
+            <Toaster />
             <AI>
               <GradientCircle
                 dimensions={500}
