@@ -6,7 +6,7 @@ import {
   containerVariants,
   letterVariants,
   splitTextToLetters,
-} from "@/lib/utils/animationUtils";
+} from "@/lib/utils/animation-utils";
 import { motion } from "framer-motion";
 import { buttonVariants } from "@/components/ui/button";
 import { useClient } from "@/providers/client-provider";

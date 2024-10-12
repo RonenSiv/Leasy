@@ -4,7 +4,6 @@ import { Navbar } from "@/components/navbar/navbar";
 import { GradientCircle } from "@/components/ui/gradient-circle";
 import { Footer } from "@/components/footer/footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AI } from "@/lib/chat/actions";
 import { Toaster as SonnarToaster } from "sonner";
 import { ClientProvider } from "@/providers/client-provider";
 import { BodyProvider } from "@/providers/body-provider";
@@ -22,41 +21,39 @@ export const LayoutProvider: React.FC<LayoutProviderProps> = ({ children }) => {
           <ClientProvider>
             <SonnarToaster position="bottom-right" richColors />
             <Toaster />
-            <AI>
-              <GradientCircle
-                dimensions={500}
-                position={{ x: "-3%", y: "60%" }}
-                duration={15}
-              />
-              <GradientCircle
-                dimensions={1100}
-                position={{ x: "40%", y: "-50%" }}
-                duration={25}
-                reverse
-              />
-              <div
-                className="flex flex-col items-center justify-start relative custom-scrollbar h-full md:px-15 overflow-x-hidden"
+            <GradientCircle
+              dimensions={500}
+              position={{ x: "-3%", y: "60%" }}
+              duration={15}
+            />
+            <GradientCircle
+              dimensions={1100}
+              position={{ x: "40%", y: "-50%" }}
+              duration={25}
+              reverse
+            />
+            <div
+              className="flex flex-col items-center justify-start relative custom-scrollbar h-full md:px-15 overflow-x-hidden"
+              style={{
+                minHeight: "100vh",
+              }}
+            >
+              <header
+                className={"w-full top-0 z-50 max-w-screen-xl px-4"}
                 style={{
-                  minHeight: "100vh",
+                  zIndex: 1000,
                 }}
               >
-                <header
-                  className={"w-full top-0 z-50 max-w-screen-xl px-4"}
-                  style={{
-                    zIndex: 1000,
-                  }}
-                >
-                  <Navbar />
-                </header>
-                <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl py-4 overflow-x-hidden">
-                  {children}
-                </main>
+                <Navbar />
+              </header>
+              <main className="flex flex-col items-center justify-center w-full flex-1 max-w-screen-xl py-4 overflow-x-hidden">
+                {children}
+              </main>
 
-                <footer className={"z-50 w-full max-w-screen-xl px-4"}>
-                  <Footer />
-                </footer>
-              </div>
-            </AI>
+              <footer className={"z-50 w-full max-w-screen-xl px-4"}>
+                <Footer />
+              </footer>
+            </div>
           </ClientProvider>
         </TooltipProvider>
       </ThemeProvider>
