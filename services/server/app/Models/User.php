@@ -12,6 +12,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
     protected $fillable = [
+        'uuid',
         'full_name',
         'email',
         'phone_number',
@@ -24,5 +25,4 @@ class User extends Authenticatable
         'created_at',
         'updated_at',
     ];
-
 }

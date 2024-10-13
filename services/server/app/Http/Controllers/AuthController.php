@@ -33,7 +33,7 @@ class AuthController extends Controller
      *             @OA\Property(property="email", type="string", example="ofirgoldofir@gmail.com"),
      *             @OA\Property(property="full_name", type="string", example="Ofir Goldberg"),
      *             @OA\Property(property="phone_number", type="string", example="0527576444"),
-     *             @OA\Property(property="password", type="string", example="123"),
+     *             @OA\Property(property="password", type="string", example="Aa123!@#"),
      *         ),
      *     ),
      *     @OA\Response(
@@ -60,8 +60,8 @@ class AuthController extends Controller
         );
 
         return match ($status) {
-            HTTP_Status::CREATED => response()->json(['משתמש נוצר בהצלחה'], Response::HTTP_OK),
-            HTTP_Status::ERROR => response()->json(['אירעה שגיאה'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HTTP_Status::CREATED => response()->json('User created successfully', Response::HTTP_OK),
+            HTTP_Status::ERROR => response()->json('An error occurred while creating the user', Response::HTTP_INTERNAL_SERVER_ERROR),
             default => response()->json('', Response::HTTP_NO_CONTENT)
         };
     }
@@ -78,7 +78,7 @@ class AuthController extends Controller
      *          @OA\JsonContent(
      *              required={"email", "password"},
      *              @OA\Property(property="email", type="string", example="ofirgoldofir@gmail.com"),
-     *              @OA\Property(property="password", type="string", example="123")
+     *              @OA\Property(property="password", type="string", example="Aa123!@#")
      *          )
      *      ),
      *      @OA\Response(
@@ -91,7 +91,7 @@ class AuthController extends Controller
      *      ),
      *      @OA\Response(
      *          response=500,
-     *          description="An error occurred while user logged in ",
+     *          description="An error occurred while user logged in",
      *      ),
      *      @OA\Response(
      *          response=204,
@@ -111,16 +111,18 @@ class AuthController extends Controller
         );
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json('אירעה שגיאה בעת התחברות', Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::UNAUTHORIZED => response()->json('שם משתמש או סיסמה שגוים', Response::HTTP_UNAUTHORIZED),
+                HTTP_Status::ERROR => response()->json('An error occurred while user logged in', Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::UNAUTHORIZED => response()->json('Incorrect username or password', Response::HTTP_UNAUTHORIZED),
                 default => response()->json('', Response::HTTP_NO_CONTENT)
             };
         }
         $filteredResult = [
             "email" => $result["email"],
             "full_name" => $result["full_name"],
-            'token' => $result['accessToken'],
+            // 'token' => $result['accessToken'],
         ];
-        return response()->json($filteredResult, Response::HTTP_OK)->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+        return response()
+            ->json($filteredResult, Response::HTTP_OK)
+            ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
     }
 }

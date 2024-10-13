@@ -7,3 +7,12 @@ use Illuminate\Support\Facades\Route;
 Route::post("login", [AuthController::class, 'login']);
 Route::post("register", [AuthController::class, 'register']);
 Route::get("user", [UserController::class, 'getAuthUser'])->middleware(['auth:api']);
+
+Route::controller(UserController::class)
+  ->prefix('videos')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    Route::post('/',  'store');
+    Route::get('/{uuid}',  'show');
+    Route::get('/',  'index');
+  });

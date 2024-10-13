@@ -40,7 +40,7 @@
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "123"
+                                        "example": "Aa123!@#"
                                     }
                                 },
                                 "type": "object"
@@ -85,7 +85,7 @@
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "123"
+                                        "example": "Aa123!@#"
                                     }
                                 },
                                 "type": "object"
@@ -101,7 +101,7 @@
                         "description": "User not found"
                     },
                     "500": {
-                        "description": "An error occurred while user logged in "
+                        "description": "An error occurred while user logged in"
                     },
                     "204": {
                         "description": "No content"
@@ -126,6 +126,47 @@
                     },
                     "500": {
                         "description": "An error occurred while fetching the user"
+                    }
+                }
+            }
+        },
+        "/api/videos": {
+            "post": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Store a video",
+                "description": "Store a video with the provided name",
+                "operationId": "store video",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "video"
+                                ],
+                                "properties": {
+                                    "video": {
+                                        "description": "The video file to upload",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "הסרטון עלה בהצלחה"
+                    },
+                    "500": {
+                        "description": "אירעה שגיאה בעת העלאה"
+                    },
+                    "204": {
+                        "description": "אין תוכן"
                     }
                 }
             }

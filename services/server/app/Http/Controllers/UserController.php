@@ -41,13 +41,12 @@ class UserController extends Controller
         $result = $this->service->getAuthUser();
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json('אירעה שגיאה', Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::NOT_FOUND => response()->json('לא נמצא', Response::HTTP_NOT_FOUND),
+                HTTP_Status::ERROR => response()->json('An error occurred while fetching the user', Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::NOT_FOUND => response()->json('User not found', Response::HTTP_NOT_FOUND),
                 default => response()->json('', Response::HTTP_NO_CONTENT)
             };
         }
 
         return response()->json($result, Response::HTTP_OK);
     }
-
 }
