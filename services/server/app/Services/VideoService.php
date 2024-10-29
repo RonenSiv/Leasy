@@ -3,7 +3,9 @@
 namespace App\services;
 
 use App\Enums\HTTP_Status;
+use App\Models\UserHasVideo;
 use App\Models\Video;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -28,6 +30,12 @@ class VideoService
                 'video_name' => $randomFileName,
                 'video_mime_type' => $mimeType,
             ]);
+
+            UserHasVideo::create([
+                'user_id' => Auth::id(),
+                'video_id' => $newVideo->id,
+            ]);
+
             DB::commit();
 
             return $newVideo->uuid;

@@ -160,13 +160,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "הסרטון עלה בהצלחה"
+                        "description": "Video uploaded successfully"
                     },
                     "500": {
-                        "description": "אירעה שגיאה בעת העלאה"
-                    },
-                    "204": {
-                        "description": "אין תוכן"
+                        "description": "An error occurred while fetching the user"
                     }
                 }
             }

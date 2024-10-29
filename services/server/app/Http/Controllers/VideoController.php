@@ -40,16 +40,12 @@ class VideoController extends Controller
      *      ),
      *      @OA\Response(
      *          response=201,
-     *          description="הסרטון עלה בהצלחה",
+     *          description="Video uploaded successfully",
      *      ),
      *      @OA\Response(
      *          response=500,
-     *          description="אירעה שגיאה בעת העלאה",
-     *      ),
-     *      @OA\Response(
-     *          response=204,
-     *          description="אין תוכן",
-     *      ),
+     *          description="An error occurred while fetching the user",
+     *      )
      * )
      *
      * @param  StoreUnitRequest  $request
@@ -69,7 +65,7 @@ class VideoController extends Controller
             };
         }
 
-        return response()->json(['message' => 'הסרטון עלה בהצלחה', 'uuid' => $result], Response::HTTP_CREATED);
+        return response()->json(['message' => 'Video uploaded successfully', 'uuid' => $result], Response::HTTP_CREATED);
     }
 
     // /**
