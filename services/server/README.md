@@ -97,7 +97,15 @@ Follow these steps to set up and run the server for the first time.
     php artisan passport:client --personal
     ```
 
-11. **Run the development server**  
+11. **allow big video uploads**  
+    define in the `php.ini` file this:
+
+    ```bash
+    upload_max_filesize = 100M
+    post_max_size = 100M
+    ```
+
+12. **Run the development server**  
     Start the Laravel development server.
 
     ```bash
