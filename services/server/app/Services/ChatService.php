@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-class VideoService
+class ChatService
 {
     /**
      * Create a new class instance.

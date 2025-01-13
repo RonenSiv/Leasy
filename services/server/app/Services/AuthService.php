@@ -2,14 +2,15 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 use Laravel\Passport\Token;
-use App\Enums\HTTP_Status;
-use App\Models\User;
 
+use App\Enums\HTTP_Status;
+
+use App\Models\User;
 
 class AuthService
 {

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-class VideoService
+class QuizService
 {
     /**
      * Create a new class instance.

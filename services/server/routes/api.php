@@ -10,19 +10,31 @@ Route::post("register", [AuthController::class, 'register']);
 Route::get("user", [UserController::class, 'getAuthUser'])->middleware(['auth:api']);
 
 Route::controller(VideoController::class)
-  ->prefix('videos')
+  ->prefix('lecture')
   ->middleware(['auth:api'])
   ->group(function () {
     Route::post('/',  'store');
-    Route::get('/{uuid}',  'show');
     Route::get('/',  'index');
+    Route::get('/{uuid}',  'show');
+  });
+
+Route::controller(VideoController::class)
+  ->prefix('video')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    //
   });
 
 Route::controller(VideoController::class)
   ->prefix('chat')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/',  'getChatResponse');
-    Route::get('/quiz',  'getQuiz');
-    Route::get('/history{id}',  'getChatHistory');
+    //
+  });
+
+Route::controller(VideoController::class)
+  ->prefix('quiz')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    //
   });

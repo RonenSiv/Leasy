@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreVideoRequest extends FormRequest
+class StoreLectureRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,10 +29,10 @@ class StoreVideoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'video.required' => 'יש להעלות ביטוח רכב עבור הרכב השני',
-            'video.file' => 'יש להעלות סרטון בלבד',
+            'video.required' => 'יש להעלות סרטון הרצאה',
+            'video.file' => 'סרטון אינו תקין',
             'video.mimes' => 'סיומת קובץ אינה תקינה. יש להעלות רק קבצים מסוג: mp4',
-            'video.max' => 'קובץ גדול מידי'
+            'video.max' => 'סרטון גדול מידי'
         ];
     }
 }

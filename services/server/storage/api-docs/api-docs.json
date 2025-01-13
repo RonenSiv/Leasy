@@ -109,35 +109,14 @@
                 }
             }
         },
-        "/api/user": {
-            "get": {
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Get authenticated user",
-                "description": "Returns the authenticated user's details",
-                "operationId": "getAuthUser",
-                "responses": {
-                    "200": {
-                        "description": "Successful operation"
-                    },
-                    "404": {
-                        "description": "User not found"
-                    },
-                    "500": {
-                        "description": "An error occurred while fetching the user"
-                    }
-                }
-            }
-        },
-        "/api/videos": {
+        "/api/lecture": {
             "post": {
                 "tags": [
-                    "Videos"
+                    "Lectures"
                 ],
-                "summary": "Store a video",
-                "description": "Store a video with the provided name",
-                "operationId": "store video",
+                "summary": "Store a new lecture",
+                "description": "Store a lecture with the provided details",
+                "operationId": "store new lecture",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -160,7 +139,28 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Video uploaded successfully"
+                        "description": "lecture created successfully"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/user": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get authenticated user",
+                "description": "Returns the authenticated user's details",
+                "operationId": "getAuthUser",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "User not found"
                     },
                     "500": {
                         "description": "An error occurred while fetching the user"
