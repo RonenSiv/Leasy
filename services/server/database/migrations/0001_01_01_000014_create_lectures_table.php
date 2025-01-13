@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('lectures', function (Blueprint $table) {
             $table->id();
+            $table->uuid();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('video_id')->constrained('videos')->onDelete('cascade');
             $table->foreignId('chat_id')->constrained('chats')->onDelete('cascade');
             $table->foreignId('quiz_id')->constrained('quizzes')->onDelete('cascade');
+            $table->longText('transcription');
+            $table->longText('summary');
             $table->timestamps();
         });
     }

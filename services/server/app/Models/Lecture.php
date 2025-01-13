@@ -10,10 +10,13 @@ class Lecture extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'video_id',
         'chat_id',
         'quiz_id',
+        'transcription',
+        'summary',
     ];
     protected $hidden = [
         'created_at',

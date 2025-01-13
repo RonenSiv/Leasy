@@ -10,6 +10,7 @@ class Chat extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'title',
     ];
 

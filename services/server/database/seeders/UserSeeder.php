@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             'email' => 'ofirgoldofir@gmail.com',
             'full_name' => 'Ofir Goldberg',
             'phone_number' => '052-7576444',
-            'password' => Hash::make('1234'),
+            'password' => Hash::make('Aa123!@#'),
         ]);
     }
 }

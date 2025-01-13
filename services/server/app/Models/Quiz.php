@@ -10,8 +10,8 @@ class Quiz extends Model
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'title',
-        'description',
     ];
     protected $hidden = [
         'created_at',
