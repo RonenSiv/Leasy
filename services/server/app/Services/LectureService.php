@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Enums\HTTP_Status;
-
+use App\Http\Resources\LectureResource;
 use App\Models\Lecture;
 use App\Models\Video;
 use App\Models\Quiz;
@@ -85,6 +85,15 @@ class LectureService
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }
+    }
+
+    public function show(string $uuid)
+    {
+        $lecture = Lecture::with('user', 'quiz.questions.questionOptions', 'chat.messages', 'video')
+            ->where('uuid', $uuid)
+            ->first();
+
+        return new LectureResource($lecture);
     }
 
     // ---------------------------- Private Functions ----------------------------

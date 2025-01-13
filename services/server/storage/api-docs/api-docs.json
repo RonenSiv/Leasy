@@ -147,6 +147,38 @@
                 }
             }
         },
+        "/api/lecture/{uuid}": {
+            "get": {
+                "tags": [
+                    "Lectures Management"
+                ],
+                "summary": "Retrieve details of a lecture by its UUID",
+                "description": "Fetch detailed information about a specific lecture using its UUID.",
+                "operationId": "019860875e8a7d4cbe18fb724281c044",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the lecture",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with lecture data"
+                    },
+                    "404": {
+                        "description": "Lecture not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
         "/api/user": {
             "get": {
                 "tags": [

@@ -24,7 +24,7 @@ class User extends Authenticatable
         'updated_at',
     ];
 
-    public function lecture()
+    public function lectures()
     {
         return $this->hasMany(Lecture::class);
     }

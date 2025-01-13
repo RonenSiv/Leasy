@@ -19,12 +19,12 @@ class Chat extends Model
         'updated_at',
     ];
 
-    public function message()
+    public function messages()
     {
         return $this->hasMany(Message::class);
     }
 
-    public function lecture()
+    public function lectures()
     {
         return $this->hasMany(Lecture::class);
     }

@@ -61,10 +61,55 @@ class LectureController extends Controller
         if ($result instanceof HTTP_Status) {
             return match ($result) {
                 HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                default => response()->json('', Response::HTTP_NO_CONTENT)
+                default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
 
         return response()->json(['message' => 'lecture created successfully', 'uuid' => $result], Response::HTTP_CREATED);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/lecture/{uuid}",
+     *     summary="Retrieve details of a lecture by its UUID",
+     *     description="Fetch detailed information about a specific lecture using its UUID.",
+     *     tags={"Lectures Management"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="The UUID of the lecture",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with lecture data",
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Lecture not found",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="An error occurred",
+     *     )
+     * )
+     */
+
+    public function show(string $uuid): JsonResponse
+    {
+        $result = $this->lectureService->show(
+            uuid: $uuid
+        );
+
+        if ($result instanceof HTTP_Status) {
+            return match ($result) {
+                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Lecture not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        return response()->json(['data' => $result], Response::HTTP_OK);
     }
 }

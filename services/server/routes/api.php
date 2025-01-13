@@ -16,7 +16,7 @@ Route::controller(LectureController::class)
   ->group(function () {
     Route::post('/',  'store');
     // Route::get('/',  'index');
-    // Route::get('/{uuid}',  'show');
+    Route::get('/{uuid}',  'show');
   });
 
 // Route::controller(VideoController::class)
