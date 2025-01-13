@@ -5,16 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserHasVideo extends Model
+class Quiz extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'video_id',
+        'title',
+        'description',
     ];
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
+
+    public function question()
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    public function lecture()
+    {
+        return $this->hasMany(Lecture::class);
+    }
 }

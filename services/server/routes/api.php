@@ -17,3 +17,12 @@ Route::controller(VideoController::class)
     Route::get('/{uuid}',  'show');
     Route::get('/',  'index');
   });
+
+Route::controller(VideoController::class)
+  ->prefix('chat')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    Route::get('/',  'getChatResponse');
+    Route::get('/quiz',  'getQuiz');
+    Route::get('/history{id}',  'getChatHistory');
+  });

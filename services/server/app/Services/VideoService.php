@@ -18,6 +18,7 @@ class VideoService
     {
         try {
             DB::beginTransaction();
+
             $extension = $video->getClientOriginalExtension();
             $randomFileName = uniqid() . '_' . Str::random(10) . '.' . $extension;
             Storage::disk(config('filesystems.storage_service'))->put($randomFileName, file_get_contents($video));
@@ -29,11 +30,6 @@ class VideoService
                 'video_path' => config('filesystems.storage_path') . "/" . $randomFileName,
                 'video_name' => $randomFileName,
                 'video_mime_type' => $mimeType,
-            ]);
-
-            UserHasVideo::create([
-                'user_id' => Auth::id(),
-                'video_id' => $newVideo->id,
             ]);
 
             DB::commit();

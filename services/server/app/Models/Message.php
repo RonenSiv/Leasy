@@ -5,23 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Video extends Model
+class Message extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'uuid',
-        'video_path',
-        'video_name',
-        'video_mime_type',
+        'chat_id',
+        'sender',
+        'message',
     ];
+
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
 
-    public function lecture()
+    public function chat()
     {
-        return $this->hasMany(Lecture::class);
+        return $this->belongsTo(Chat::class, 'chat_id');
     }
 }
