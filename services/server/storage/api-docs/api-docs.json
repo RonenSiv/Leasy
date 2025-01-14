@@ -150,11 +150,11 @@
         "/api/lecture/{uuid}": {
             "get": {
                 "tags": [
-                    "Lectures Management"
+                    "Lectures"
                 ],
                 "summary": "Retrieve details of a lecture by its UUID",
                 "description": "Fetch detailed information about a specific lecture using its UUID.",
-                "operationId": "019860875e8a7d4cbe18fb724281c044",
+                "operationId": "f1058aa6d1f0073cb0405f4e98b0cabd",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -196,6 +196,58 @@
                     },
                     "500": {
                         "description": "An error occurred while fetching the user"
+                    }
+                }
+            }
+        },
+        "/api/video/last-watched-time/{uuid}": {
+            "put": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Update the last watched time for a video",
+                "description": "Updates the last watched time for a specific video using the provided video UUID.",
+                "operationId": "334262d4225b3be95a8471048d7378cb",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to update the last watched time",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "The last watched time to update",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "last_watched_time": {
+                                        "type": "integer",
+                                        "example": 120
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Last watched time updated successfully"
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "204": {
+                        "description": "No content"
                     }
                 }
             }

@@ -2,19 +2,27 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Str;
-
 use App\Models\Chat;
+
+use App\Enums\HTTP_Status;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ChatService
 {
     public function storeChat(string $lectureTitle)
     {
-        $newChat = Chat::create([
-            'uuid' => Str::uuid(),
-            'title' => $lectureTitle,
-        ]);
+        try {
+            $newChat = Chat::create([
+                'uuid' => Str::uuid(),
+                'title' => $lectureTitle,
+            ]);
 
-        return $newChat;
+            return $newChat;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
     }
 }

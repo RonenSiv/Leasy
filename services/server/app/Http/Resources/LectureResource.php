@@ -16,6 +16,8 @@ class LectureResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
+            'title' => $this->title,
+            'description' => $this->description,
             'user' => $this->user->full_name,
             'video' => new VideoResource($this->video),
             'transcription' => $this->transcription,

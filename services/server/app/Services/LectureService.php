@@ -8,7 +8,6 @@ use App\Http\Resources\LectureResource;
 
 use App\Models\Lecture;
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -41,12 +40,16 @@ class LectureService
 
             $lectureTitle = $this->gptService->getLectureTitle($summary);
 
+            $lecturedescription = $this->gptService->getLectureDescription($summary);
+
             $newChat = $this->chatService->storeChat($lectureTitle);
 
             $newQuiz = $this->quizService->storeQuiz($lectureTitle, $summary);
 
             $newLecture = Lecture::create([
                 'uuid' => Str::uuid(),
+                'title' => $lectureTitle,
+                'description' => $lecturedescription,
                 'user_id' => Auth::id(),
                 'video_id' => $newVideo->id,
                 'chat_id' => $newChat->id,

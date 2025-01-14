@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreLectureRequest extends FormRequest
+class UpdateLastWatchedTimeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,12 +17,12 @@ class StoreLectureRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array
      */
     public function rules(): array
     {
         return [
-            'video' => 'required|file|mimes:mp4|max:512000',
+            'last_watched_time' => 'required|integer|min:0',
         ];
     }
 
@@ -34,10 +34,9 @@ class StoreLectureRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'video.required' => 'The lecture video must be uploaded',
-            'video.file' => 'The video is invalid',
-            'video.mimes' => 'Invalid file extension. Only mp4 files are allowed',
-            'video.max' => 'The video is too large'
+            'last_watched_time.required' => 'The last watched time is required.',
+            'last_watched_time.integer' => 'The last watched time must be a valid integer.',
+            'last_watched_time.min' => 'The last watched time must be a positive number.',
         ];
     }
 }

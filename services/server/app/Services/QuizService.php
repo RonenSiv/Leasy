@@ -6,6 +6,10 @@ use App\Models\QuestionOption;
 use App\Models\Question;
 use App\Models\Quiz;
 
+use App\Enums\HTTP_Status;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QuizService
@@ -41,39 +45,59 @@ class QuizService
 
     public function storeQuiz(string $lectureTitle, string $summary)
     {
-        $newQuiz = Quiz::create([
-            'uuid' => Str::uuid(),
-            'title' => $lectureTitle,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $quizQuestions = $this->gptService->getQuizQuestions($summary);
+            $newQuiz = Quiz::create([
+                'uuid' => Str::uuid(),
+                'title' => $lectureTitle,
+            ]);
 
-        // delete before prod
-        $quizQuestions = self::DEMO_QUIZ;
+            $quizQuestions = $this->gptService->getQuizQuestions($summary);
 
-        $this->storeQuizQuestions($newQuiz, $quizQuestions);
+            // delete before prod
+            $quizQuestions = self::DEMO_QUIZ;
 
-        return $newQuiz;
+            $this->storeQuizQuestions($newQuiz, $quizQuestions);
+
+            DB::commit();
+
+            return $newQuiz;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
     }
     // ----------------------- Private Functions -----------------------
     private function storeQuizQuestions(Quiz $quiz, array $quizQuestions)
     {
-        foreach ($quizQuestions as $questionData) {
-            $questionText = $questionData['question'];
-            $questionOptions = $questionData['options'];
+        try {
+            DB::beginTransaction();
 
-            $newQuestion = Question::create([
-                'quiz_id' => $quiz->id,
-                'question_text' => $questionText,
-            ]);
+            foreach ($quizQuestions as $questionData) {
+                $questionText = $questionData['question'];
+                $questionOptions = $questionData['options'];
 
-            foreach ($questionOptions as $isCorrect => $questionOptionText) {
-                QuestionOption::create([
-                    'question_id' => $newQuestion->id,
-                    'option_text' => $questionOptionText,
-                    'is_correct' => $isCorrect === 'correct',
+                $newQuestion = Question::create([
+                    'quiz_id' => $quiz->id,
+                    'question_text' => $questionText,
                 ]);
+
+                foreach ($questionOptions as $isCorrect => $questionOptionText) {
+                    QuestionOption::create([
+                        'question_id' => $newQuestion->id,
+                        'option_text' => $questionOptionText,
+                        'is_correct' => $isCorrect === 'correct',
+                    ]);
+                }
             }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
         }
     }
 }

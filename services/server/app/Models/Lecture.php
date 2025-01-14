@@ -11,6 +11,8 @@ class Lecture extends Model
 
     protected $fillable = [
         'uuid',
+        'title',
+        'description',
         'user_id',
         'video_id',
         'chat_id',

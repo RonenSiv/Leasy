@@ -73,7 +73,7 @@ class LectureController extends Controller
      *     path="/api/lecture/{uuid}",
      *     summary="Retrieve details of a lecture by its UUID",
      *     description="Fetch detailed information about a specific lecture using its UUID.",
-     *     tags={"Lectures Management"},
+     *     tags={"Lectures"},
      *     @OA\Parameter(
      *         name="uuid",
      *         in="path",
