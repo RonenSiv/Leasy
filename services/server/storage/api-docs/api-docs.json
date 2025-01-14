@@ -110,13 +110,42 @@
             }
         },
         "/api/lecture": {
+            "get": {
+                "tags": [
+                    "Lectures"
+                ],
+                "description": "Retrieve lecture records. Supports pagination.",
+                "operationId": "getLectures",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with lectures data"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "Lectures"
                 ],
-                "summary": "Store a new lecture",
                 "description": "Store a lecture with the provided details",
-                "operationId": "store new lecture",
+                "operationId": "postLecture",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -152,9 +181,8 @@
                 "tags": [
                     "Lectures"
                 ],
-                "summary": "Retrieve details of a lecture by its UUID",
                 "description": "Fetch detailed information about a specific lecture using its UUID.",
-                "operationId": "f1058aa6d1f0073cb0405f4e98b0cabd",
+                "operationId": "getLecture",
                 "parameters": [
                     {
                         "name": "uuid",

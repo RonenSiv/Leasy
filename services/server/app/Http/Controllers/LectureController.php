@@ -19,10 +19,9 @@ class LectureController extends Controller
     /**
      * @OA\Post(
      *      path="/api/lecture",
-     *      operationId="store new lecture",
      *      tags={"Lectures"},
-     *      summary="Store a new lecture",
      *      description="Store a lecture with the provided details",
+     *      operationId="postLecture",
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\MediaType(
@@ -71,8 +70,8 @@ class LectureController extends Controller
     /**
      * @OA\Get(
      *     path="/api/lecture/{uuid}",
-     *     summary="Retrieve details of a lecture by its UUID",
      *     description="Fetch detailed information about a specific lecture using its UUID.",
+     *     operationId="getLecture",
      *     tags={"Lectures"},
      *     @OA\Parameter(
      *         name="uuid",
@@ -105,6 +104,48 @@ class LectureController extends Controller
         if ($result instanceof HTTP_Status) {
             return match ($result) {
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'Lecture not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        return response()->json(['data' => $result], Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/lecture",
+     *     description="Retrieve lecture records. Supports pagination.",
+     *     operationId="getLectures",
+     *     tags={"Lectures"},
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         description="Page number for pagination.",
+     *         @OA\Schema(type="integer", example=2)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with lectures data",
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="No content"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="An error occurred"
+     *     )
+     * )
+     */
+
+    public function index(): JsonResponse
+    {
+        $result = $this->lectureService->index();
+
+        if ($result instanceof HTTP_Status) {
+            return match ($result) {
                 HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };

@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Enums\HTTP_Status;
-
+use App\Enums\PaginationEnum;
 use App\Http\Resources\LectureResource;
-
+use App\Http\Resources\LecturesPreviewResource;
 use App\Models\Lecture;
 
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +30,7 @@ class LectureService
     public function store($video): HTTP_Status|string
     {
         try {
+            // TODO: support youtube links
             DB::beginTransaction();
 
             $newVideo = $this->videoService->storeVideo($video);
@@ -70,7 +71,12 @@ class LectureService
 
     public function show(string $uuid)
     {
-        $lecture = Lecture::with('user', 'quiz.questions.questionOptions', 'chat.messages', 'video.videoUserProgresses')
+        $lecture = Lecture::with(
+            'user',
+            'quiz.questions.questionOptions',
+            'chat.messages',
+            'video.videoUserProgresses'
+        )
             ->where('uuid', $uuid)
             ->first();
 
@@ -79,5 +85,14 @@ class LectureService
         }
 
         return new LectureResource($lecture);
+    }
+
+    public function index()
+    {
+        $lectures = Lecture::with('video.videoUserProgresses')
+            ->where('user_id', Auth::id())
+            ->paginate(PaginationEnum::PER_PAGE->value);
+
+        return LecturesPreviewResource::collection($lectures);
     }
 }
