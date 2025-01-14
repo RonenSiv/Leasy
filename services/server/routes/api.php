@@ -3,7 +3,6 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LectureController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 Route::post("login", [AuthController::class, 'login']);

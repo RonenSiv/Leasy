@@ -14,9 +14,15 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->uuid();
+
             $table->string('video_path')->unique();
             $table->string('video_name')->unique();
             $table->string('video_mime_type');
+
+            $table->string('preview_image_path')->unique();
+            $table->string('preview_image_name')->unique();
+            $table->string('preview_image_mime_type');
+
             $table->timestamps();
         });
     }

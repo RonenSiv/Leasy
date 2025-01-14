@@ -112,4 +112,13 @@ Follow these steps to set up and run the server for the first time.
     php artisan serve
     ```
 
-That's it! Your server should now be up and running.
+13. **install FFmpeg on windows for preview images**
+    ```
+    https://www.youtube.com/watch?v=WM5co0hbnFY&list=PLqf3pJ1mc7x2VVrDOZCdrbyCnByQuST7n
+
+    https://github.com/protonemedia/laravel-ffmpeg
+
+    https://phoenixnap.com/kb/ffmpeg-windows
+
+    ```
+    That's it! Your server should now be up and running.

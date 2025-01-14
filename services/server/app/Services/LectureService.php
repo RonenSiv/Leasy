@@ -2,19 +2,26 @@
 
 namespace App\Services;
 
+// use FFMpeg;
+
 use App\Enums\HTTP_Status;
+
 use App\Http\Resources\LectureResource;
+
+use App\Models\QuestionOption;
+use App\Models\Question;
 use App\Models\Lecture;
 use App\Models\Video;
 use App\Models\Quiz;
 use App\Models\Chat;
-use App\Models\Question;
-use App\Models\QuestionOption;
+
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+
+use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
 class LectureService
 {
@@ -79,9 +86,9 @@ class LectureService
             return $newLecture->uuid;
         } catch (\Exception $e) {
             DB::rollBack();
-            if (Storage::disk(config('filesystems.storage_service'))->exists($newVideo->video_name)) {
-                Storage::disk(config('filesystems.storage_service'))->delete($newVideo->video_name);
-            }
+            // if (Storage::disk(config('filesystems.storage_service'))->exists($newVideo->video_name)) {
+            //     Storage::disk(config('filesystems.storage_service'))->delete($newVideo->video_name);
+            // }
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }
@@ -93,24 +100,43 @@ class LectureService
             ->where('uuid', $uuid)
             ->first();
 
+        if (is_null($lecture)) {
+            return HTTP_Status::NOT_FOUND;
+        }
+
         return new LectureResource($lecture);
     }
 
     // ---------------------------- Private Functions ----------------------------
-
     private function storeVideo($video)
     {
-        $extension = $video->getClientOriginalExtension();
-        $randomFileName = uniqid() . '_' . Str::random(10) . '.' . $extension;
-        Storage::disk(config('filesystems.storage_service'))->put($randomFileName, file_get_contents($video));
+        $videoExtension = $video->getClientOriginalExtension();
+        $VideoName = uniqid() . '_' . Str::random(10) . '.' . $videoExtension;
 
-        $mimeType = $video->getClientMimeType();
+        Storage::disk(config('filesystems.storage_service'))->put($VideoName, file_get_contents($video));
+        $VideoMimeType = $video->getClientMimeType();
+
+        $previewImageName = uniqid() . '_' . Str::random(10) . '.jpg';
+
+        FFMpeg::fromDisk(config('filesystems.storage_service'))
+            ->open($VideoName)
+            ->getFrameFromSeconds(10)
+            ->export()
+            ->toDisk(config('filesystems.storage_service'))
+            ->save($previewImageName);
+
+        $previewImageMimeType = 'image/jpeg';
+        $videoPath = config('filesystems.storage_path') . "/" . $VideoName;
+        $previewImagePath = config('filesystems.storage_path') . "/" . $previewImageName;
 
         $newVideo = Video::create([
             'uuid' => Str::uuid(),
-            'video_path' => config('filesystems.storage_path') . "/" . $randomFileName,
-            'video_name' => $randomFileName,
-            'video_mime_type' => $mimeType,
+            'video_path' => $videoPath,
+            'video_name' => $VideoName,
+            'video_mime_type' => $VideoMimeType,
+            'preview_image_path' => $previewImagePath,
+            'preview_image_name' => $previewImageName,
+            'preview_image_mime_type' => $previewImageMimeType,
         ]);
 
         return $newVideo;
