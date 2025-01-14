@@ -3,11 +3,19 @@
 namespace App\Services;
 
 use App\Enums\HTTP_Status;
-
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
 class GptService
 {
+    protected $client;
+    public function __construct()
+    {
+        $this->client = new Client([
+            'base_uri' => 'https://api.openai.com/v1/',
+        ]);
+    }
+
     public function getChatResponse()
     {
         try {

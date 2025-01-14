@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\LectureController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VideoController;
@@ -26,12 +27,12 @@ Route::controller(VideoController::class)
     Route::put('/last-watched-time/{uuid}',  'updateLastWatchedTime');
   });
 
-// Route::controller(VideoController::class)
-//   ->prefix('chat')
-//   ->middleware(['auth:api'])
-//   ->group(function () {
-//     //
-//   });
+Route::controller(ChatController::class)
+  ->prefix('chat')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    Route::get('/',  'getChatResponse');
+  });
 
 // Route::controller(VideoController::class)
 //   ->prefix('quiz')

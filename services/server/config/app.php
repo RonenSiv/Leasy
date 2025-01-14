@@ -123,4 +123,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'openai_api_key' => env("OPENAI_API_KEY"),
+    'openai_base_uri' => env("OPENAI_BASE_URI"),
+    'openai_model' => env("OPENAI_MODEL"),
+    'openai_max_tokens' => (int)env("OPENAI_MAX_TOKENS"),
+    'openai_temperature' => (float)env("OPENAI_TEMPERATURE"),
 ];
