@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class VideoResource extends JsonResource
 {
@@ -16,12 +17,9 @@ class VideoResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
-            'video_path' => $this->video_path,
-            'video_name' => $this->video_name,
-            'video_mime_type' => $this->video_mime_type,
-            'preview_image_path' => $this->video_path,
-            'preview_image_name' => $this->video_name,
-            'preview_image_mime_type' => $this->video_mime_type,
+            'video_url' => $this->video_url,
+            'preview_image_url' => $this->preview_image_url,
+            'last_watched_time' => $this->videoUserProgresses()->where('user_id', Auth::id())->value('last_watched_time'),
         ];
     }
 }

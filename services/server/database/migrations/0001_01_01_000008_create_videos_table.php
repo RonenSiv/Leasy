@@ -16,10 +16,12 @@ return new class extends Migration
             $table->uuid();
 
             $table->string('video_path')->unique();
+            $table->string('video_url')->unique();
             $table->string('video_name')->unique();
             $table->string('video_mime_type');
 
             $table->string('preview_image_path')->unique();
+            $table->string('preview_image_url')->unique();
             $table->string('preview_image_name')->unique();
             $table->string('preview_image_mime_type');
 

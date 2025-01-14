@@ -28,4 +28,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Lecture::class);
     }
+    public function videoUserProgress()
+    {
+        return $this->hasMany(VideoUserProgress::class);
+    }
 }
