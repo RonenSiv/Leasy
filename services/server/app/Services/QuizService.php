@@ -53,7 +53,7 @@ class QuizService
                 'title' => $lectureTitle,
             ]);
 
-            $quizQuestions = $this->gptService->getQuizQuestions($summary);
+            $quizQuestions = $this->gptService->generateQuizFromGpt($summary);
 
             // delete before prod
             $quizQuestions = self::DEMO_QUIZ;

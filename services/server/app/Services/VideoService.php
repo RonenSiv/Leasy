@@ -18,6 +18,7 @@ class VideoService
 {
     public function storeVideo($video)
     {
+        $newVideo = null;
         try {
             $videoExtension = $video->getClientOriginalExtension();
             $videoName = uniqid() . '_' . Str::random(10) . '.' . $videoExtension;
@@ -57,6 +58,9 @@ class VideoService
             return $newVideo;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
+            if (Storage::disk(config('filesystems.storage_service'))->exists($videoName)) {
+                Storage::disk(config('filesystems.storage_service'))->delete($videoName);
+            }
             return HTTP_Status::ERROR;
         }
     }
@@ -69,7 +73,7 @@ class VideoService
             if (is_null($videoId)) {
                 return HTTP_Status::NOT_FOUND;
             }
-            
+
             VideoUserProgress::where('video_id', $videoId)
                 ->where('user_id', Auth::id())
                 ->update([

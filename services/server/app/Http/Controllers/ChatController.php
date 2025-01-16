@@ -13,37 +13,39 @@ class ChatController extends Controller
     public function __construct()
     {
         $this->chatService = new ChatService();
-        $this->client = new Client([
-            'base_uri' => config('app.openai_base_uri'),
-        ]);
+        // TEST - DELETE
+        // $this->client = new Client([
+        //     'base_uri' => config('app.openai_base_uri'),
+        // ]);
     }
 
-    public function getChatResponse()
-    {
-        try {
-            $message = 'write to me Ofir in Hebrew';
-            $response = $this->client->post('chat/completions', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . config('app.openai_api_key')
-                ],
-                'json' => [
-                    'model' => config('app.openai_model'),
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-                        ['role' => 'user', 'content' => $message],
-                    ],
-                    'max_tokens' => config('app.openai_max_tokens'),
-                    'temperature' => config('app.openai_temperature'),
-                ],
-                'verify' => false,
-            ]);
+    // TEST - DELETE
+    // public function getChatResponse()
+    // {
+    //     try {
+    //         $message = 'write to me Ofir in Hebrew';
+    //         $response = $this->client->post('chat/completions', [
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . config('app.openai_api_key')
+    //             ],
+    //             'json' => [
+    //                 'model' => config('app.openai_model'),
+    //                 'messages' => [
+    //                     ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+    //                     ['role' => 'user', 'content' => $message],
+    //                 ],
+    //                 'max_tokens' => config('app.openai_max_tokens'),
+    //                 'temperature' => config('app.openai_temperature'),
+    //             ],
+    //             'verify' => false,
+    //         ]);
 
-            $respnseData = json_decode($response->getBody(), true);
-            $answer = $respnseData['choices'][0]['message']['content'];
+    //         $respnseData = json_decode($response->getBody(), true);
+    //         $answer = $respnseData['choices'][0]['message']['content'];
 
-            dd($answer);
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
+    //         return $answer;
+    //     } catch (\Exception $e) {
+    //         return ['error' => $e->getMessage()];
+    //     }
+    // }
 }

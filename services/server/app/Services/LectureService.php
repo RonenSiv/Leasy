@@ -30,7 +30,6 @@ class LectureService
     public function store($video): HTTP_Status|string
     {
         try {
-            // TODO: support youtube links
             DB::beginTransaction();
 
             $newVideo = $this->videoService->storeVideo($video);
@@ -71,28 +70,38 @@ class LectureService
 
     public function show(string $uuid)
     {
-        $lecture = Lecture::with(
-            'user',
-            'quiz.questions.questionOptions',
-            'chat.messages',
-            'video.videoUserProgresses'
-        )
-            ->where('uuid', $uuid)
-            ->first();
+        try {
+            $lecture = Lecture::with(
+                'user',
+                'quiz.questions.questionOptions',
+                'chat.messages',
+                'video.videoUserProgresses'
+            )
+                ->where('uuid', $uuid)
+                ->first();
 
-        if (is_null($lecture)) {
-            return HTTP_Status::NOT_FOUND;
+            if (is_null($lecture)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+
+            return new LectureResource($lecture);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
         }
-
-        return new LectureResource($lecture);
     }
 
     public function index()
     {
-        $lectures = Lecture::with('video.videoUserProgresses')
-            ->where('user_id', Auth::id())
-            ->paginate(PaginationEnum::PER_PAGE->value);
+        try {
+            $lectures = Lecture::with('video.videoUserProgresses')
+                ->where('user_id', Auth::id())
+                ->paginate(PaginationEnum::PER_PAGE->value);
 
-        return LecturesPreviewResource::collection($lectures);
+            return LecturesPreviewResource::collection($lectures);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
     }
 }
