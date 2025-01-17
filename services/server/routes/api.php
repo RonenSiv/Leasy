@@ -26,21 +26,15 @@ Route::controller(VideoController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::put('/last-watched-time/{uuid}',  'updateLastWatchedTime');
+    Route::put('/fix-audio/{uuid}',  'fixAudio');
   });
 
-Route::controller(AudioController::class)
-  ->prefix('audio')
+Route::controller(ChatController::class)
+  ->prefix('chat')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::put('/fix/{videoUuid}',  'fixAudio');
+    Route::post('/send-message/{uuid}', 'sendMessageToChat');
   });
-
-// Route::controller(ChatController::class)
-//   ->prefix('chat')
-//   ->middleware(['auth:api'])
-//   ->group(function () {
-//     Route::get('/',  'getChatResponse');
-//   });
 
 // Route::controller(VideoController::class)
 //   ->prefix('quiz')
@@ -53,5 +47,5 @@ Route::controller(ChatController::class)
   ->prefix('test')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/',  'getChatResponse');
+    Route::get('/',  'testGPT');
   });

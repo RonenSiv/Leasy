@@ -62,7 +62,6 @@ class VideoController extends Controller
      * )
      */
 
-
     public function updateLastWatchedTime(string $uuid, UpdateLastWatchedTimeRequest $request): JsonResponse
     {
         $result = $this->videoService->updateLastWatchedTime(
@@ -76,5 +75,53 @@ class VideoController extends Controller
             HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/video/fix-audio/{uuid}",
+     *     summary="Fix audio of a video",
+     *     description="Fixes the audio issues of the specified video.",
+     *     tags={"Videos"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         description="The UUID of the video to fix audio",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Audio fixed successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Video not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="An error occurred"
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="No content"
+     *     )
+     * )
+     */
+
+    public function fixAudio(string $uuid): JsonResponse
+    {
+        $result = $this->videoService->fixAudio(
+            uuid: $uuid,
+        );
+
+        if ($result instanceof HTTP_Status) {
+            return match ($result) {
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Video Not Found'], Response::HTTP_NOT_FOUND),
+                HTTP_Status::OK => response()->json(['message' => 'Audio fixed successfully'], Response::HTTP_OK),
+                default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+            };
+        }
     }
 }

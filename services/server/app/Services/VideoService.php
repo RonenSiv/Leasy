@@ -86,4 +86,31 @@ class VideoService
             return HTTP_Status::ERROR;
         }
     }
+
+    public function fixAudio(string $uuid)
+    {
+        try {
+            $video = Video::where('uuid', $uuid)->first();
+
+            if (is_null($video)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+
+            if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
+                $videoPath = $video->video_path;
+                $command = escapeshellcmd("python3 /path/to/your/script.py $videoPath");
+                $output = shell_exec($command);
+
+                if ($output == 'ok') {
+                    return HTTP_Status::OK;
+                }
+            }
+
+            Log::error('Error in Python script');
+            return HTTP_Status::ERROR;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
+    }
 }

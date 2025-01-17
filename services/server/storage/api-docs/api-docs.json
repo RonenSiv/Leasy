@@ -109,6 +109,58 @@
                 }
             }
         },
+        "/api/chat/send-message/{uuid}": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send a message to a chat",
+                "description": "Sends a message to a specific chat identified by its UUID.",
+                "operationId": "db372e1f498ed3dc425bbe33951ba399",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the chat",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Hello, how are you?"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message sent successfully"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
         "/api/lecture": {
             "get": {
                 "tags": [
@@ -273,6 +325,42 @@
                     },
                     "500": {
                         "description": "Internal server error"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/video/fix-audio/{uuid}": {
+            "put": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Fix audio of a video",
+                "description": "Fixes the audio issues of the specified video.",
+                "operationId": "90e7b09d4d3df597c76fa28772796e26",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to fix audio",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audio fixed successfully"
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"

@@ -21,7 +21,7 @@ class ChatResource extends JsonResource
                 return [
                     'sender' => $message->sender,
                     'message' => $message->message,
-                    'send_at' => $message->created_at,
+                    'sent_at' => $message->created_at,
                 ];
             }),
         ];
