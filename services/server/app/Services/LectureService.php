@@ -29,7 +29,7 @@ class LectureService
         $this->quizService = new QuizService();
     }
 
-    public function store($video): HTTP_Status|string
+    public function store($video): HTTP_Status|array
     {
         try {
             DB::beginTransaction();
