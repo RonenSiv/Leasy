@@ -10,8 +10,10 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { mockClient } from "@/mocks/mock-client-data";
+import { User } from "@/contexts/auth-context";
 
-type ClientContextType = {
+export type ClientContextType = {
   name: string | undefined;
   setName: Dispatch<SetStateAction<string | undefined>>;
   session: string | undefined;
@@ -41,37 +43,83 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Simulate loading data
-  // TODO: Replace with actual data fetching
   useEffect(() => {
-    console.log("fetching data");
-    const fetchData = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setName("John Doe");
-        setEmail("john.doe@example.com");
+    const initializeAuth = async () => {
+      if (process.env.NEXT_PUBLIC_SERVER_ON === "false") {
+        setName(mockClient.name);
+        setEmail(mockClient.email);
         setIsLogged(true);
-        setBio("I am a software engineer");
-      } catch (e) {
-        setError("Failed to load data");
-      } finally {
-        setIsLoading(false);
+        setBio(mockClient.bio);
+        setAvatar(mockClient.avatar);
+      } else {
+        try {
+          const res = await fetch("/api/user");
+          if (res.ok) {
+            const data: User = await res.json();
+            setName(data.name);
+            setEmail(data.email);
+            setIsLogged(true);
+            setBio(data.bio);
+            setAvatar(data.avatar);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user:", error);
+        }
       }
+      setIsLoading(false);
     };
-    fetchData();
+
+    initializeAuth();
   }, [name, email, isLogged]);
 
-  const logout = () => {
-    setIsLogged(false);
-    setName(undefined);
-    setEmail(undefined);
-    setBio(undefined);
-    setAvatar(undefined);
-    console.log("Logged out");
+  const logout = async (): Promise<void> => {
+    if (process.env.NEXT_PUBLIC_SERVER_ON === "false") {
+      setIsLogged(false);
+      setName(undefined);
+      setEmail(undefined);
+      setBio(undefined);
+      setAvatar(undefined);
+      return;
+    }
+
+    const res = await fetch("/api/auth/logout", { method: "POST" });
+    if (res.ok) {
+      setIsLogged(false);
+      setName(undefined);
+      setEmail(undefined);
+      setBio(undefined);
+      setAvatar(undefined);
+    }
   };
 
-  // TODO: Implement authentication
-  const login = () => {};
+  const login = async (email: string, password: string): Promise<User> => {
+    if (process.env.NEXT_PUBLIC_SERVER_ON === "false") {
+      setName(mockClient.name);
+      setEmail(mockClient.email);
+      setIsLogged(true);
+      setBio(mockClient.bio);
+      setAvatar(mockClient.avatar);
+      return mockClient;
+    }
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (res.ok) {
+      const data: User = await res.json();
+      setName(data.name);
+      setEmail(data.email);
+      setIsLogged(true);
+      setBio(data.bio);
+      setAvatar(data.avatar);
+      return data;
+    } else {
+      throw new Error("Login failed");
+    }
+  };
 
   return (
     <ClientContext.Provider
