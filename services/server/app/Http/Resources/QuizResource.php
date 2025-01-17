@@ -17,17 +17,8 @@ class QuizResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'title' => $this->title,
-            'questions' => $this->questions->map(function ($question) {
-                return [
-                    'question_text' => $question->question_text,
-                    'options' => $question->questionOptions->map(function ($option) {
-                        return [
-                            'option_text' => $option->option_text,
-                            'is_correct' => $option->is_correct,
-                        ];
-                    }),
-                ];
-            }),
+            'score' => $this->score,
+            // 'questions' => QuestionResource::collection($this->questions),
         ];
     }
 }

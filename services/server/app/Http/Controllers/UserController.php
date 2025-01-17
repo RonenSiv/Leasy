@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\HTTP_Status;
 use App\Services\UserService;
+
+use App\Enums\HTTP_Status;
+
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -41,9 +43,9 @@ class UserController extends Controller
         $result = $this->service->getAuthUser();
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json('An error occurred while fetching the user', Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::NOT_FOUND => response()->json('User not found', Response::HTTP_NOT_FOUND),
-                default => response()->json('', Response::HTTP_NO_CONTENT)
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while fetching the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::NOT_FOUND => response()->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
 

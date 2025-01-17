@@ -6,6 +6,8 @@ use App\Models\QuestionOption;
 use App\Models\Question;
 use App\Models\Quiz;
 
+use App\Http\Resources\QuestionResource;
+
 use App\Enums\HTTP_Status;
 
 use Illuminate\Support\Facades\Log;
@@ -69,6 +71,70 @@ class QuizService
             return HTTP_Status::ERROR;
         }
     }
+
+    public function getNextQuestion(string $uuid, int $questionIndex)
+    {
+        try {
+            $quiz = Quiz::where('uuid', $uuid)->first();
+
+            if (is_null($quiz)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+
+            $nextQuestion = Question::with('questionOptions')
+                ->where('quiz_id', $quiz->id)
+                ->orderBy('id')
+                ->skip($questionIndex - 1)
+                ->first();
+
+            if (is_null($nextQuestion)) {
+                return ['score' => $quiz->score];
+            }
+
+            return new QuestionResource($nextQuestion);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
+    }
+
+    public function addToScore(string $uuid)
+    {
+        try {
+            DB::beginTransaction();
+
+            $quiz = Quiz::with('questions')
+                ->where('uuid', $uuid)
+                ->first();
+
+            if (is_null($quiz)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+
+            $questionsCount = $quiz->questions->count();
+
+            $currentScroe = $quiz->score;
+
+            if ($currentScroe >= 100 || $questionsCount <= 0) {
+                return HTTP_Status::BAD_REQUEST;
+            }
+
+            $quiz->update([
+                'score' => $currentScroe + (100 / $questionsCount),
+            ]);
+
+            DB::commit();
+
+            return [
+                'new_score' => $quiz->score
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
+    }
+
     // ----------------------- Private Functions -----------------------
     private function storeQuizQuestions(Quiz $quiz, array $quizQuestions)
     {

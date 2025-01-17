@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\HTTP_Status;
-use App\Http\Requests\StoreLectureRequest;
 use App\Services\LectureService;
-use Symfony\Component\HttpFoundation\Response;
+
+use App\Enums\HTTP_Status;
+
+use App\Http\Requests\StoreLectureRequest;
+
 use Illuminate\Http\JsonResponse;
+
+use Symfony\Component\HttpFoundation\Response;
 
 class LectureController extends Controller
 {

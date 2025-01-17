@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\HTTP_Status;
-use App\Http\Requests\UpdateLastWatchedTimeRequest;
 use App\Services\VideoService;
 
-use Symfony\Component\HttpFoundation\Response;
+use App\Enums\HTTP_Status;
+
+use App\Http\Requests\UpdateLastWatchedTimeRequest;
 
 use Illuminate\Http\JsonResponse;
+
+use Symfony\Component\HttpFoundation\Response;
 
 class VideoController extends Controller
 {

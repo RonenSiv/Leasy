@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\HTTP_Status;
-use App\Http\Requests\SendMessageToChatRequest;
 use App\Services\ChatService;
+
+use App\Enums\HTTP_Status;
+
+use App\Http\Requests\SendMessageToChatRequest;
+
 use GuzzleHttp\Client;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -106,6 +110,6 @@ class ChatController extends Controller
             };
         }
 
-        return response()->json(['message' => 'Message sent successfully', 'response' => $result], Response::HTTP_CREATED);
+        return response()->json(['message' => 'Message sent successfully', 'data' => $result], Response::HTTP_CREATED);
     }
 }

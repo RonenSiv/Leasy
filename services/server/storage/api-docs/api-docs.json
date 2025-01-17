@@ -259,6 +259,92 @@
                 }
             }
         },
+        "/api/quiz/next-question/{uuid}": {
+            "get": {
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Get the next question in a quiz",
+                "description": "Fetches the next question of a quiz based on the question index.",
+                "operationId": "2c256004ebf95ae3f93dde3edf00e3dc",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the quiz",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "question_index",
+                        "in": "query",
+                        "description": "The index of the question to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Quiz not found"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/quiz/add-to-score/{uuid}": {
+            "put": {
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Add score to a quiz",
+                "description": "Adds a score to a quiz based on its UUID.",
+                "operationId": "b05c38427ec0d7976b074be88ab3533d",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the quiz",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score added successfully"
+                    },
+                    "400": {
+                        "description": "quiz cannot be graded"
+                    },
+                    "404": {
+                        "description": "Quiz not found"
+                    },
+                    "500": {
+                        "description": "An error occurred while fetching the user"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
         "/api/user": {
             "get": {
                 "tags": [

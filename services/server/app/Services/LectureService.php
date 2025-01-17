@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
-use App\Enums\HTTP_Status;
-use App\Enums\PaginationEnum;
-use App\Http\Resources\LectureResource;
-use App\Http\Resources\LecturesPreviewResource;
 use App\Models\Lecture;
+
+use App\Enums\PaginationEnum;
+use App\Enums\HTTP_Status;
+
+use App\Http\Resources\LecturesPreviewResource;
+use App\Http\Resources\LectureResource;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;

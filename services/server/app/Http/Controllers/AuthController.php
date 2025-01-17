@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\HTTP_Status;
-use App\Http\Requests\RegisterRequest;
-use Illuminate\Http\Request;
 use App\Services\AuthService;
+
+use App\Enums\HTTP_Status;
+
+use App\Http\Requests\RegisterRequest;
+
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cookie;
+use Illuminate\Http\Request;
+
 use Symfony\Component\HttpFoundation\Response;
 
+use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
 {
@@ -60,9 +64,9 @@ class AuthController extends Controller
         );
 
         return match ($status) {
-            HTTP_Status::CREATED => response()->json('User created successfully', Response::HTTP_OK),
-            HTTP_Status::ERROR => response()->json('An error occurred while creating the user', Response::HTTP_INTERNAL_SERVER_ERROR),
-            default => response()->json('', Response::HTTP_NO_CONTENT)
+            HTTP_Status::CREATED => response()->json(['message' => 'User created successfully'], Response::HTTP_OK),
+            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while creating the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
         };
     }
 
@@ -111,9 +115,9 @@ class AuthController extends Controller
         );
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json('An error occurred while user logged in', Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::UNAUTHORIZED => response()->json('Incorrect username or password', Response::HTTP_UNAUTHORIZED),
-                default => response()->json('', Response::HTTP_NO_CONTENT)
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
         $filteredResult = [

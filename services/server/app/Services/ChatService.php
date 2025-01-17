@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Message;
 use App\Models\Chat;
 
 use App\Enums\HTTP_Status;
 use App\Enums\SenderEnum;
-use App\Models\Message;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ChatService

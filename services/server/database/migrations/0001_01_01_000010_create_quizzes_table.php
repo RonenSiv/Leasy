@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid();
             $table->string('title');
+            $table->string('score')->default(0);
             $table->timestamps();
         });
     }

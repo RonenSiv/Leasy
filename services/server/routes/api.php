@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\AudioController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\LectureController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
@@ -36,12 +36,13 @@ Route::controller(ChatController::class)
     Route::post('/send-message/{uuid}', 'sendMessageToChat');
   });
 
-// Route::controller(VideoController::class)
-//   ->prefix('quiz')
-//   ->middleware(['auth:api'])
-//   ->group(function () {
-//     //
-//   });
+Route::controller(QuizController::class)
+  ->prefix('quiz')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    Route::get('/next-question/{uuid}',  'getNextQuestion');
+    Route::put('/add-to-score/{uuid}',  'addToScore');
+  });
 
 Route::controller(ChatController::class)
   ->prefix('test')

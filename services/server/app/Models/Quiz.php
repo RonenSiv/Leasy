@@ -12,6 +12,7 @@ class Quiz extends Model
     protected $fillable = [
         'uuid',
         'title',
+        'score',
     ];
     protected $hidden = [
         'created_at',
