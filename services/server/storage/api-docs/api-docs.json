@@ -40,7 +40,7 @@
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "123"
+                                        "example": "Aa123!@#"
                                     }
                                 },
                                 "type": "object"
@@ -85,7 +85,7 @@
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "123"
+                                        "example": "Aa123!@#"
                                     }
                                 },
                                 "type": "object"
@@ -101,7 +101,267 @@
                         "description": "User not found"
                     },
                     "500": {
-                        "description": "An error occurred while user logged in "
+                        "description": "An error occurred while user logged in"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/chat/send-message/{uuid}": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send a message to a chat",
+                "description": "Sends a message to a specific chat identified by its UUID.",
+                "operationId": "db372e1f498ed3dc425bbe33951ba399",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the chat",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Hello, how are you?"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Message sent successfully"
+                    },
+                    "404": {
+                        "description": "Chat not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/lecture": {
+            "get": {
+                "tags": [
+                    "Lectures"
+                ],
+                "description": "Retrieve lecture records. Supports pagination.",
+                "operationId": "getLectures",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with lectures data"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Lectures"
+                ],
+                "description": "Store a lecture with the provided details",
+                "operationId": "postLecture",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "video"
+                                ],
+                                "properties": {
+                                    "video": {
+                                        "description": "The video file to upload",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "lecture created successfully"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/lecture/{uuid}": {
+            "get": {
+                "tags": [
+                    "Lectures"
+                ],
+                "description": "Fetch detailed information about a specific lecture using its UUID.",
+                "operationId": "getLecture",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the lecture",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with lecture data"
+                    },
+                    "404": {
+                        "description": "Lecture not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/quiz/next-question/{uuid}": {
+            "get": {
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Get the next question in a quiz",
+                "description": "Fetches the next question of a quiz based on the question index.",
+                "operationId": "2c256004ebf95ae3f93dde3edf00e3dc",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the quiz",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "question_index",
+                        "in": "query",
+                        "description": "The index of the question to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Question retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Quiz not found"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/quiz/answer/{uuid}": {
+            "put": {
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Answer a question in a quiz",
+                "description": "Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
+                "operationId": "c4ad1e3826e1cffeb324df3fc5fab499",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the quiz",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "question_uuid",
+                                    "option_index"
+                                ],
+                                "properties": {
+                                    "question_uuid": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "option_index": {
+                                        "type": "Integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Answer submitted successfully"
+                    },
+                    "400": {
+                        "description": "This question cannot be answered"
+                    },
+                    "404": {
+                        "description": "Some of the quiz properties not found"
+                    },
+                    "500": {
+                        "description": "An error occurred while processing the answer"
                     },
                     "204": {
                         "description": "No content"
@@ -126,6 +386,94 @@
                     },
                     "500": {
                         "description": "An error occurred while fetching the user"
+                    }
+                }
+            }
+        },
+        "/api/video/last-watched-time/{uuid}": {
+            "put": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Update the last watched time for a video",
+                "description": "Updates the last watched time for a specific video using the provided video UUID.",
+                "operationId": "334262d4225b3be95a8471048d7378cb",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to update the last watched time",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "The last watched time to update",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "last_watched_time": {
+                                        "type": "integer",
+                                        "example": 120
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Last watched time updated successfully"
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/video/fix-audio/{uuid}": {
+            "put": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Fix audio of a video",
+                "description": "Fixes the audio issues of the specified video.",
+                "operationId": "90e7b09d4d3df597c76fa28772796e26",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to fix audio",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audio fixed successfully"
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
                     }
                 }
             }

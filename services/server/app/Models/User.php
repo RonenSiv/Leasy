@@ -12,6 +12,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
     protected $fillable = [
+        'uuid',
         'full_name',
         'email',
         'phone_number',
@@ -19,10 +20,16 @@ class User extends Authenticatable
     ];
     protected $hidden = [
         'password',
-        'remember_token',
-        'password',
         'created_at',
         'updated_at',
     ];
 
+    public function lectures()
+    {
+        return $this->hasMany(Lecture::class);
+    }
+    public function videoUserProgress()
+    {
+        return $this->hasMany(VideoUserProgress::class);
+    }
 }
