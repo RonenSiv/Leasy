@@ -33,4 +33,6 @@ enum GptPropmtsEnum: string
     Fill the options with plausible distractors.
     Use only text-based responses in the output for easy parsing into the array format.
     the summary is: \n";
+
+    case GET_CHAT_RESPONSE = ' ';
 }

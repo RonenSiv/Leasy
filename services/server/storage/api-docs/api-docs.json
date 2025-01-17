@@ -306,14 +306,14 @@
                 }
             }
         },
-        "/api/quiz/add-to-score/{uuid}": {
+        "/api/quiz/answer/{uuid}": {
             "put": {
                 "tags": [
                     "Quiz"
                 ],
-                "summary": "Add score to a quiz",
-                "description": "Adds a score to a quiz based on its UUID.",
-                "operationId": "b05c38427ec0d7976b074be88ab3533d",
+                "summary": "Answer a question in a quiz",
+                "description": "Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
+                "operationId": "c4ad1e3826e1cffeb324df3fc5fab499",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -326,18 +326,42 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "question_uuid",
+                                    "option_index"
+                                ],
+                                "properties": {
+                                    "question_uuid": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "option_index": {
+                                        "type": "Integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Score added successfully"
+                        "description": "Answer submitted successfully"
                     },
                     "400": {
-                        "description": "quiz cannot be graded"
+                        "description": "This question cannot be answered"
                     },
                     "404": {
-                        "description": "Quiz not found"
+                        "description": "Some of the quiz properties not found"
                     },
                     "500": {
-                        "description": "An error occurred while fetching the user"
+                        "description": "An error occurred while processing the answer"
                     },
                     "204": {
                         "description": "No content"

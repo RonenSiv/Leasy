@@ -59,7 +59,7 @@ class GptService
         }
     }
 
-    public function generateQuizFromGpt(string $summary)
+    public function generateQuiz(string $summary)
     {
         try {
             $prompt = GptPropmtsEnum::GENERATE_QUIZ->value . $summary;
@@ -71,10 +71,11 @@ class GptService
         }
     }
 
-    public function getChatResponse()
+    public function getChatResponse(string $message)
     {
         try {
             return 'chat response';
+            return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE->value . $message);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;

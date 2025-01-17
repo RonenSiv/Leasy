@@ -68,7 +68,7 @@ class LectureController extends Controller
             };
         }
 
-        return response()->json(['message' => 'lecture created successfully', 'uuid' => $result], Response::HTTP_CREATED);
+        return response()->json(['message' => 'lecture created successfully', 'data' => $result], Response::HTTP_CREATED);
     }
 
     /**

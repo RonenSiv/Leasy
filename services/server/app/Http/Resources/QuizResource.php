@@ -18,7 +18,6 @@ class QuizResource extends JsonResource
             'uuid' => $this->uuid,
             'title' => $this->title,
             'score' => $this->score,
-            // 'questions' => QuestionResource::collection($this->questions),
         ];
     }
 }

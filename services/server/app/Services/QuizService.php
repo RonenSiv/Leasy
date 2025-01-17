@@ -55,7 +55,7 @@ class QuizService
                 'title' => $lectureTitle,
             ]);
 
-            $quizQuestions = $this->gptService->generateQuizFromGpt($summary);
+            $quizQuestions = $this->gptService->generateQuiz($summary);
 
             // delete before prod
             $quizQuestions = self::DEMO_QUIZ;
@@ -98,35 +98,58 @@ class QuizService
         }
     }
 
-    public function addToScore(string $uuid)
+    public function answerQuestion(string $QuizUuid, string $questionUuid, int $optionIndex)
     {
         try {
             DB::beginTransaction();
 
-            $quiz = Quiz::with('questions')
-                ->where('uuid', $uuid)
+            $quiz = Quiz::with('questions.questionOptions')
+                ->where('uuid', $QuizUuid)
                 ->first();
 
             if (is_null($quiz)) {
                 return HTTP_Status::NOT_FOUND;
             }
 
-            $questionsCount = $quiz->questions->count();
+            $question = $quiz->questions->firstWhere('uuid', $questionUuid);
 
-            $currentScroe = $quiz->score;
-
-            if ($currentScroe >= 100 || $questionsCount <= 0) {
+            if (is_null($question)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+            if ($question->is_answered) {
                 return HTTP_Status::BAD_REQUEST;
             }
 
-            $quiz->update([
-                'score' => $currentScroe + (100 / $questionsCount),
-            ]);
+            $selectedOption = $question->questionOptions->firstWhere('option_index', $optionIndex);
+
+            if (is_null($selectedOption)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+
+            $isCorrect = $selectedOption->is_correct;
+
+            if ($isCorrect) {
+                $questionsCount = $quiz->questions->count();
+
+                $currentScroe = $quiz->score;
+
+                if ($currentScroe >= 100 || $questionsCount <= 0) {
+                    return HTTP_Status::BAD_REQUEST;
+                }
+
+                $quiz->update([
+                    'score' => $currentScroe + (100 / $questionsCount),
+                ]);
+
+                $question->update([
+                    'is_answered' => true,
+                ]);
+            }
 
             DB::commit();
 
             return [
-                'new_score' => $quiz->score
+                'updated_score' => $quiz->score
             ];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -146,13 +169,16 @@ class QuizService
                 $questionOptions = $questionData['options'];
 
                 $newQuestion = Question::create([
+                    'uuid' => Str::uuid(),
                     'quiz_id' => $quiz->id,
                     'question_text' => $questionText,
                 ]);
-
+                $optionIndex = 0;
                 foreach ($questionOptions as $isCorrect => $questionOptionText) {
+                    $optionIndex++;
                     QuestionOption::create([
                         'question_id' => $newQuestion->id,
+                        'option_index' => $optionIndex,
                         'option_text' => $questionOptionText,
                         'is_correct' => $isCorrect === 'correct',
                     ]);

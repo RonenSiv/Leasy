@@ -9,8 +9,10 @@ class Question extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'uuid',
         'quiz_id',
         'question_text',
+        'is_answered',
     ];
     protected $hidden = [
         'created_at',

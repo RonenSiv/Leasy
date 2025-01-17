@@ -62,7 +62,7 @@ class LectureService
 
             DB::commit();
 
-            return $newLecture->uuid;
+            return ['uuid' => $newLecture->uuid];
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());

@@ -16,16 +16,16 @@ Route::controller(LectureController::class)
   ->prefix('lecture')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::post('/',  'store');
-    Route::get('/',  'index');
-    Route::get('/{uuid}',  'show');
+    Route::post('/', 'store');
+    Route::get('/', 'index');
+    Route::get('/{uuid}', 'show');
   });
 
 Route::controller(VideoController::class)
   ->prefix('video')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::put('/last-watched-time/{uuid}',  'updateLastWatchedTime');
+    Route::put('/last-watched-time/{uuid}', 'updateLastWatchedTime');
     Route::put('/fix-audio/{uuid}',  'fixAudio');
   });
 
@@ -40,13 +40,13 @@ Route::controller(QuizController::class)
   ->prefix('quiz')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/next-question/{uuid}',  'getNextQuestion');
-    Route::put('/add-to-score/{uuid}',  'addToScore');
+    Route::get('/next-question/{uuid}', 'getNextQuestion');
+    Route::put('/answer/{uuid}', 'answerQuestion');
   });
 
 Route::controller(ChatController::class)
   ->prefix('test')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/',  'testGPT');
+    Route::get('/', 'testGPT');
   });

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\QuizService;
 
 use App\Enums\HTTP_Status;
-
+use App\Http\Requests\AnswerQuestionRequest;
 use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -77,9 +77,9 @@ class QuizController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/quiz/add-to-score/{uuid}",
-     *     summary="Add score to a quiz",
-     *     description="Adds a score to a quiz based on its UUID.",
+     *     path="/api/quiz/answer/{uuid}",
+     *     summary="Answer a question in a quiz",
+     *     description="Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
      *     tags={"Quiz"},
      *     @OA\Parameter(
      *         name="uuid",
@@ -88,40 +88,50 @@ class QuizController extends Controller
      *         required=true,
      *         @OA\Schema(type="string", format="uuid")
      *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"question_uuid", "option_index"},
+     *             @OA\Property(property="question_uuid", type="string", format="uuid"),
+     *             @OA\Property(property="option_index", type="Integer", example=1)
+     *         )
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Score added successfully"
+     *         description="Answer submitted successfully",
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="quiz cannot be graded"
+     *         description="This question cannot be answered",
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Quiz not found"
+     *         description="Some of the quiz properties not found",
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="An error occurred while fetching the user"
+     *         description="An error occurred while processing the answer",
      *     ),
      *     @OA\Response(
      *         response=204,
-     *         description="No content"
+     *         description="No content",
      *     )
      * )
      */
 
-    public function addToScore(string $uuid)
+    public function answerQuestion(string $uuid, AnswerQuestionRequest $request)
     {
-        $result = $this->quizService->addToScore(
-            uuid: $uuid,
+        $result = $this->quizService->answerQuestion(
+            QuizUuid: $uuid,
+            questionUuid: $request->question_uuid,
+            optionIndex: $request->option_index,
         );
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {
                 HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while fetching the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::BAD_REQUEST => response()->json(['message' => 'This quiz cannot be graded'], Response::HTTP_BAD_REQUEST),
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Quiz not found'], Response::HTTP_NOT_FOUND),
+                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Some of the quiz properties not found'], Response::HTTP_NOT_FOUND),
+                HTTP_Status::BAD_REQUEST => response()->json(['message' => 'This question cannot be answered'], Response::HTTP_BAD_REQUEST),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
