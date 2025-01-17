@@ -4,10 +4,10 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+
 use App\Enums\HTTP_Status;
-use App\Models\Gender;
+
 use App\Models\User;
-use stdClass;
 
 class UserService
 {
@@ -26,6 +26,4 @@ class UserService
             return HTTP_Status::ERROR;
         }
     }
-
-
 }

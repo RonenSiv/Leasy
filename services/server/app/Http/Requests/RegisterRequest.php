@@ -29,6 +29,11 @@ class RegisterRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get the custom messages for validation errors.
+     *
+     * @return array
+     */
     public function messages(): array
     {
         return [
