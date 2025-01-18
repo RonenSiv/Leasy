@@ -39,26 +39,6 @@ class GptService
         }
     }
 
-    public function getLectureTitle(string $summary)
-    {
-        try {
-            return 'lecture title';
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
-        }
-    }
-
-    public function getLectureDescription(string $summary)
-    {
-        try {
-            return 'lecture description';
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
-        }
-    }
-
     public function generateQuiz(string $summary)
     {
         try {

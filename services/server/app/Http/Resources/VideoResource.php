@@ -20,6 +20,7 @@ class VideoResource extends JsonResource
             'video_url' => $this->video_url,
             'preview_image_url' => $this->preview_image_url,
             'last_watched_time' => $this->videoUserProgresses()->where('user_id', Auth::id())->value('last_watched_time'),
+            'video_duration' => $this->video_duration,
         ];
     }
 }

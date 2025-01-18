@@ -11,17 +11,17 @@ use Laravel\Passport\Token;
 use App\Enums\HTTP_Status;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
-  public function register(string $fullName, string $email, string $phoneNumber, string $password)
+  public function register(string $fullName, string $email, string $password)
   {
     try {
       User::create([
         'uuid' => Str::uuid(),
         'email' => $email,
         'full_name' => $fullName,
-        'phone_number' => $phoneNumber,
         'password' => Hash::make($password),
       ]);
 
@@ -55,6 +55,18 @@ class AuthService
         "tokenName" => $tokenName,
         "accessToken" => $token->accessToken,
       ];
+    } catch (\Exception $e) {
+      Log::error($e->getMessage());
+      return HTTP_Status::ERROR;
+    }
+  }
+
+  public function logout(): HTTP_Status
+  {
+    try {
+      Auth::user()->token()->revoke();
+
+      return HTTP_Status::OK;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
       return HTTP_Status::ERROR;

@@ -33,10 +33,9 @@ class AuthController extends Controller
      *         required=true,
      *         description="User data",
      *         @OA\JsonContent(
-     *             required={"email", "full_name", "phone_number", "password"},
+     *             required={"email", "full_name", "password"},
      *             @OA\Property(property="email", type="string", example="ofirgoldofir@gmail.com"),
      *             @OA\Property(property="full_name", type="string", example="Ofir Goldberg"),
-     *             @OA\Property(property="phone_number", type="string", example="0527576444"),
      *             @OA\Property(property="password", type="string", example="Aa123!@#"),
      *         ),
      *     ),
@@ -59,7 +58,6 @@ class AuthController extends Controller
         $status = $this->service->register(
             email: $request->email,
             fullName: $request->full_name,
-            phoneNumber: $request->phone_number,
             password: $request->password,
         );
 
@@ -127,5 +125,37 @@ class AuthController extends Controller
         return response()
             ->json($filteredResult, Response::HTTP_OK)
             ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/logout",
+     *      operationId="logout",
+     *      tags={"Authentication"},
+     *      summary="Logout user",
+     *      description="Logout the authenticated user by revoking the user's access token",
+     *      @OA\Response(
+     *          response=200,
+     *          description="User logged out successfully",
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="An error occurred while logging out",
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="No content",
+     *      ),
+     * )
+     */
+    public function logout(): JsonResponse
+    {
+        $status = $this->service->logout();
+
+        return match ($status) {
+            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HTTP_Status::OK => response()->json(['message' => 'User logged out successfully'], Response::HTTP_OK),
+            default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+        };
     }
 }

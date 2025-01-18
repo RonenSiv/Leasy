@@ -8,9 +8,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
-Route::post("login", [AuthController::class, 'login']);
-Route::post("register", [AuthController::class, 'register']);
-Route::get("user", [UserController::class, 'getAuthUser'])->middleware(['auth:api']);
+Route::post("/login", [AuthController::class, 'login']);
+Route::post("/register", [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:api']);
+Route::get("/user", [UserController::class, 'getAuthUser'])->middleware(['auth:api']);
 
 Route::controller(LectureController::class)
   ->prefix('lecture')

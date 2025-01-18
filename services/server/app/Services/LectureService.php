@@ -29,7 +29,7 @@ class LectureService
         $this->quizService = new QuizService();
     }
 
-    public function store($video): HTTP_Status|array
+    public function store($video, string $title, string $description): HTTP_Status|array
     {
         try {
             DB::beginTransaction();
@@ -40,18 +40,14 @@ class LectureService
 
             $summary = $this->gptService->getSummary();
 
-            $lectureTitle = $this->gptService->getLectureTitle($summary);
+            $newChat = $this->chatService->storeChat($title);
 
-            $lecturedescription = $this->gptService->getLectureDescription($summary);
-
-            $newChat = $this->chatService->storeChat($lectureTitle);
-
-            $newQuiz = $this->quizService->storeQuiz($lectureTitle, $summary);
+            $newQuiz = $this->quizService->storeQuiz($title, $summary);
 
             $newLecture = Lecture::create([
                 'uuid' => Str::uuid(),
-                'title' => $lectureTitle,
-                'description' => $lecturedescription,
+                'title' => $title,
+                'description' => $description,
                 'user_id' => Auth::id(),
                 'video_id' => $newVideo->id,
                 'chat_id' => $newChat->id,
@@ -137,13 +133,15 @@ class LectureService
             $progress == 100 ? $numOfCompletedVideos++ : null;
         }
 
-        $overallProgress = $sumProgress / $totalVideos;
+        $overallProgress = $totalVideos == 0 ? 0 : round($sumProgress / $totalVideos);
 
+        $numOfPages = floor($totalVideos / PaginationEnum::PER_PAGE->value);
         return [
             'total_videos' => $totalVideos,
             'overall_progress' => $overallProgress,
-            'incomplete_videos' => $numOfCompletedVideos,
-            'completed_videos' => $totalVideos - $numOfCompletedVideos,
+            'completed_videos' => $numOfCompletedVideos,
+            'incomplete_videos' => $totalVideos - $numOfCompletedVideos,
+            'num_of_pages' => $totalVideos % PaginationEnum::PER_PAGE->value > 0 ? $numOfPages + 1 : $numOfPages,
         ];
     }
 }
