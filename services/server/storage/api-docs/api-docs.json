@@ -53,7 +53,7 @@
                         "description": "User created successfully"
                     },
                     "500": {
-                        "description": "An error occurred while creating the user"
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"
@@ -166,7 +166,7 @@
                 "tags": [
                     "Lectures"
                 ],
-                "description": "Retrieve lecture records. Supports pagination.",
+                "description": "Retrieve lecture records. Supports pagination and sorting.",
                 "operationId": "getLectures",
                 "parameters": [
                     {
@@ -177,6 +177,32 @@
                         "schema": {
                             "type": "integer",
                             "example": 2
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "Sort by column (e.g., 'date', 'name').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "name"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_direction",
+                        "in": "query",
+                        "description": "Sort direction (e.g., 'asc', 'desc').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
                         }
                     }
                 ],
@@ -385,7 +411,7 @@
                         "description": "User not found"
                     },
                     "500": {
-                        "description": "An error occurred while fetching the user"
+                        "description": "An error occurred"
                     }
                 }
             }

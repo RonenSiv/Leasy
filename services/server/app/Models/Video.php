@@ -15,6 +15,7 @@ class Video extends Model
         'video_url',
         'video_name',
         'video_mime_type',
+        'video_duration',
         'preview_image_path',
         'preview_image_url',
         'preview_image_name',
