@@ -25,6 +25,7 @@ class LecturesPreviewResource extends JsonResource
                 'uuid' => $this->video->uuid,
                 'preview_image_url' => $this->video->preview_image_url,
                 'last_watched_time' => $lastTimeWatched,
+                'video_duratoin' => $this->video->video_duration,
                 'progress_percentages' => $progressPercentages,
                 'is_completed' => $progressPercentages == 100,
                 'created_at' => $this->video->created_at->format('d/m/Y'),

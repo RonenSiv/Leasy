@@ -32,27 +32,43 @@ class LectureController extends Controller
      *          @OA\MediaType(
      *              mediaType="multipart/form-data",
      *              @OA\Schema(
-     *                  required={"video"},
+     *                  required={"video", "title", "description"},
      *                  @OA\Property(
      *                      property="video",
      *                      type="string",
      *                      format="binary",
      *                      description="The video file to upload"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="title",
+     *                      type="string",
+     *                      description="The title of the lecture",
+     *                      example="Introduction to Physics"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="description",
+     *                      type="string",
+     *                      description="The description of the lecture",
+     *                      example="An introductory lecture on the fundamentals of physics."
      *                  )
      *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response=201,
-     *          description="lecture created successfully",
+     *          description="Lecture created successfully",
      *      ),
      *      @OA\Response(
      *          response=500,
      *          description="An error occurred",
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="No content"
      *      )
      * )
      *
-     * @param  StoreUnitRequest  $request
+     * @param  StoreLectureRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
 
@@ -60,6 +76,8 @@ class LectureController extends Controller
     {
         $result = $this->lectureService->store(
             video: $request->file('video'),
+            title: $request->title,
+            description: $request->description,
         );
 
         if ($result instanceof HTTP_Status) {

@@ -246,13 +246,25 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "video"
+                                    "video",
+                                    "title",
+                                    "description"
                                 ],
                                 "properties": {
                                     "video": {
                                         "description": "The video file to upload",
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "title": {
+                                        "description": "The title of the lecture",
+                                        "type": "string",
+                                        "example": "Introduction to Physics"
+                                    },
+                                    "description": {
+                                        "description": "The description of the lecture",
+                                        "type": "string",
+                                        "example": "An introductory lecture on the fundamentals of physics."
                                     }
                                 },
                                 "type": "object"
@@ -262,10 +274,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "lecture created successfully"
+                        "description": "Lecture created successfully"
                     },
                     "500": {
                         "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
                     }
                 }
             }

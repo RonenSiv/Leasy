@@ -29,7 +29,7 @@ class LectureService
         $this->quizService = new QuizService();
     }
 
-    public function store($video): HTTP_Status|array
+    public function store($video, string $title, string $description): HTTP_Status|array
     {
         try {
             DB::beginTransaction();
@@ -40,18 +40,14 @@ class LectureService
 
             $summary = $this->gptService->getSummary();
 
-            $lectureTitle = $this->gptService->getLectureTitle($summary);
+            $newChat = $this->chatService->storeChat($title);
 
-            $lecturedescription = $this->gptService->getLectureDescription($summary);
-
-            $newChat = $this->chatService->storeChat($lectureTitle);
-
-            $newQuiz = $this->quizService->storeQuiz($lectureTitle, $summary);
+            $newQuiz = $this->quizService->storeQuiz($title, $summary);
 
             $newLecture = Lecture::create([
                 'uuid' => Str::uuid(),
-                'title' => $lectureTitle,
-                'description' => $lecturedescription,
+                'title' => $title,
+                'description' => $description,
                 'user_id' => Auth::id(),
                 'video_id' => $newVideo->id,
                 'chat_id' => $newChat->id,
