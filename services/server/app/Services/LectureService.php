@@ -137,13 +137,13 @@ class LectureService
             $progress == 100 ? $numOfCompletedVideos++ : null;
         }
 
-        $overallProgress = $sumProgress / $totalVideos;
+        $overallProgress = $totalVideos == 0 ? 0 : round($sumProgress / $totalVideos);
 
         return [
             'total_videos' => $totalVideos,
             'overall_progress' => $overallProgress,
-            'incomplete_videos' => $numOfCompletedVideos,
-            'completed_videos' => $totalVideos - $numOfCompletedVideos,
+            'completed_videos' => $numOfCompletedVideos,
+            'incomplete_videos' => $totalVideos - $numOfCompletedVideos,
         ];
     }
 }
