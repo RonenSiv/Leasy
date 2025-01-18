@@ -72,9 +72,9 @@ class VideoController extends Controller
         );
 
         return match ($result) {
-            HTTP_Status::OK => response()->json(['message' => 'last watched time update successfully'], Response::HTTP_OK),
             HTTP_Status::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
             HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HTTP_Status::OK => response()->json(['message' => 'last watched time update successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
     }

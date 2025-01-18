@@ -337,8 +337,8 @@
                                                     "format": "uuid"
                                                 },
                                                 "answer": {
-                                                    "description": "The index of the selected answer",
-                                                    "type": "integer"
+                                                    "type": "string",
+                                                    "example": "2"
                                                 }
                                             },
                                             "type": "object"
@@ -361,7 +361,7 @@
                         "description": "Some of the quiz properties not found"
                     },
                     "500": {
-                        "description": "An error occurred while processing the answer"
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"

@@ -46,7 +46,7 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="An error occurred while creating the user",
+     *         description="An error occurred",
      *     ),
      *     @OA\Response(
      *         response=204,
@@ -64,8 +64,8 @@ class AuthController extends Controller
         );
 
         return match ($status) {
+            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
             HTTP_Status::CREATED => response()->json(['message' => 'User created successfully'], Response::HTTP_OK),
-            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while creating the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
         };
     }
@@ -123,7 +123,6 @@ class AuthController extends Controller
         $filteredResult = [
             "email" => $result["email"],
             "full_name" => $result["full_name"],
-            // 'token' => $result['accessToken'],
         ];
         return response()
             ->json($filteredResult, Response::HTTP_OK)

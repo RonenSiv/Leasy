@@ -106,10 +106,10 @@ class ChatController extends Controller
             return match ($result) {
                 HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'Chat not found'], Response::HTTP_NOT_FOUND),
-                default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
 
-        return response()->json(['message' => 'Message sent successfully', 'data' => $result], Response::HTTP_CREATED);
+        return response()->json(['data' => $result], Response::HTTP_CREATED);
     }
 }

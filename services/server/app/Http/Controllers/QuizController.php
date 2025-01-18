@@ -6,7 +6,6 @@ use App\Services\QuizService;
 
 use App\Enums\HTTP_Status;
 use App\Http\Requests\AnswerQuestionRequest;
-use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -58,7 +57,7 @@ class QuizController extends Controller
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while fetching the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'Quiz not found'], Response::HTTP_NOT_FOUND),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
@@ -139,9 +138,9 @@ class QuizController extends Controller
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'Some of the quiz properties not found'], Response::HTTP_NOT_FOUND),
                 HTTP_Status::BAD_REQUEST => response()->json(['message' => 'This question cannot be answered'], Response::HTTP_BAD_REQUEST),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
