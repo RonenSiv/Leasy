@@ -9,6 +9,7 @@ use App\Enums\HTTP_Status;
 use App\Http\Requests\StoreLectureRequest;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -119,7 +120,7 @@ class LectureController extends Controller
     /**
      * @OA\Get(
      *     path="/api/lecture",
-     *     description="Retrieve lecture records. Supports pagination.",
+     *     description="Retrieve lecture records. Supports pagination and sorting.",
      *     operationId="getLectures",
      *     tags={"Lectures"},
      *     @OA\Parameter(
@@ -128,6 +129,20 @@ class LectureController extends Controller
      *         required=false,
      *         description="Page number for pagination.",
      *         @OA\Schema(type="integer", example=2)
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_by",
+     *         in="query",
+     *         required=false,
+     *         description="Sort by column (e.g., 'date', 'name').",
+     *         @OA\Schema(type="string", enum={"date", "name"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_direction",
+     *         in="query",
+     *         required=false,
+     *         description="Sort direction (e.g., 'asc', 'desc').",
+     *         @OA\Schema(type="string", enum={"asc", "desc"})
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -144,9 +159,12 @@ class LectureController extends Controller
      * )
      */
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $result = $this->lectureService->index();
+        $result = $this->lectureService->index(
+            sortBy: $request->query('sort_by', 'date'),
+            sortDirection: $request->query('sort_direction', 'asc')
+        );
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {

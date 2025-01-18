@@ -24,8 +24,12 @@ class VideoService
             $videoName = uniqid() . '_' . Str::random(10) . '.' . $videoExtension;
             $videoPath = config('filesystems.storage_path') . "/" . $videoName;
             $videoUrl = "storage/" . $videoName;
-            $VideoMimeType = $video->getClientMimeType();
+            $videoMimeType = $video->getClientMimeType();
             Storage::disk(config('filesystems.storage_service'))->put($videoName, file_get_contents($video));
+
+            $videoDuration = FFMpeg::fromDisk(config('filesystems.storage_service'))
+                ->open($videoName)
+                ->getDurationInSeconds();
 
             $previewImageName = uniqid() . '_' . Str::random(10) . '.jpg';
             $previewImagePath = config('filesystems.storage_path') . "/" . $previewImageName;
@@ -43,7 +47,8 @@ class VideoService
                 'video_path' => $videoPath,
                 'video_url' => $videoUrl,
                 'video_name' => $videoName,
-                'video_mime_type' => $VideoMimeType,
+                'video_mime_type' => $videoMimeType,
+                'video_duration' => $videoDuration,
                 'preview_image_path' => $previewImagePath,
                 'preview_image_url' => $previewImageUrl,
                 'preview_image_name' => $previewImageName,

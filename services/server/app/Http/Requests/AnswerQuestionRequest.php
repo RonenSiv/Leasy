@@ -22,8 +22,9 @@ class AnswerQuestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'question_uuid' => 'required|uuid|exists:questions,uuid',
-            'option_index' => 'required',
+            'answers' => 'required|array',
+            'answers.*.question_uuid' => 'required|uuid|exists:questions,uuid',
+            'answers.*.answer' => 'required',
         ];
     }
 
@@ -35,10 +36,12 @@ class AnswerQuestionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'question_uuid.required' => 'The question UUID is required.',
-            'question_uuid.uuid' => 'The question UUID must be a valid UUID.',
-            'question_uuid.exists' => 'The question UUID must exist in the questions table.',
-            'option_index.required' => 'The option index is required.',
+            'answers.required' => 'The answers array is required.',
+            'answers.array' => 'The answers must be an array.',
+            'answers.*.question_uuid.required' => 'The question UUID is required.',
+            'answers.*.question_uuid.uuid' => 'The question UUID must be a valid UUID.',
+            'answers.*.question_uuid.exists' => 'The question UUID must exist in the questions table.',
+            'answers.*.answer.required' => 'The answer index is required.',
         ];
     }
 }

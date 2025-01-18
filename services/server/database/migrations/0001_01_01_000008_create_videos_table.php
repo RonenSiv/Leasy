@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('video_url')->unique();
             $table->string('video_name')->unique();
             $table->string('video_mime_type');
+            $table->integer('video_duration');
 
             $table->string('preview_image_path')->unique();
             $table->string('preview_image_url')->unique();

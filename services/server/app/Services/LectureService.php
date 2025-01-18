@@ -93,17 +93,57 @@ class LectureService
         }
     }
 
-    public function index()
+    public function index(string $sortBy, string $sortDirection)
     {
         try {
+            $sortableColumns = [
+                'date' => 'created_at',
+                'name' => 'title',
+            ];
+
+            $sortColumn = $sortableColumns[$sortBy] ?? 'created_at';
+
             $lectures = Lecture::with('video.videoUserProgresses')
                 ->where('user_id', Auth::id())
+                ->orderBy($sortColumn, $sortDirection)
                 ->paginate(PaginationEnum::PER_PAGE->value);
 
-            return LecturesPreviewResource::collection($lectures);
+            return [
+                'dashboard' => $this->getLecturesDashboard(),
+                'videos' => LecturesPreviewResource::collection($lectures)
+            ];
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }
+    }
+
+    // ------------------- private Functions -------------------
+
+    private function getLecturesDashboard()
+    {
+        $lectures = Lecture::with('video.videoUserProgresses')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        $totalVideos = $lectures->count();
+
+        $sumProgress = 0;
+        $numOfCompletedVideos = 0;
+        foreach ($lectures as $lecture) {
+            $progress = round(($lecture->video->videoUserProgresses->first()->last_watched_time / $lecture->video->video_duration) * 100);
+            $sumProgress += $progress;
+
+            $progress == 100 ? $numOfCompletedVideos++ : null;
+        }
+
+        $overallProgress = $sumProgress / $totalVideos;
+
+        return [
+            'total_videos' => $totalVideos,
+            'overall_progress' => $overallProgress,
+            'incomplete_videos' => $numOfCompletedVideos,
+            'completed_videos' => $totalVideos - $numOfCompletedVideos,
+        ];
     }
 }

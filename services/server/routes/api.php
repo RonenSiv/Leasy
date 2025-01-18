@@ -40,8 +40,8 @@ Route::controller(QuizController::class)
   ->prefix('quiz')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/next-question/{uuid}', 'getNextQuestion');
-    Route::put('/answer/{uuid}', 'answerQuestion');
+    Route::get('/questions/{uuid}', 'getQuizQuestions');
+    Route::put('/answer/{uuid}', 'answerQuiz');
   });
 
 Route::controller(ChatController::class)

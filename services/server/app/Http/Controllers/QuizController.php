@@ -6,7 +6,6 @@ use App\Services\QuizService;
 
 use App\Enums\HTTP_Status;
 use App\Http\Requests\AnswerQuestionRequest;
-use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,9 +19,9 @@ class QuizController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/quiz/next-question/{uuid}",
-     *     summary="Get the next question in a quiz",
-     *     description="Fetches the next question of a quiz based on the question index.",
+     *     path="/api/quiz/questions/{uuid}",
+     *     summary="Get the questions of the quiz",
+     *     description="Fetches all questions of a quiz.",
      *     tags={"Quiz"},
      *     @OA\Parameter(
      *         name="uuid",
@@ -31,16 +30,9 @@ class QuizController extends Controller
      *         required=true,
      *         @OA\Schema(type="string", format="uuid")
      *     ),
-     *     @OA\Parameter(
-     *         name="question_index",
-     *         in="query",
-     *         description="The index of the question to retrieve",
-     *         required=true,
-     *         @OA\Schema(type="integer", minimum=1, example=1)
-     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Question retrieved successfully",
+     *         description="Questions retrieved successfully",
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -57,16 +49,15 @@ class QuizController extends Controller
      * )
      */
 
-    public function getNextQuestion(string $uuid, Request $request)
+    public function getQuizQuestions(string $uuid)
     {
-        $result = $this->quizService->getNextQuestion(
+        $result = $this->quizService->getQuizQuestions(
             uuid: $uuid,
-            questionIndex: $request->query('question_index'),
         );
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while fetching the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'Quiz not found'], Response::HTTP_NOT_FOUND),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
@@ -78,8 +69,8 @@ class QuizController extends Controller
     /**
      * @OA\Put(
      *     path="/api/quiz/answer/{uuid}",
-     *     summary="Answer a question in a quiz",
-     *     description="Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
+     *     summary="Answer quiz",
+     *     description="Submits answers for a quiz",
      *     tags={"Quiz"},
      *     @OA\Parameter(
      *         name="uuid",
@@ -90,15 +81,34 @@ class QuizController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
+     *         description="Answers for the quiz questions",
      *         @OA\JsonContent(
-     *             required={"question_uuid", "option_index"},
-     *             @OA\Property(property="question_uuid", type="string", format="uuid"),
-     *             @OA\Property(property="option_index", type="Integer", example=1)
+     *             type="object",
+     *             @OA\Property(
+     *                 property="answers",
+     *                 type="array",
+     *                 description="List of answers",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     required={"question_uuid", "answer"},
+     *                     @OA\Property(
+     *                         property="question_uuid",
+     *                         type="string",
+     *                         format="uuid",
+     *                         description="The UUID of the question"
+     *                     ),
+     *                     @OA\Property(
+     *                         property="answer",
+     *                         type="string",
+     *                         example="2"
+     *                     )
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Answer submitted successfully",
+     *         description="Answers submitted successfully",
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -110,7 +120,7 @@ class QuizController extends Controller
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="An error occurred while processing the answer",
+     *         description="An error occurred",
      *     ),
      *     @OA\Response(
      *         response=204,
@@ -119,19 +129,18 @@ class QuizController extends Controller
      * )
      */
 
-    public function answerQuestion(string $uuid, AnswerQuestionRequest $request)
+    public function answerQuiz(string $uuid, AnswerQuestionRequest $request)
     {
-        $result = $this->quizService->answerQuestion(
-            QuizUuid: $uuid,
-            questionUuid: $request->question_uuid,
-            optionIndex: $request->option_index,
+        $result = $this->quizService->answerQuiz(
+            uuid: $uuid,
+            answers: $request->answers,
         );
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while fetching the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'Some of the quiz properties not found'], Response::HTTP_NOT_FOUND),
                 HTTP_Status::BAD_REQUEST => response()->json(['message' => 'This question cannot be answered'], Response::HTTP_BAD_REQUEST),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
