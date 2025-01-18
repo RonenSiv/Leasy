@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const imageSchema = z.object({
   image: z
-    .instanceof(FileList)
-    .refine((files) => files.length > 0, "Please select an image"),
+    .instanceof(File, { message: "Please upload a file." })
+    .refine((files) => files.size > 0, "Please select an image"),
 });
 
 export type ImageSchema = z.infer<typeof imageSchema>;

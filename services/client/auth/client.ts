@@ -2,6 +2,8 @@ import axios from "axios";
 import { endSession, getSession, startSession } from "@/auth/auth";
 import { encrypt } from "@/auth/auth-utils";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export interface FormData {
   email?: string;
   password?: string;
@@ -13,27 +15,13 @@ export interface SignupFormData extends FormData {
 
 export const getClient = () => {
   const login = async (data: FormData) => {
-    if (process.env.NODE_ENV === "development") {
-      await startSession(data);
-      const token = await encrypt({
-        email: data.email,
-        password: data.password,
-      });
-      console.log(token);
-      return token;
-    }
-
-    const response = await axios.post("/api/login", data);
+    const response = await axios.post(`${API_BASE_URL}/api/login`, data);
     if (response.status !== 200) {
       throw new Error("Invalid authentication");
     }
-    const token = response.data.token;
-    if (!token) {
-      throw new Error("Invalid authentication");
-    }
-    const user = {
+    return {
       email: data.email,
-      token,
+      fullName: response.data.full_name,
     };
   };
 
@@ -49,7 +37,7 @@ export const getClient = () => {
         password: data.password,
       });
     }
-    const response = await axios.post("/api/signup", data);
+    const response = await axios.post(`${API_BASE_URL}/api/register`, data);
     if (response.status !== 200) {
       throw new Error("Invalid signup");
     }

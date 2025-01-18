@@ -12,6 +12,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { useClient } from "@/providers/client-provider";
+import { useRouter } from "next/navigation";
 
 interface PasswordCriteria {
   length: boolean;
@@ -22,6 +24,8 @@ interface PasswordCriteria {
 }
 
 export const SignupForm = () => {
+  const router = useRouter();
+  const { login } = useClient();
   const {
     register,
     handleSubmit,
@@ -65,23 +69,33 @@ export const SignupForm = () => {
       formData.append("confirmPassword", data.confirmPassword);
       formData.append("fullName", data.fullName);
       const prevState = { success: undefined, fields: {}, issues: [] };
-      return registerUser(prevState, formData);
+      return {
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        response: await registerUser(prevState, formData),
+      };
     },
-    onSuccess: (response) => {
-      if (response.success) {
+    onSuccess: async (data) => {
+      if (data.response.success) {
         toast.success("Signup successful!");
+        await login(data.email, data.password);
+        return data;
       } else {
-        toast.error("Signup failed: " + response?.issues?.join(", "));
+        toast.error("Signup failed");
       }
     },
     onError: (error) => {
       toast.error("An unexpected error occurred");
       console.error("Signup error:", error);
+      return error;
     },
   });
 
-  const onSubmit = (data: RegisterFormSchema) => {
-    signupMutation.mutate(data);
+  const onSubmit = async (data: RegisterFormSchema) => {
+    const user = await signupMutation.mutateAsync(data);
+    if (!user) return;
+    router.push("/dashboard/upload");
   };
 
   return (

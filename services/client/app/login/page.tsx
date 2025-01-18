@@ -12,8 +12,9 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("Logging in with mock data");
       await login(email, password);
-      router.push("/dashboard");
+      // router.push("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
       // Handle login error (e.g., show error message)

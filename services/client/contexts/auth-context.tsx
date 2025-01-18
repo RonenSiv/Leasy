@@ -1,3 +1,4 @@
+// NOT IN USE!!!
 "use client";
 import React, {
   createContext,
@@ -8,11 +9,13 @@ import React, {
 } from "react";
 import { mockClient } from "@/mocks/mock-client-data";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export interface User {
   name: string;
   email: string;
-  bio: string;
-  avatar: string;
+  bio?: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -38,7 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(mockClient);
       } else {
         try {
-          const res = await fetch("/api/user");
+          const res = await fetch(`${API_BASE_URL}/auth/me`);
           if (res.ok) {
             const data: User = await res.json();
             setUser(data);
@@ -55,18 +58,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<User> => {
     if (process.env.NEXT_PUBLIC_SERVER_ON === "false") {
+      console.log("Logging in with mock data");
       setUser(mockClient);
       return mockClient;
     }
-
-    const res = await fetch("/api/auth/login", {
+    console.log("Logging in with real data");
+    const res = await fetch(`${API_BASE_URL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-
+    console.log(res);
     if (res.ok) {
       const data: User = await res.json();
+      console.log(data);
       setUser(data);
       return data;
     } else {
@@ -80,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    const res = await fetch("/api/auth/logout", { method: "POST" });
+    const res = await fetch(`${API_BASE_URL}/api/logout`, { method: "POST" });
     if (res.ok) {
       setUser(null);
     }

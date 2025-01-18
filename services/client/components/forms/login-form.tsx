@@ -1,17 +1,20 @@
-// components/forms/login-form.tsx
 "use client";
 
 import React from "react";
 import { FormField } from "@/components/forms/form-field";
-import { loginUser } from "@/app/actions/actions";
 import { useForm } from "react-hook-form";
 import { loginFormSchema, LoginFormSchema } from "@/lib/schemas/useFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useClient } from "@/providers/client-provider";
 
 export const LoginForm = () => {
+  const router = useRouter();
+  const { login } = useClient();
+
   const {
     register,
     handleSubmit,
@@ -26,23 +29,20 @@ export const LoginForm = () => {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormSchema) => {
-      const formData = new FormData();
-      formData.append("email", data.email);
-      formData.append("password", data.password);
-      const prevState = { success: undefined, fields: {}, issues: [] };
-      const response = loginUser(prevState, formData);
+      const response = login(data.email, data.password);
       await toast.promise(response, {
         loading: "Logging in...",
         success: "Login successful!",
-        error: "Login failed: " + response.then((r) => r?.issues?.join(", ")),
+        error: "Login failed",
       });
-
-      return response;
+      return await response;
     },
   });
 
-  const onSubmit = (data: LoginFormSchema) => {
-    loginMutation.mutate(data);
+  const onSubmit = async (data: LoginFormSchema) => {
+    const user = await loginMutation.mutateAsync(data);
+    if (!user) return;
+    router.push("/dashboard/video");
   };
 
   return (

@@ -11,7 +11,14 @@ import React, {
   useState,
 } from "react";
 import { mockClient } from "@/mocks/mock-client-data";
-import { User } from "@/contexts/auth-context";
+import { authService } from "@/services/auth-service";
+
+export interface User {
+  name: string;
+  email: string;
+  bio?: string;
+  avatar?: string;
+}
 
 export type ClientContextType = {
   name: string | undefined;
@@ -29,6 +36,7 @@ export type ClientContextType = {
   isLoading: boolean;
   error: string | null;
   logout: () => void;
+  login: (email: string, password: string) => Promise<User>;
 };
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
@@ -53,15 +61,16 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
         setAvatar(mockClient.avatar);
       } else {
         try {
-          const res = await fetch("/api/user");
-          if (res.ok) {
-            const data: User = await res.json();
-            setName(data.name);
-            setEmail(data.email);
-            setIsLogged(true);
-            setBio(data.bio);
-            setAvatar(data.avatar);
+          const user = await authService.getCurrentUser();
+          if (!user) {
+            setIsLoading(false);
+            return;
           }
+          setName(user?.name);
+          setEmail(user?.email);
+          setIsLogged(true);
+          setBio("");
+          setAvatar(undefined);
         } catch (error) {
           console.error("Failed to fetch user:", error);
         }
@@ -73,52 +82,23 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
   }, [name, email, isLogged]);
 
   const logout = async (): Promise<void> => {
-    if (process.env.NEXT_PUBLIC_SERVER_ON === "false") {
-      setIsLogged(false);
-      setName(undefined);
-      setEmail(undefined);
-      setBio(undefined);
-      setAvatar(undefined);
-      return;
-    }
-
-    const res = await fetch("/api/auth/logout", { method: "POST" });
-    if (res.ok) {
-      setIsLogged(false);
-      setName(undefined);
-      setEmail(undefined);
-      setBio(undefined);
-      setAvatar(undefined);
-    }
+    const user = await authService.logout();
+    setIsLogged(false);
+    setName(undefined);
+    setEmail(undefined);
+    setBio(undefined);
+    setAvatar(undefined);
   };
 
   const login = async (email: string, password: string): Promise<User> => {
-    if (process.env.NEXT_PUBLIC_SERVER_ON === "false") {
-      setName(mockClient.name);
-      setEmail(mockClient.email);
-      setIsLogged(true);
-      setBio(mockClient.bio);
-      setAvatar(mockClient.avatar);
-      return mockClient;
-    }
+    const user = await authService.login(email, password);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (res.ok) {
-      const data: User = await res.json();
-      setName(data.name);
-      setEmail(data.email);
-      setIsLogged(true);
-      setBio(data.bio);
-      setAvatar(data.avatar);
-      return data;
-    } else {
-      throw new Error("Login failed");
-    }
+    setName(user.name);
+    setEmail(user.email);
+    setIsLogged(true);
+    setBio("");
+    setAvatar("");
+    return user;
   };
 
   return (
@@ -139,6 +119,7 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
         isLoading,
         error,
         logout,
+        login,
       }}
     >
       {props.children}

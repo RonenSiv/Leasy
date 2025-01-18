@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/auth/auth";
+import { authService } from "@/services/auth-service";
 
 export const middleware = async (request: NextRequest) => {
   if (process.env.NODE_ENV === "development") return NextResponse.next();
-  const currentUser = request.cookies.get("session")?.value;
+  const currentUser = await authService.getCurrentUser();
   const currentPath = request.nextUrl.pathname;
 
   if (

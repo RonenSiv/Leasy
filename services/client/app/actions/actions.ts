@@ -1,42 +1,14 @@
 "use server";
-import { getClient } from "@/auth/client";
-import { redirect } from "next/navigation";
 import {
   linkSubmissionSchema,
-  loginFormSchema,
   registerFormSchema,
 } from "@/lib/schemas/useFormSchema";
+import { authService } from "@/services/auth-service";
 
 export type FormState = {
   success: boolean | undefined;
   fields?: Record<string, string>;
   issues?: string[];
-};
-
-const loginUser = async (
-  prevState: FormState,
-  data: FormData,
-): Promise<FormState> => {
-  const formData = Object.fromEntries(data);
-  const parsed = loginFormSchema.safeParse(formData);
-  const { email, password } = parsed.data || {};
-  if (!parsed.success) {
-    const fields: Record<string, string> = {};
-    for (const key of Object.keys(formData)) {
-      fields[key] = formData[key].toString();
-    }
-    return {
-      success: false,
-      fields,
-      issues: parsed.error.issues.map((issue) => issue.message),
-    };
-  }
-
-  await getClient().login({ email, password });
-  // mock time delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  redirect("/dashboard/video");
-  return { success: false };
 };
 
 const registerUser = async (
@@ -58,9 +30,18 @@ const registerUser = async (
   }
 
   const { email, password, fullName } = parsed.data;
-  await getClient().signup({ email, password, fullName });
-  redirect("/dashboard/upload");
-  return { success: true };
+  const client = await authService.register({
+    full_name: fullName,
+    email,
+    password,
+    phone_number: "",
+  });
+  return {
+    success: true,
+    fields: {
+      ...client,
+    },
+  };
 };
 
 const submitLink = async (
@@ -86,4 +67,4 @@ const submitLink = async (
   return { success: true };
 };
 
-export { loginUser, registerUser, submitLink };
+export { registerUser, submitLink };
