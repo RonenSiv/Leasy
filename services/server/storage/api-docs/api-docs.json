@@ -259,14 +259,14 @@
                 }
             }
         },
-        "/api/quiz/next-question/{uuid}": {
+        "/api/quiz/questions/{uuid}": {
             "get": {
                 "tags": [
                     "Quiz"
                 ],
-                "summary": "Get the next question in a quiz",
-                "description": "Fetches the next question of a quiz based on the question index.",
-                "operationId": "2c256004ebf95ae3f93dde3edf00e3dc",
+                "summary": "Get the questions of the quiz",
+                "description": "Fetches all questions of a quiz.",
+                "operationId": "0365c35651f8003e815d93e90099a89a",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -277,22 +277,11 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    {
-                        "name": "question_index",
-                        "in": "query",
-                        "description": "The index of the question to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "example": 1
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Question retrieved successfully"
+                        "description": "Questions retrieved successfully"
                     },
                     "404": {
                         "description": "Quiz not found"
@@ -311,9 +300,9 @@
                 "tags": [
                     "Quiz"
                 ],
-                "summary": "Answer a question in a quiz",
-                "description": "Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
-                "operationId": "c4ad1e3826e1cffeb324df3fc5fab499",
+                "summary": "Answer quiz",
+                "description": "Submits answers for a quiz",
+                "operationId": "38686818dfd03ee9489dae4c0bd15c43",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -327,22 +316,33 @@
                     }
                 ],
                 "requestBody": {
+                    "description": "Answers for the quiz questions",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "question_uuid",
-                                    "option_index"
-                                ],
                                 "properties": {
-                                    "question_uuid": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "option_index": {
-                                        "type": "Integer",
-                                        "example": 1
+                                    "answers": {
+                                        "description": "List of answers",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "question_uuid",
+                                                "answer"
+                                            ],
+                                            "properties": {
+                                                "question_uuid": {
+                                                    "description": "The UUID of the question",
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "answer": {
+                                                    "description": "The index of the selected answer",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -352,7 +352,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Answer submitted successfully"
+                        "description": "Answers submitted successfully"
                     },
                     "400": {
                         "description": "This question cannot be answered"
