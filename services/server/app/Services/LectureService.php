@@ -139,11 +139,13 @@ class LectureService
 
         $overallProgress = $totalVideos == 0 ? 0 : round($sumProgress / $totalVideos);
 
+        $numOfPages = floor($totalVideos / PaginationEnum::PER_PAGE->value);
         return [
             'total_videos' => $totalVideos,
             'overall_progress' => $overallProgress,
             'completed_videos' => $numOfCompletedVideos,
             'incomplete_videos' => $totalVideos - $numOfCompletedVideos,
+            'num_of_pages' => $totalVideos % PaginationEnum::PER_PAGE->value > 0 ? $numOfPages + 1 : $numOfPages,
         ];
     }
 }
