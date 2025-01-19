@@ -57,7 +57,6 @@ class GptService
     {
         try {
             return 'chat response';
-
             return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE_PROMPT->value . $message, $chatHistory);
         } catch (\Exception $e) {
             Log::error($e->getMessage());

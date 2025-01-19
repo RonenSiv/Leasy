@@ -16,6 +16,13 @@ use Illuminate\Support\Str;
 
 class VideoService
 {
+    // $audioExtension = '.wav';
+    // $audioName = uniqid() . '_' . Str::random(10) . '.' . $audioExtension;
+    // $audioPath = config('filesystems.storage_path') . '/' . $audioName;
+
+    // $command = "ffmpeg -i {$videoPath} -vn -acodec pcm_s16le -ar 16000 -ac 1 {$audioPath}";  
+
+    // exec($command, $output, $return_var);
     public function storeVideo($video)
     {
         $newVideo = null;
@@ -42,13 +49,32 @@ class VideoService
                 ->toDisk(config('filesystems.storage_service'))
                 ->save($previewImageName);
 
+            // Extract audio from video
+            $audioName = uniqid() . '_' . Str::random(10) . '.mp3';
+            $audioPath = config('filesystems.storage_path') . "/" . $audioName;
+            $audioUrl = "storage/" . $audioName;
+            $audioMimeType = 'audio/mpeg';
+            FFMpeg::fromDisk(config('filesystems.storage_service'))
+                ->open($videoName)
+                ->export()
+                ->toDisk(config('filesystems.storage_service'))
+                ->inFormat(new \FFMpeg\Format\Audio\Mp3())
+                ->save($audioName);
+
             $newVideo = Video::create([
                 'uuid' => Str::uuid(),
+
                 'video_path' => $videoPath,
                 'video_url' => $videoUrl,
                 'video_name' => $videoName,
                 'video_mime_type' => $videoMimeType,
                 'video_duration' => $videoDuration,
+
+                'audio_path' => $audioPath,
+                'audio_url' => $audioUrl,
+                'audio_name' => $audioName,
+                'audio_mime_type' => $audioMimeType,
+
                 'preview_image_path' => $previewImagePath,
                 'preview_image_url' => $previewImageUrl,
                 'preview_image_name' => $previewImageName,
