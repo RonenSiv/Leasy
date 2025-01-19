@@ -33,7 +33,6 @@ class QuizService
                 2 => '2option 2',
                 3 => '2option 3',
                 4 => '2option 4',
-                5 => '2option 5',
             ]
         ],
         [
@@ -43,10 +42,8 @@ class QuizService
                 2 => '3option 2',
                 3 => '3option 3',
                 4 => '3option 4',
-                'correct' => '3option 5',
             ]
         ],
-
     ];
 
     private GptService $gptService;

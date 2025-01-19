@@ -30,7 +30,7 @@ class ChatService
 
             Message::create([
                 'chat_id' => $newChat->id,
-                'sender' => SenderEnum::BOT->value,
+                'sender' => SenderEnum::ASSISTANT->value,
                 'message' => "Hi! 😊 How can I help with your lecture today?",
             ]);
 
@@ -47,20 +47,44 @@ class ChatService
         try {
             DB::beginTransaction();
 
-            $chat = Chat::where('uuid', $uuid)->first();
+            $chat = Chat::with('messages')
+                ->where('uuid', $uuid)
+                ->first();
 
-            Message::create([
-                'chat_id' => $chat->id,
-                'sender' => SenderEnum::USER->value,
-                'message' => $message,
-            ]);
+            $chatHistory = $chat->messages->map(function ($message) {
+                return [
+                    'role' => $message['sender'],
+                    'content' => $message['message'],
+                ];
+            })->toArray();
 
-            $chatResponse = $this->gptService->getChatResponse($message);
+            $maxMessages = 20;
+            if (count($chatHistory) > $maxMessages) {
+                $chatHistory = array_slice($chatHistory, -$maxMessages);
+            }
 
-            Message::create([
-                'chat_id' => $chat->id,
-                'sender' => SenderEnum::BOT->value,
-                'message' => $chatResponse,
+            $chatResponse = $this->gptService->getChatResponse($message, $chatHistory);
+
+            if ($chatResponse instanceof HTTP_Status) {
+                Log::error('Error with GPT integration');
+                return HTTP_Status::ERROR;
+            }
+
+            Message::insert([
+                [
+                    'chat_id' => $chat->id,
+                    'sender' => SenderEnum::USER->value,
+                    'message' => $message,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'chat_id' => $chat->id,
+                    'sender' => SenderEnum::ASSISTANT->value,
+                    'message' => $chatResponse,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
             ]);
 
             DB::commit();

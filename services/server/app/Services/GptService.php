@@ -29,10 +29,12 @@ class GptService
         }
     }
 
-    public function getSummary()
+    public function getSummary(string $transcription)
     {
         try {
             return 'summary';
+            $prompt = GptPropmtsEnum::GET_SUMMARY_PROMPT->value . $transcription;
+            return $this->getGptResponse($prompt);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
@@ -42,8 +44,8 @@ class GptService
     public function generateQuiz(string $summary)
     {
         try {
-            $prompt = GptPropmtsEnum::GENERATE_QUIZ->value . $summary;
             return 'quiz';
+            $prompt = GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary;
             return $this->getGptResponse($prompt);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -51,11 +53,12 @@ class GptService
         }
     }
 
-    public function getChatResponse(string $message)
+    public function getChatResponse(string $message, array $chatHistory)
     {
         try {
             return 'chat response';
-            return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE->value . $message);
+
+            return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE_PROMPT->value . $message, $chatHistory);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
@@ -64,19 +67,34 @@ class GptService
 
     // ------------------- private Functions -------------------
 
-    private function getGptResponse(string $prompt)
+    private function getGptResponse(string $prompt, array $chatHistory = [])
     {
         try {
+            $messages = [
+                ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+            ];
+
+            if (!empty($chatHistory)) {
+                foreach ($chatHistory as $message) {
+                    $messages[] = [
+                        'role' => $message['role'],
+                        'content' => $message['content'],
+                    ];
+                }
+            }
+
+            $messages[] = [
+                'role' => 'user',
+                'content' => $prompt,
+            ];
+
             $response = $this->client->post('chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . config('app.openai_api_key')
                 ],
                 'json' => [
                     'model' => config('app.openai_model'),
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
+                    'messages' => $messages,
                     'max_tokens' => config('app.openai_max_tokens'),
                     'temperature' => config('app.openai_temperature'),
                 ],

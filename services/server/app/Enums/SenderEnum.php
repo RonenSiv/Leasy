@@ -5,5 +5,5 @@ namespace App\Enums;
 enum SenderEnum: string
 {
     case USER = 'user';
-    case BOT = 'bot';
+    case ASSISTANT = 'assistant';
 }

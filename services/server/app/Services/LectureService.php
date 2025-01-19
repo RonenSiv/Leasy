@@ -38,7 +38,7 @@ class LectureService
 
             $transcription = $this->gptService->getTranscription();
 
-            $summary = $this->gptService->getSummary();
+            $summary = $this->gptService->getSummary($transcription);
 
             $newChat = $this->chatService->storeChat($title);
 
