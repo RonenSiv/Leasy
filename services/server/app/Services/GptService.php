@@ -32,19 +32,19 @@ class GptService
             $output = null;
             Log::alert("check");
 
-            // if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
-            // $audioPath = $video->audio_name;
-            ini_set('max_execution_time', config('app.max_execution_time'));
-            $audioPath = 'C:\\Users\\Roei\\Documents\\Leasy\\services\\server\\storage\\app\\public\\678e88359fc97_hF1mjz5xUC.wav';
-            Log::alert($audioPath);
-            $command = config('app.transcription_from_whisper_python_script') . ' ' . $audioPath;
-            $output = shell_exec($command);
-            Log::alert($output);
-            if ($output == "error" || is_null($output)) {
-                Log::error('Error in transcription python script');
-                return null;
+            if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
+                $audioName = $video->audio_name;
+                ini_set('max_execution_time', config('app.max_execution_time'));
+                $audioPath = storage_path("app/public/{$audioName}");
+
+                $command = config('app.transcription_from_whisper_python_script') . ' ' . $audioPath;
+                $output = shell_exec($command);
+
+                if ($output == "error" || is_null($output)) {
+                    Log::error('Error in transcription python script');
+                    return null;
+                }
             }
-            // }
 
             return $output;
         } catch (\Exception $e) {

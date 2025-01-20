@@ -41,13 +41,11 @@ class LectureService
             if (is_null($transcription)) {
                 $transcription = WhisperFailedEnum::TRANSCRIPTION_FAILED->value;
             }
-            // TODO: deal with $transcription = null
 
             $summary = $this->gptService->getSummary($transcription);
 
             $newChat = $this->chatService->storeChat($title);
 
-            // TODO: deal with $summary = null
 
             $newQuiz = $this->quizService->storeQuiz($title, $summary);
 
