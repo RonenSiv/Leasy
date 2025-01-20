@@ -91,16 +91,21 @@ class VideoService
     public function updateLastWatchedTime(string $uuid, int $lastWatchedTime)
     {
         try {
-            $videoId = Video::where('uuid', $uuid)->value('id');
+            $video = Video::with('videoUserProgresses')
+                ->where('uuid', $uuid)
+                ->first();
 
-            if (is_null($videoId)) {
+            if (is_null($video)) {
                 return HTTP_Status::NOT_FOUND;
             }
 
-            VideoUserProgress::where('video_id', $videoId)
+            $progress = (int)round(($video->videoUserProgresses->first()->last_watched_time / $video->video_duration) * 100);
+
+            VideoUserProgress::where('video_id', $video->id)
                 ->where('user_id', Auth::id())
                 ->update([
-                    'last_watched_time' => $lastWatchedTime
+                    'last_watched_time' => $lastWatchedTime,
+                    'progress' => $progress,
                 ]);
 
             return HTTP_Status::OK;

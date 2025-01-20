@@ -93,15 +93,22 @@ class LectureService
     {
         try {
             $sortableColumns = [
-                'date' => 'created_at',
-                'name' => 'title',
+                'date' => 'lectures.created_at',
+                'name' => 'lectures.title',
+                'progress' => 'video_user_progress.progress',
             ];
 
-            $sortColumn = $sortableColumns[$sortBy] ?? 'created_at';
+            $sortColumn = $sortableColumns[$sortBy] ?? 'lectures.created_at';
 
-            $lectures = Lecture::with('video.videoUserProgresses')
-                ->where('user_id', Auth::id())
-                ->orderBy($sortColumn, $sortDirection)
+            $lecturesQuery = Lecture::with('video.videoUserProgresses')
+                ->where('lectures.user_id', Auth::id());
+
+            if ($sortBy === 'progress') {
+                $lecturesQuery->leftJoin('videos', 'lectures.video_id', '=', 'videos.id')
+                    ->leftJoin('video_user_progress', 'videos.id', '=', 'video_user_progress.video_id');
+            }
+
+            $lectures = $lecturesQuery->orderBy($sortColumn, $sortDirection)
                 ->paginate(PaginationEnum::PER_PAGE->value);
 
             return [
@@ -113,6 +120,8 @@ class LectureService
             return HTTP_Status::ERROR;
         }
     }
+
+
 
     // ------------------- private Functions -------------------
 
@@ -127,13 +136,11 @@ class LectureService
         $sumProgress = 0;
         $numOfCompletedVideos = 0;
         foreach ($lectures as $lecture) {
-            $progress = round(($lecture->video->videoUserProgresses->first()->last_watched_time / $lecture->video->video_duration) * 100);
-            $sumProgress += $progress;
-
-            $progress == 100 ? $numOfCompletedVideos++ : null;
+            $sumProgress += $lecture->video->videoUserProgresses->first()->progress;
+            $lecture->video->videoUserProgresses->first()->progress == 100 ? $numOfCompletedVideos++ : null;
         }
 
-        $overallProgress = $totalVideos == 0 ? 0 : round($sumProgress / $totalVideos);
+        $overallProgress = $totalVideos == 0 ? 0 : (int)round($sumProgress / $totalVideos);
 
         $numOfPages = floor($totalVideos / PaginationEnum::PER_PAGE->value);
         return [

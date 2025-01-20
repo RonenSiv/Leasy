@@ -152,8 +152,8 @@ class LectureController extends Controller
      *         name="sort_by",
      *         in="query",
      *         required=false,
-     *         description="Sort by column (e.g., 'date', 'name').",
-     *         @OA\Schema(type="string", enum={"date", "name"})
+     *         description="Sort by column (e.g., 'date', 'name', 'progress').",
+     *         @OA\Schema(type="string", enum={"date", "name", "progress"})
      *     ),
      *     @OA\Parameter(
      *         name="sort_direction",

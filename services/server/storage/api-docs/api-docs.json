@@ -198,13 +198,14 @@
                     {
                         "name": "sort_by",
                         "in": "query",
-                        "description": "Sort by column (e.g., 'date', 'name').",
+                        "description": "Sort by column (e.g., 'date', 'name', 'progress').",
                         "required": false,
                         "schema": {
                             "type": "string",
                             "enum": [
                                 "date",
-                                "name"
+                                "name",
+                                "progress"
                             ]
                         }
                     },
