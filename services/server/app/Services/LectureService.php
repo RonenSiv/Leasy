@@ -36,7 +36,7 @@ class LectureService
 
             $newVideo = $this->videoService->storeVideo($video);
 
-            $transcription = $this->gptService->getTranscription();
+            $transcription = $this->gptService->getTranscription($newVideo);
 
             $summary = $this->gptService->getSummary($transcription);
 

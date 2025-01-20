@@ -16,13 +16,6 @@ use Illuminate\Support\Str;
 
 class VideoService
 {
-    // $audioExtension = '.wav';
-    // $audioName = uniqid() . '_' . Str::random(10) . '.' . $audioExtension;
-    // $audioPath = config('filesystems.storage_path') . '/' . $audioName;
-
-    // $command = "ffmpeg -i {$videoPath} -vn -acodec pcm_s16le -ar 16000 -ac 1 {$audioPath}";  
-
-    // exec($command, $output, $return_var);
     public function storeVideo($video)
     {
         $newVideo = null;
@@ -49,8 +42,7 @@ class VideoService
                 ->toDisk(config('filesystems.storage_service'))
                 ->save($previewImageName);
 
-            // Extract audio from video
-            $audioName = uniqid() . '_' . Str::random(10) . '.mp3';
+            $audioName = uniqid() . '_' . Str::random(10) . '.wav';
             $audioPath = config('filesystems.storage_path') . "/" . $audioName;
             $audioUrl = "storage/" . $audioName;
             $audioMimeType = 'audio/mpeg';
@@ -58,7 +50,7 @@ class VideoService
                 ->open($videoName)
                 ->export()
                 ->toDisk(config('filesystems.storage_service'))
-                ->inFormat(new \FFMpeg\Format\Audio\Mp3())
+                ->inFormat(new \FFMpeg\Format\Audio\Wav())
                 ->save($audioName);
 
             $newVideo = Video::create([
@@ -129,10 +121,10 @@ class VideoService
 
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
                 $videoPath = $video->video_path;
-                $command = escapeshellcmd("python3 /path/to/your/script.py $videoPath");
+                $command = config('app.fix_audio_python_script') . ' ' . $videoPath;
                 $output = shell_exec($command);
 
-                if ($output == 'ok') {
+                if ($output == "ok") {
                     return HTTP_Status::OK;
                 }
             }

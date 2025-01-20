@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\Video;
+
 use App\Enums\GptPropmtsEnum;
 use App\Enums\HTTP_Status;
 
-use GuzzleHttp\Client;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+
+use GuzzleHttp\Client;
 
 class GptService
 {
@@ -19,10 +22,26 @@ class GptService
         ]);
     }
 
-    public function getTranscription()
+    public function getTranscription(Video $video)
     {
         try {
             return 'transcription';
+            if (is_null($video)) {
+                return HTTP_Status::NOT_FOUND;
+            }
+
+            if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
+                $audioPath = $video->audio_path;
+                $command = config('app.transcription_from_whisper_python_script') . ' ' . $audioPath;
+                $output = shell_exec($command);
+
+                if ($output == "error") {
+                    Log::error('Error in python script');
+                    return HTTP_Status::ERROR;
+                }
+            }
+
+            return $output;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;

@@ -128,4 +128,7 @@ return [
     'openai_model' => env("OPENAI_MODEL"),
     'openai_max_tokens' => (int)env("OPENAI_MAX_TOKENS"),
     'openai_temperature' => (float)env("OPENAI_TEMPERATURE"),
+
+    'fix_audio_python_script' => env("FIX_AUDIO_PYTHON_SCRIPT"),
+    'transcription_from_whisper_python_script' => env("TRANSCRIPTION_FROM_WHISPER_PYTHON_SCRIPT"),
 ];
