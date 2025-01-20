@@ -4,5 +4,6 @@ namespace App\Enums;
 
 enum PaginationEnum: int
 {
-    case PER_PAGE = 6;
+    case VIDEOS_PER_PAGE = 6;
+    case MESSAGES_PER_PAGE = 20;
 }

@@ -17,13 +17,13 @@ class ChatResource extends JsonResource
         return [
             'uuid' => $this->uuid,
             'title' => $this->title,
-            'messages' => $this->messages->map(function ($message) {
-                return [
-                    'sender' => $message->sender,
-                    'message' => $message->message,
-                    'sent_at' => $message->created_at,
-                ];
-            }),
+            // 'messages' => $this->messages->map(function ($message) {
+            //     return [
+            //         'sender' => $message->sender,
+            //         'message' => $message->message,
+            //         'sent_at' => $message->created_at,
+            //     ];
+            // }),
         ];
     }
 }

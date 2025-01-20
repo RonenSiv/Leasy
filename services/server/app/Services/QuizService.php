@@ -9,7 +9,7 @@ use App\Models\Quiz;
 use App\Http\Resources\QuestionResource;
 
 use App\Enums\HTTP_Status;
-
+use App\Enums\WhisperFailedEnum;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -64,9 +64,11 @@ class QuizService
 
             $quizQuestions = $this->gptService->generateQuiz($summary);
 
-            // delete before prod
-            $quizQuestions = self::DEMO_QUIZ;
-
+            if ($quizQuestions == WhisperFailedEnum::QUIZ_FAILED->value) {
+                $quizQuestions = [];
+            }
+            // DELETE: before prod
+            // $quizQuestions = self::DEMO_QUIZ;
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
 
             DB::commit();
@@ -172,7 +174,6 @@ class QuizService
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }

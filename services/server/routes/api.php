@@ -35,6 +35,7 @@ Route::controller(ChatController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::post('/send-message/{uuid}', 'sendMessageToChat');
+    Route::get('/messages/{uuid}', 'getChatMessages');
   });
 
 Route::controller(QuizController::class)

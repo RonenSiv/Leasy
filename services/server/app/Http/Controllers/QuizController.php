@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\QuizService;
 
 use App\Enums\HTTP_Status;
+use App\Enums\WhisperFailedEnum;
 use App\Http\Requests\AnswerQuestionRequest;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,7 @@ class QuizController extends Controller
      *     path="/api/quiz/questions/{uuid}",
      *     summary="Get the questions of the quiz",
      *     description="Fetches all questions of a quiz.",
-     *     tags={"Quiz"},
+     *     tags={"Quizzes"},
      *     @OA\Parameter(
      *         name="uuid",
      *         in="path",
@@ -63,6 +64,10 @@ class QuizController extends Controller
             };
         }
 
+        if (empty($result['data'])) {
+            return response()->json(['message' => WhisperFailedEnum::QUIZ_FAILED->value], Response::HTTP_OK);
+        }
+
         return response()->json(['data' => $result], Response::HTTP_OK);
     }
 
@@ -71,7 +76,7 @@ class QuizController extends Controller
      *     path="/api/quiz/answer/{uuid}",
      *     summary="Answer quiz",
      *     description="Submits answers for a quiz",
-     *     tags={"Quiz"},
+     *     tags={"Quizzes"},
      *     @OA\Parameter(
      *         name="uuid",
      *         in="path",

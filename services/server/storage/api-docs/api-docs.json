@@ -128,7 +128,7 @@
         "/api/chat/send-message/{uuid}": {
             "post": {
                 "tags": [
-                    "Chat"
+                    "Chats"
                 ],
                 "summary": "Send a message to a chat",
                 "description": "Sends a message to a specific chat identified by its UUID.",
@@ -173,6 +173,47 @@
                     },
                     "204": {
                         "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/chat/messages/{uuid}": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "description": "Retrieve messages records. Supports pagination.",
+                "operationId": "getChatMessages",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the chat",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with messages of the chat"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
                     }
                 }
             }
@@ -320,7 +361,7 @@
         "/api/quiz/questions/{uuid}": {
             "get": {
                 "tags": [
-                    "Quiz"
+                    "Quizzes"
                 ],
                 "summary": "Get the questions of the quiz",
                 "description": "Fetches all questions of a quiz.",
@@ -356,7 +397,7 @@
         "/api/quiz/answer/{uuid}": {
             "put": {
                 "tags": [
-                    "Quiz"
+                    "Quizzes"
                 ],
                 "summary": "Answer quiz",
                 "description": "Submits answers for a quiz",

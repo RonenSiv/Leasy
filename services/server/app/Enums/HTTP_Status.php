@@ -7,6 +7,7 @@ enum HTTP_Status
     case OK;
     case GONE;
     case ERROR;
+    case FAILED;
     case CREATED;
     case INVALID;
     case DUPLICATE;

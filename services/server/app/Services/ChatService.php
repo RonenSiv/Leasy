@@ -5,8 +5,11 @@ namespace App\Services;
 use App\Models\Message;
 use App\Models\Chat;
 
+use App\Enums\PaginationEnum;
 use App\Enums\HTTP_Status;
 use App\Enums\SenderEnum;
+
+use App\Http\Resources\MessageResource;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +95,22 @@ class ChatService
             return $chatResponse;
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage());
+            return HTTP_Status::ERROR;
+        }
+    }
+
+    public function getChatMessages(string $uuid)
+    {
+        try {
+            $chatId = Chat::where('uuid', $uuid)->value('id');
+
+            $messages = Message::where('chat_id', $chatId)
+                ->orderBy('id', 'desc')
+                ->paginate(PaginationEnum::MESSAGES_PER_PAGE->value);
+
+            return  MessageResource::collection($messages);
+        } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }

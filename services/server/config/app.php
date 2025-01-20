@@ -123,6 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'max_execution_time' => env('APP_MAX_EXECUTION_TIME', 30),
+
     'openai_api_key' => env("OPENAI_API_KEY"),
     'openai_base_uri' => env("OPENAI_BASE_URI"),
     'openai_model' => env("OPENAI_MODEL"),
