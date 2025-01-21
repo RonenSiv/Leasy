@@ -68,7 +68,9 @@ class QuizService
                 $quizQuestions = [];
             }
             // DELETE: before prod
-            // $quizQuestions = self::DEMO_QUIZ;
+            // TODO: cast the quiz string to array
+            $quizQuestions = self::DEMO_QUIZ;
+
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
 
             DB::commit();

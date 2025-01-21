@@ -46,7 +46,6 @@ class LectureService
 
             $newChat = $this->chatService->storeChat($title);
 
-
             $newQuiz = $this->quizService->storeQuiz($title, $summary);
 
             $newLecture = Lecture::create([

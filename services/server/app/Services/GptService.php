@@ -25,19 +25,18 @@ class GptService
     public function getTranscription(Video $video): mixed
     {
         try {
-            // return 'transcription';
+            return 'transcription';
+
             if (is_null($video)) {
                 return HTTP_Status::NOT_FOUND;
             }
             $output = null;
-            Log::alert("check");
-
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
                 $audioName = $video->audio_name;
                 ini_set('max_execution_time', config('app.max_execution_time'));
                 $audioPath = storage_path("app/public/{$audioName}");
 
-                $command = config('app.transcription_from_whisper_python_script') . ' ' . $audioPath;
+                $command = config('app.transcription_from_whisper_python_script') . ' ' . config('app.openai_api_key') . ' ' . $audioPath;
                 $output = shell_exec($command);
 
                 if ($output == "error" || is_null($output)) {
@@ -45,7 +44,7 @@ class GptService
                     return null;
                 }
             }
-
+            Log::alert($output);
             return $output;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -56,14 +55,17 @@ class GptService
     public function getSummary(string|null $transcription)
     {
         try {
-            // TODO: deal with $transcription = null
-            // return 'summary';
+            return 'summary';
 
             if ($transcription == WhisperFailedEnum::TRANSCRIPTION_FAILED->value) {
                 return WhisperFailedEnum::SUMMARY_FAILED->value;
             }
             $prompt = GptPropmtsEnum::GET_SUMMARY_PROMPT->value . $transcription;
-            return $this->getGptResponse($prompt);
+
+            $summary = $this->getGptResponse($prompt);
+
+            Log::alert($summary);
+            return $summary;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
@@ -73,14 +75,15 @@ class GptService
     public function generateQuiz(string|null $summary)
     {
         try {
-            // TODO: deal with $summary = null
+            return 'quiz';
 
-            // return 'quiz';
             if ($summary == WhisperFailedEnum::SUMMARY_FAILED->value) {
                 return WhisperFailedEnum::QUIZ_FAILED->value;
             }
             $prompt = GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary;
-            return $this->getGptResponse($prompt);
+            $quiz = $this->getGptResponse($prompt);
+            Log::alert($quiz);
+            return $quiz;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
@@ -90,7 +93,8 @@ class GptService
     public function getChatResponse(string $message, array $chatHistory)
     {
         try {
-            return 'chat responsephp ';
+            return 'chat response';
+
             return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE_PROMPT->value . $message, $chatHistory);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
