@@ -36,7 +36,7 @@ class GptService
                 ini_set('max_execution_time', config('app.max_execution_time'));
                 $audioPath = storage_path("app/public/{$audioName}");
 
-                $command = config('app.transcription_from_whisper_python_script') . ' ' . config('app.openai_api_key') . ' ' . $audioPath;
+                $command = config('app.transcription_from_whisper_python_script') . ' ' . $audioPath . ' ' . config('app.openai_api_key');
                 $output = shell_exec($command);
 
                 if ($output == "error" || is_null($output)) {
