@@ -23,7 +23,7 @@ export const middleware = async (request: NextRequest) => {
   // }
   return NextResponse.next();
 };
-
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
-};
+//
+// export const config = {
+//   matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+// };

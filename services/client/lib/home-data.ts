@@ -1,10 +1,9 @@
-// lib/home-data.ts
+import { Clock, Star, Users } from "lucide-react";
 
-// Example stats data
 export const stats = [
-  { label: "Confidence Up", value: "20%" },
-  { label: "Time to Summarize", value: "48 seconds" },
-  { label: "References Used", value: "1 Trillion" },
+  { icon: Star, label: "Active Users", value: "10,000+" },
+  { icon: Users, label: "Hours Saved", value: "50,000+" },
+  { icon: Clock, label: "Satisfaction Rate", value: "98%" },
 ];
 
 export const faqItems = [

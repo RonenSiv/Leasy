@@ -18,6 +18,7 @@ interface SettingsContextType {
   setColorScheme: (scheme: string) => void;
   saveSettings: () => void;
   hasUnsavedChanges: boolean;
+  setHasUnsavedChanges: (value: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -190,6 +191,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setColorScheme,
         saveSettings,
         hasUnsavedChanges,
+        setHasUnsavedChanges,
       }}
     >
       {children}

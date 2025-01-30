@@ -1,13 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, Star, Users } from "lucide-react";
-
-const stats = [
-  { icon: Star, label: "Active Users", value: "10,000+" },
-  { icon: Users, label: "Hours Saved", value: "50,000+" },
-  { icon: Clock, label: "Satisfaction Rate", value: "98%" },
-];
+import { stats } from "@/lib/home-data";
 
 export function StatsSection() {
   return (

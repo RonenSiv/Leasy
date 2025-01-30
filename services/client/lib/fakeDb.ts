@@ -5,7 +5,7 @@ interface User {
   password: string;
 }
 
-interface Video {
+export interface Video {
   id: string;
   title: string;
   description: string;
@@ -15,6 +15,7 @@ interface Video {
   summary?: string;
   user_id: string;
   created_at: string;
+  isFavorite?: boolean;
 }
 
 const users: User[] = [
@@ -91,3 +92,54 @@ export const fakeDb = {
     return newVideo;
   },
 };
+
+export const dummyVideos = [
+  {
+    id: "1",
+    title: "Introduction to React",
+    description: "Learn the basics of React",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "2",
+    title: "Advanced JavaScript Concepts",
+    description: "Dive deep into JavaScript",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "3",
+    title: "CSS Grid Layout",
+    description: "Master CSS Grid for responsive designs",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "4",
+    title: "Node.js Fundamentals",
+    description: "Get started with server-side JavaScript",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "5",
+    title: "Python for Data Science",
+    description: "Learn Python for data analysis and visualization",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "6",
+    title: "Machine Learning Basics",
+    description: "Introduction to machine learning algorithms",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "7",
+    title: "Web Security Fundamentals",
+    description: "Learn how to secure your web applications",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+  {
+    id: "8",
+    title: "Mobile App Development with React Native",
+    description: "Build cross-platform mobile apps",
+    thumbnail: "/placeholder.svg?height=100&width=200",
+  },
+];
