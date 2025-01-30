@@ -1,37 +1,51 @@
-import React from "react";
-import Image from "next/image";
-import { CardGrid } from "@/app/components/CardGrid";
-import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Circle } from "./components/home/decorations";
+
+import { HeroSection } from "./components/home/hero-section";
+import { StatsSection } from "./components/home/stats-section";
+import { PartnersSection } from "./components/home/partner-section";
+import { FeaturesSection } from "./components/home/features-section";
+import { AITutorSection } from "./components/home/ai-tutor-section";
+import { FAQSection } from "./components/home/faq-section";
+import { CTASection } from "./components/home/cta-section";
+import { VideoModal } from "./components/home/video-modal";
 
 export default function Home() {
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const fadeOutOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
   return (
-    <CardGrid cols={2}>
-      <div className="flex flex-col justify-center p-4 leading-normal">
-        <div>
-          <h2 className="mb-2 lg:text-4xl md:text-2xl max-sm:text-3xl font-bold tracking-tight text-[#41EC8B] dark:text-[#34D399] max-w-md">
-            Summarizing your classes with ease
-          </h2>
-          <p className="lg:font mb-3 md:text-sm lg:text-[18px] max-w-md font-bold text-gray-900 dark:text-gray-300 md:pt-5">
-            Let Leasy summarize your video lectures to save yourself hours of
-            study time
-          </p>
-        </div>
-        <Link
-          type="button"
-          className="focus:outline-none text-white dark:text-gray-900 bg-action focus:ring-none font-medium rounded-lg text-sm px-5 py-2.5 mt-14 self-start hover:bg-[#41EC8B] dark:hover:bg-[#34D399] duration-200"
-          href="/signup"
-        >
-          Try it now for free
-        </Link>
-      </div>
-      <Image
-        src="/main.png"
-        width="1800"
-        height="1800"
-        className="w-[30vw] max-sm:w-[50vw] h-auto"
-        alt="main picture"
-        priority
+    <div className="relative bg-gradient-to-b from-background to-primary/5 overflow-hidden">
+      {/* Subtle top fade */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none"
+        style={{ opacity: fadeOutOpacity }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-transparent" />
+      </motion.div>
+
+      {/* Two decorative circles in the background (like old design) */}
+      <Circle className="w-[300px] h-[300px] bg-primary/20 -top-20 -left-20 blur-3xl" />
+      <Circle className="w-[300px] h-[300px] bg-secondary/20 top-1/3 -right-20 blur-3xl" />
+
+      {/* Sections (like old design) */}
+      <HeroSection onWatchDemo={() => setIsVideoModalOpen(true)} />
+      <StatsSection />
+      <PartnersSection />
+      <FeaturesSection />
+      <AITutorSection />
+      <FAQSection />
+      <CTASection />
+
+      {/* Video modal (like before) */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
       />
-    </CardGrid>
+    </div>
   );
 }

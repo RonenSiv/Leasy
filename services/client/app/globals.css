@@ -3,72 +3,56 @@
 @tailwind utilities;
 
 :root {
-    --foreground-rgb: 0, 0, 0;
-    --background-start-rgb: 65, 235, 136;
-    --background-end-rgb: 57, 246, 205;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 204 100% 86%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262.1 83.3% 57.8%;
+    --radius: 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --foreground-rgb: 0, 0, 0;
-        --background-start-rgb: 65, 235, 136;
-        --background-end-rgb: 57, 246, 205;
-    }
+.dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 263.4 70% 50.4%;
 }
 
-html,
 body {
-    color: rgb(var(--foreground-rgb));
-    background: linear-gradient(
-            135deg,
-            transparent,
-            rgb(var(--background-end-rgb))
-    ) rgb(var(--background-start-rgb));
-    height: auto;
-    min-height: 100vh;
+    @apply bg-background text-foreground antialiased;
 }
 
-@layer utilities {
-    .text-balance {
-        text-wrap: balance;
-    }
-
-    body {
-        @apply dark:bg-gray-800 h-full bg-white text-gray-900 dark:text-gray-200;
-    }
-
-    .text-action {
-        @apply text-[#2CA15D] dark:text-[#41e084];
-    }
-
-    .bg-action {
-        @apply bg-[#2CA15D] dark:bg-[#41e084];
-    }
-
-}
-
-/* Custom scrollbar styles */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px; /* Adjust the width of the scrollbar */
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Track color */
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #888; /* Scrollbar thumb color */
-    border-radius: 10px; /* Roundness of the scrollbar thumb */
-    border: 2px solid #f1f1f1; /* Padding around scrollbar thumb */
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #555; /* Scrollbar thumb color on hover */
-}
-
-/* For Firefox */
-.custom-scrollbar {
-    scrollbar-width: thin; /* Scrollbar width */
-    scrollbar-color: #888 #f1f1f1; /* Scrollbar thumb and track color */
+.reduce-motion * {
+    transition: none !important;
+    animation: none !important;
 }
 
