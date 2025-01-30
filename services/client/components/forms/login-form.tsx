@@ -30,17 +30,25 @@ export const LoginForm = () => {
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormSchema) => {
       const response = login(data.email, data.password);
+
       await toast.promise(response, {
         loading: "Logging in...",
-        success: "Login successful!",
-        error: "Login failed",
       });
-      return await response;
+
+      const user = await response;
+      if (!user) {
+        toast.error("Invalid email or password");
+        return;
+      }
+
+      toast.success("Logged in successfully");
+      return user;
     },
   });
 
   const onSubmit = async (data: LoginFormSchema) => {
     const user = await loginMutation.mutateAsync(data);
+    console.log("logg in user", user);
     if (!user) return;
     router.push("/dashboard/video");
   };

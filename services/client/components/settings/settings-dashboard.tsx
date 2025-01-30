@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { mockVideos as videos } from "@/mocks/mocks";
-import { Video } from "@/lib/types/types";
+import { Video } from "@/services/video-service";
 
 export const columns: ColumnDef<Video>[] = [
   {
@@ -156,14 +156,14 @@ export const columns: ColumnDef<Video>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(video.id)}
+              onClick={() => navigator.clipboard.writeText(video.uuid)}
             >
               Copy video ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View video details</DropdownMenuItem>
             <DropdownMenuItem>
-              Mark as {video.completed ? "incomplete" : "complete"}
+              Mark as {video.is_completed ? "incomplete" : "complete"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

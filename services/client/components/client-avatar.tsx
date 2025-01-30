@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useClient } from "@/providers/client-provider";
 import React from "react";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,10 +11,11 @@ export const ClientAvatar = ({
   width: string;
   height: string;
 }) => {
-  const { name, avatar, isLoading } = useClient();
+  const { name, isLoading } = useClient();
   if (isLoading) {
     return <Spinner />;
   }
+
   const initials = name?.split(" ").map((n) => n[0].toUpperCase());
   const backgroundColor = initialsToColor(initials?.join("") || "");
   return (
@@ -24,10 +25,9 @@ export const ClientAvatar = ({
         height: height,
       }}
     >
-      <AvatarImage src={avatar} />
       <AvatarFallback
         style={{
-          backgroundColor,
+          background: backgroundColor,
           color: getContrastingColor(backgroundColor),
         }}
       >

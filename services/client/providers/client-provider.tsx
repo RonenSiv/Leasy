@@ -14,7 +14,7 @@ import { mockClient } from "@/mocks/mock-client-data";
 import { authService } from "@/services/auth-service";
 
 export interface User {
-  name: string;
+  full_name: string;
   email: string;
   bio?: string;
   avatar?: string;
@@ -23,30 +23,21 @@ export interface User {
 export type ClientContextType = {
   name: string | undefined;
   setName: Dispatch<SetStateAction<string | undefined>>;
-  session: string | undefined;
-  setSession: Dispatch<SetStateAction<string | undefined>>;
   email: string | undefined;
   setEmail: Dispatch<SetStateAction<string | undefined>>;
-  bio: string | undefined;
-  setBio: Dispatch<SetStateAction<string | undefined>>;
-  avatar: string | undefined;
-  setAvatar: Dispatch<SetStateAction<string | undefined>>;
   isLogged: boolean | undefined;
   setIsLogged: Dispatch<SetStateAction<boolean | undefined>>;
   isLoading: boolean;
   error: string | null;
   logout: () => void;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string) => Promise<User | null>;
 };
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
 
 export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
   const [name, setName] = useState<string | undefined>(undefined);
-  const [session, setSession] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState<string | undefined>(undefined);
-  const [bio, setBio] = useState<string | undefined>(undefined);
-  const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const [isLogged, setIsLogged] = useState<boolean | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,20 +48,16 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
         setName(mockClient.name);
         setEmail(mockClient.email);
         setIsLogged(true);
-        setBio(mockClient.bio);
-        setAvatar(mockClient.avatar);
       } else {
         try {
-          const user = await authService.getCurrentUser();
+          const user = await authService.getCurrentUser({});
           if (!user) {
             setIsLoading(false);
             return;
           }
-          setName(user?.name);
+          setName(user?.full_name);
           setEmail(user?.email);
           setIsLogged(true);
-          setBio("");
-          setAvatar(undefined);
         } catch (error) {
           console.error("Failed to fetch user:", error);
         }
@@ -82,22 +69,25 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
   }, [name, email, isLogged]);
 
   const logout = async (): Promise<void> => {
-    const user = await authService.logout();
     setIsLogged(false);
     setName(undefined);
     setEmail(undefined);
-    setBio(undefined);
-    setAvatar(undefined);
+    await authService.logout();
   };
 
-  const login = async (email: string, password: string): Promise<User> => {
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<User | null> => {
     const user = await authService.login(email, password);
+    if (!user) {
+      setError("Login failed");
+      return null;
+    }
 
-    setName(user.name);
+    setName(user.full_name);
     setEmail(user.email);
     setIsLogged(true);
-    setBio("");
-    setAvatar("");
     return user;
   };
 
@@ -106,14 +96,8 @@ export const ClientProvider: FC<{ children?: ReactNode }> = (props) => {
       value={{
         name,
         setName,
-        session,
-        setSession,
         email,
         setEmail,
-        bio,
-        setBio,
-        avatar,
-        setAvatar,
         isLogged,
         setIsLogged,
         isLoading,

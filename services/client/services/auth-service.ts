@@ -1,15 +1,14 @@
 import axios from "axios";
+import { User } from "@/providers/client-provider";
+import Cookies from "js-cookie";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 
-interface User {
-  name: string;
-  email: string;
-}
-
 class AuthService {
-  async login(email: string, password: string): Promise<User> {
+  constructor() {}
+
+  async login(email: string, password: string): Promise<User | null> {
     try {
       const response = await axios.post(
         `${API_URL}/login`,
@@ -21,11 +20,9 @@ class AuthService {
           withCredentials: true,
         },
       );
-      console.log(response);
       return response.data;
     } catch (error: any) {
-      const message = error.response?.data?.message || "Login failed";
-      throw new Error(message);
+      return null;
     }
   }
 
@@ -45,15 +42,21 @@ class AuthService {
     }
   }
 
-  async getCurrentUser(): Promise<User | null> {
+  async getCurrentUser({
+    headers,
+  }: {
+    headers?: Record<string, string>;
+  }): Promise<User | null> {
     try {
       const response = await axios.get(`${API_URL}/user`, {
         withCredentials: true,
+        headers,
       });
-      console.log("api data", response);
+      if (response.status !== 200) {
+        return null;
+      }
       return response.data;
     } catch (error) {
-      console.error("Failed to fetch user:", error);
       return null;
     }
   }
@@ -85,7 +88,12 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    await axios.post(`${API_URL}/logout`);
+    try {
+      await axios.post(`${API_URL}/logout`, { withCredentials: true });
+      Cookies.remove("LeasyToken");
+    } catch (error: any) {
+      console.error("Failed to logout:", error);
+    }
   }
 }
 

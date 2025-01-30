@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession } from "@/auth/auth";
 import { authService } from "@/services/auth-service";
 
 export const middleware = async (request: NextRequest) => {
-  if (process.env.NODE_ENV === "development") return NextResponse.next();
-  const currentUser = await authService.getCurrentUser();
+  const token = request.cookies.get("LeasyToken"); // Adjust token name as per your cookies
+  const currentUser = await authService.getCurrentUser({
+    headers: {
+      Authorization: `Bearer ${token?.value}`,
+    },
+  });
   const currentPath = request.nextUrl.pathname;
-
   if (
     !currentUser &&
     !currentPath.startsWith("/authentication") &&
@@ -15,7 +17,6 @@ export const middleware = async (request: NextRequest) => {
   ) {
     return Response.redirect(new URL("/authentication", request.url));
   }
-  await updateSession(request);
 
   if (
     currentUser &&

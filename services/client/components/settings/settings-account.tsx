@@ -409,7 +409,7 @@ const PasswordChangeButton = ({
 };
 
 const SettingsAccountDetails = () => {
-  const { name, email, bio } = useClient();
+  const { name, email } = useClient();
   const {
     register,
     handleSubmit,
@@ -418,7 +418,6 @@ const SettingsAccountDetails = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: name,
-      bio: bio,
       email: email,
       password: "*********",
     },

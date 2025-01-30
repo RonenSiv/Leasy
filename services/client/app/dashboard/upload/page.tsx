@@ -3,8 +3,9 @@
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { z } from "zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -16,35 +17,24 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CheckCircle, File as FileIcon, Link, Upload, X } from "lucide-react";
+import { CheckCircle, FileIcon, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { lectureService } from "@/services/video-service";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-const videoSchema = z
-  .object({
-    uploadType: z.enum(["file", "link"]),
-    file: z.any().optional(),
-    link: z.string().url().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.uploadType === "file") {
-        return data.file instanceof File && data.file?.size <= MAX_FILE_SIZE;
-      } else {
-        return typeof data.link === "string" && data.link.length > 0;
-      }
-    },
-    {
-      message: "Please provide either a valid file (max 100MB) or a valid link",
-      path: ["uploadType"],
-    },
-  );
+const videoSchema = z.object({
+  file: z.instanceof(File).refine((file) => file.size <= MAX_FILE_SIZE, {
+    message: "File size must be less than 100MB",
+  }),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+});
 
 type VideoFormData = z.infer<typeof videoSchema>;
 
 export default function VideoUploadPage() {
+  const router = useRouter();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -53,27 +43,19 @@ export default function VideoUploadPage() {
   const {
     register,
     handleSubmit,
-    control,
     setValue,
     watch,
     reset,
     formState: { errors },
   } = useForm<VideoFormData>({
     resolver: zodResolver(videoSchema),
-    defaultValues: {
-      uploadType: "file",
-    },
   });
-
-  const uploadType = watch("uploadType");
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles[0]) {
         setSelectedFile(acceptedFiles[0]);
         setValue("file", acceptedFiles[0]);
-        setValue("uploadType", "file");
-        setValue("link", undefined);
         setUploadComplete(false);
       }
     },
@@ -88,6 +70,7 @@ export default function VideoUploadPage() {
 
   const removeFile = () => {
     setSelectedFile(null);
+    // @ts-ignore - setValue accepts undefined as a valid value
     setValue("file", undefined);
     setUploadComplete(false);
   };
@@ -97,21 +80,31 @@ export default function VideoUploadPage() {
     setUploadProgress(0);
     setUploadComplete(false);
 
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setUploadProgress(i);
+    try {
+      await lectureService.createLecture(
+        data.file,
+        data.title,
+        data.description,
+        (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          setUploadProgress(percentCompleted);
+        },
+      );
+      setUploadComplete(true);
+      toast.success(
+        "Your video has been successfully uploaded and is being processed.",
+      );
+      router.push("/dashboard/video");
+      reset();
+      setSelectedFile(null);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload video. Please try again.");
+      console.error("Upload error:", error);
+    } finally {
+      setIsUploading(false);
     }
-
-    console.log("Submitted data:", data);
-
-    setIsUploading(false);
-    setUploadComplete(true);
-    toast.success(
-      "Your video has been successfully uploaded and is being processed.",
-    );
-
-    reset();
-    setSelectedFile(null);
   };
 
   return (
@@ -122,122 +115,89 @@ export default function VideoUploadPage() {
             Upload Your Video 🎥
           </CardTitle>
           <CardDescription className="text-center text-sm sm:text-base">
-            Choose a video file or provide a link to get started with Leasy's
-            AI-powered summarization.
+            Upload a video file to get started with Leasy's AI-powered
+            summarization.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Controller
-              name="uploadType"
-              control={control}
-              render={({ field }) => (
-                <RadioGroup
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    if (value === "file") {
-                      setValue("link", undefined);
-                    } else {
-                      setValue("file", undefined);
-                      setSelectedFile(null);
-                    }
-                  }}
-                  defaultValue={field.value}
-                  className="grid md:grid-cols-2 md:gap-4 grid-cols-1 gap-2"
-                >
-                  <div>
-                    <RadioGroupItem
-                      value="file"
-                      id="file"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="file"
-                      className="hover:cursor-pointer flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover md:p-4 p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                    >
-                      <Upload className="mb-3 h-6 w-6" />
-                      File Upload
-                    </Label>
-                  </div>
-                  <div>
-                    <RadioGroupItem
-                      value="link"
-                      id="link"
-                      className="peer sr-only"
-                    />
-                    <Label
-                      htmlFor="link"
-                      className="hover:cursor-pointer flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover md:p-4 p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                    >
-                      <Link className="mb-3 h-6 w-6" />
-                      Video Link
-                    </Label>
-                  </div>
-                </RadioGroup>
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-lg p-6 sm:p-20 text-center cursor-pointer transition-colors ${
+                isDragActive
+                  ? "border-primary bg-primary/10"
+                  : "border-muted-foreground"
+              }`}
+            >
+              <input {...getInputProps()} />
+              {selectedFile ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <FileIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                  <span className="font-medium text-sm sm:text-base truncate max-w-[200px]">
+                    {selectedFile.name}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFile();
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-2 sm:mb-4" />
+                  <p className="text-sm sm:text-base">
+                    {isDragActive
+                      ? "Drop the video here ..."
+                      : "Drag and drop your video here, or click to browse"}
+                  </p>
+                </>
               )}
-            />
-
-            {uploadType === "file" && (
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-6 sm:p-20 text-center cursor-pointer transition-colors ${
-                  isDragActive
-                    ? "border-primary bg-primary/10"
-                    : "border-muted-foreground"
-                }`}
-              >
-                <input {...getInputProps()} />
-                {selectedFile ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <FileIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-                    <span className="font-medium text-sm sm:text-base truncate max-w-[200px]">
-                      {selectedFile.name}
-                    </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeFile();
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <Upload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-muted-foreground mb-2 sm:mb-4" />
-                    <p className="text-sm sm:text-base">
-                      {isDragActive
-                        ? "Drop the video here ..."
-                        : "Drag and drop your video here, or click to browse"}
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
-
-            {uploadType === "link" && (
-              <div className="space-y-2">
-                <Label htmlFor="videoLink" className="text-sm sm:text-base">
-                  Video Link
-                </Label>
-                <Input
-                  id="videoLink"
-                  type="url"
-                  placeholder="https://example.com/your-video"
-                  {...register("link")}
-                  className="text-sm sm:text-base"
-                />
-              </div>
-            )}
-
-            {errors.uploadType && (
+            </div>
+            {errors.file && (
               <p className="text-destructive text-sm mt-2">
-                {errors.uploadType.message}
+                {errors.file.message}
               </p>
             )}
+
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm sm:text-base">
+                Title
+              </Label>
+              <Input
+                id="title"
+                type="text"
+                {...register("title")}
+                className="text-sm sm:text-base"
+              />
+              {errors.title && (
+                <p className="text-destructive text-sm mt-2">
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm sm:text-base">
+                Description
+              </Label>
+              <Input
+                id="description"
+                type="text"
+                {...register("description")}
+                className="text-sm sm:text-base"
+              />
+              {errors.description && (
+                <p className="text-destructive text-sm mt-2">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
 
             {isUploading && (
               <div className="space-y-2">
@@ -258,7 +218,7 @@ export default function VideoUploadPage() {
             <Button
               type="submit"
               className="w-full text-sm sm:text-base"
-              disabled={isUploading}
+              disabled={isUploading || !selectedFile}
             >
               {isUploading ? "Uploading..." : "Start Processing"}
             </Button>

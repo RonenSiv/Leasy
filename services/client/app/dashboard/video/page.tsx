@@ -28,11 +28,15 @@ import {
 } from "@/components/ui/select";
 import { ClientImage } from "@/components/client-image";
 import Link from "next/link";
-import { mockVideos } from "@/mocks/mocks";
-import { Video } from "@/lib/types/types";
+import {
+  DashboardData,
+  Lecture,
+  lectureService,
+} from "@/services/video-service";
 
 export default function MyVideosPage() {
-  const [videos, setVideos] = useState<Video[]>([]);
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [videos, setVideos] = useState<Lecture[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,9 +49,9 @@ export default function MyVideosPage() {
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
-        // Simulating API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setVideos(mockVideos);
+        const lectures = await lectureService.getLectures();
+        setVideos(lectures?.videos || []);
+        setDashboard(lectures?.dashboard || null);
       } catch (error) {
         console.error("Error fetching videos:", error);
         toast.error("Failed to load videos. Please try again later.");
@@ -59,9 +63,9 @@ export default function MyVideosPage() {
     fetchVideos();
   }, []);
 
-  const handlePlay = (videoId: string) => {
-    console.log(`Playing video ${videoId}`);
-    toast.info(`Preparing to play video ${videoId}`);
+  const handlePlay = (videoTitle: string) => {
+    console.log(`Playing video ${videoTitle}`);
+    toast.info(`Preparing to play '${videoTitle}'`);
   };
 
   const handleMouseEnter = (videoId: string) => {
@@ -79,11 +83,14 @@ export default function MyVideosPage() {
       case "date":
         sortedVideos.sort(
           (a, b) =>
-            new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime(),
+            new Date(b.video.created_at).getTime() -
+            new Date(a.video.created_at).getTime(),
         );
         break;
       case "progress":
-        sortedVideos.sort((a, b) => b.progress - a.progress);
+        sortedVideos.sort(
+          (a, b) => b.video.progress_percentages - a.video.progress_percentages,
+        );
         break;
       case "a-z":
         sortedVideos.sort((a, b) => a.title.localeCompare(b.title));
@@ -121,13 +128,15 @@ export default function MyVideosPage() {
     setCurrentPage(pageNumber);
   };
 
-  // Compute Statistics
   const totalVideos = videos.length;
-  const completedVideos = videos.filter((video) => video.completed).length;
+  const completedVideos = videos.filter(
+    ({ video }) => video.is_completed,
+  ).length;
   const incompleteVideos = totalVideos - completedVideos;
   const overallProgress = totalVideos
     ? Math.round(
-        videos.reduce((acc, video) => acc + video.progress, 0) / totalVideos,
+        videos.reduce((acc, { video }) => acc + video.progress_percentages, 0) /
+          totalVideos,
       )
     : 0;
 
@@ -289,22 +298,22 @@ export default function MyVideosPage() {
           <>
             <AnimatePresence>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {currentVideos.map((video) => (
+                {currentVideos.map((videoData) => (
                   <motion.div
-                    key={video.id}
+                    key={videoData.video.uuid}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3 }}
-                    onMouseEnter={() => handleMouseEnter(video.id)}
+                    onMouseEnter={() => handleMouseEnter(videoData.video.uuid)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-white dark:bg-gray-800">
                       <CardContent className="p-0">
                         <div className="relative group">
                           <ClientImage
-                            src={video.thumbnail}
-                            alt={video.title}
+                            src={videoData.video.preview_image_url}
+                            alt={videoData.title}
                             className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                           <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -312,15 +321,15 @@ export default function MyVideosPage() {
                               variant="secondary"
                               size="icon"
                               className="rounded-full transform scale-0 group-hover:scale-100 transition-transform duration-300"
-                              onClick={() => handlePlay(video.id)}
+                              onClick={() => handlePlay(videoData.title)}
                             >
                               <Play className="h-6 w-6 text-white" />
                             </Button>
                           </div>
                           <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm">
-                            {video.duration}
+                            FIX DURATION
                           </div>
-                          {video.completed && (
+                          {videoData.video.is_completed && (
                             <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Completed
@@ -329,20 +338,24 @@ export default function MyVideosPage() {
                         </div>
                         <div className="p-4">
                           <h2 className="text-lg font-semibold mb-2 text-primary line-clamp-2">
-                            {video.title}
+                            {videoData.title}
                           </h2>
                           <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
                             <div className="flex items-center">
                               <Calendar className="h-4 w-4 mr-1" />
-                              {new Date(video.uploadDate).toLocaleDateString()}
+                              {new Date(
+                                videoData.video.created_at,
+                              ).toLocaleDateString()}
                             </div>
                             <div className="flex items-center">
-                              {video.completed ? (
+                              {videoData.video.is_completed ? (
                                 <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
                               ) : (
                                 <XCircle className="h-4 w-4 text-red-500 mr-1" />
                               )}
-                              {video.completed ? "Completed" : "Incomplete"}
+                              {videoData.video.is_completed
+                                ? "Completed"
+                                : "Incomplete"}
                             </div>
                           </div>
                           <div className="relative pt-1">
@@ -354,12 +367,12 @@ export default function MyVideosPage() {
                               </div>
                               <div className="text-right">
                                 <span className="text-xs font-semibold inline-block text-primary">
-                                  {video.progress}%
+                                  {videoData.video.progress_percentages}%
                                 </span>
                               </div>
                             </div>
                             <Progress
-                              value={video.progress}
+                              value={videoData.video.progress_percentages}
                               className="w-full"
                             />
                           </div>

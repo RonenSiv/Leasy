@@ -77,7 +77,7 @@ const framerIcon = {
 const LoggedInContent: React.FC<{
   toggleSidebar: () => void;
 }> = ({ toggleSidebar }) => {
-  const { name, avatar, email, isLoading, logout } = useClient();
+  const { name, email, isLoading, logout } = useClient();
   const loggedInItems = [
     [{ title: "Home", Icon: BiHomeSmile, href: "/" }],
     profileLinks,

@@ -4,7 +4,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ClientAvatar } from "@/components/client-avatar";
 
 export const UserData = () => {
-  const { name, avatar, isLoading } = useClient();
+  const { name, isLoading } = useClient();
   if (isLoading) {
     return <Spinner />;
   }

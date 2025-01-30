@@ -1,6 +1,4 @@
-import { Video } from "@/lib/types/types";
-
-export const mockVideos: Video[] = [
+export const mockVideos: any[] = [
   {
     id: "1",
     title: "Introduction to React",
