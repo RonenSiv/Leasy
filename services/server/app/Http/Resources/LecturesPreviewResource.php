@@ -14,6 +14,9 @@ class LecturesPreviewResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $lastTimeWatched = $this->video->videoUserProgresses->first()->last_watched_time;
+        $progressPercentages = round(($lastTimeWatched / $this->video->video_duration) * 100);
+
         return [
             'uuid' => $this->uuid,
             'title' => $this->title,
@@ -21,8 +24,12 @@ class LecturesPreviewResource extends JsonResource
             'video' => [
                 'uuid' => $this->video->uuid,
                 'preview_image_url' => $this->video->preview_image_url,
-                'last_watched_time' => $this->video->videoUserProgresses->first()->last_watched_time,
-            ]
+                'last_watched_time' => $lastTimeWatched,
+                'video_duratoin' => $this->video->video_duration,
+                'progress_percentages' => $progressPercentages,
+                'is_completed' => $progressPercentages == 100,
+                'created_at' => $this->video->created_at->format('d/m/Y'),
+            ],
         ];
     }
 }

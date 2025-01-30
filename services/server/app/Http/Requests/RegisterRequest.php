@@ -24,7 +24,6 @@ class RegisterRequest extends FormRequest
         return [
             'full_name' => 'required|string|regex:/^(\p{L}+\s\p{L}+[\p{L}\s]*)$/u',
             'email' => 'required|string|email|unique:users,email',
-            'phone_number' => 'required|string|regex:/^\d{3}-?\d{3}-?\d{4}$/',
             'password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
         ];
     }
@@ -45,10 +44,6 @@ class RegisterRequest extends FormRequest
             'email.string' => 'Email must be a string.',
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'This email address is already registered.',
-
-            'phone_number.required' => 'Please enter your phone number.',
-            'phone_number.string' => 'Phone number must be a string.',
-            'phone_number.regex' => 'Please enter a valid phone number.',
 
             'password.required' => 'Please enter a password.',
             'password.string' => 'Password must be a string.',

@@ -33,7 +33,7 @@ class UserController extends Controller
      *      ),
      *      @OA\Response(
      *          response=500,
-     *          description="An error occurred while fetching the user",
+     *          description="An error occurred",
      *      )
      * )
      */
@@ -43,7 +43,7 @@ class UserController extends Controller
         $result = $this->service->getAuthUser();
         if ($result instanceof HTTP_Status) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while fetching the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HTTP_Status::NOT_FOUND => response()->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };

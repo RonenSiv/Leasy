@@ -22,7 +22,6 @@
                                 "required": [
                                     "email",
                                     "full_name",
-                                    "phone_number",
                                     "password"
                                 ],
                                 "properties": {
@@ -33,10 +32,6 @@
                                     "full_name": {
                                         "type": "string",
                                         "example": "Ofir Goldberg"
-                                    },
-                                    "phone_number": {
-                                        "type": "string",
-                                        "example": "0527576444"
                                     },
                                     "password": {
                                         "type": "string",
@@ -53,7 +48,7 @@
                         "description": "User created successfully"
                     },
                     "500": {
-                        "description": "An error occurred while creating the user"
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"
@@ -109,10 +104,31 @@
                 }
             }
         },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "description": "Logout the authenticated user by revoking the user's access token",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "User logged out successfully"
+                    },
+                    "500": {
+                        "description": "An error occurred while logging out"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
         "/api/chat/send-message/{uuid}": {
             "post": {
                 "tags": [
-                    "Chat"
+                    "Chats"
                 ],
                 "summary": "Send a message to a chat",
                 "description": "Sends a message to a specific chat identified by its UUID.",
@@ -161,12 +177,53 @@
                 }
             }
         },
+        "/api/chat/messages/{uuid}": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "description": "Retrieve messages records. Supports pagination.",
+                "operationId": "getChatMessages",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the chat",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with messages of the chat"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
         "/api/lecture": {
             "get": {
                 "tags": [
                     "Lectures"
                 ],
-                "description": "Retrieve lecture records. Supports pagination.",
+                "description": "Retrieve lecture records. Supports pagination and sorting.",
                 "operationId": "getLectures",
                 "parameters": [
                     {
@@ -177,6 +234,33 @@
                         "schema": {
                             "type": "integer",
                             "example": 2
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "Sort by column (e.g., 'date', 'name', 'progress').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "name",
+                                "progress"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_direction",
+                        "in": "query",
+                        "description": "Sort direction (e.g., 'asc', 'desc').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
                         }
                     }
                 ],
@@ -204,13 +288,25 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "video"
+                                    "video",
+                                    "title",
+                                    "description"
                                 ],
                                 "properties": {
                                     "video": {
                                         "description": "The video file to upload",
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "title": {
+                                        "description": "The title of the lecture",
+                                        "type": "string",
+                                        "example": "Introduction to Physics"
+                                    },
+                                    "description": {
+                                        "description": "The description of the lecture",
+                                        "type": "string",
+                                        "example": "An introductory lecture on the fundamentals of physics."
                                     }
                                 },
                                 "type": "object"
@@ -220,10 +316,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "lecture created successfully"
+                        "description": "Lecture created successfully"
                     },
                     "500": {
                         "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
                     }
                 }
             }
@@ -259,14 +358,14 @@
                 }
             }
         },
-        "/api/quiz/next-question/{uuid}": {
+        "/api/quiz/questions/{uuid}": {
             "get": {
                 "tags": [
-                    "Quiz"
+                    "Quizzes"
                 ],
-                "summary": "Get the next question in a quiz",
-                "description": "Fetches the next question of a quiz based on the question index.",
-                "operationId": "2c256004ebf95ae3f93dde3edf00e3dc",
+                "summary": "Get the questions of the quiz",
+                "description": "Fetches all questions of a quiz.",
+                "operationId": "0365c35651f8003e815d93e90099a89a",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -277,22 +376,11 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    {
-                        "name": "question_index",
-                        "in": "query",
-                        "description": "The index of the question to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "example": 1
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Question retrieved successfully"
+                        "description": "Questions retrieved successfully"
                     },
                     "404": {
                         "description": "Quiz not found"
@@ -309,11 +397,11 @@
         "/api/quiz/answer/{uuid}": {
             "put": {
                 "tags": [
-                    "Quiz"
+                    "Quizzes"
                 ],
-                "summary": "Answer a question in a quiz",
-                "description": "Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
-                "operationId": "c4ad1e3826e1cffeb324df3fc5fab499",
+                "summary": "Answer quiz",
+                "description": "Submits answers for a quiz",
+                "operationId": "38686818dfd03ee9489dae4c0bd15c43",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -327,22 +415,33 @@
                     }
                 ],
                 "requestBody": {
+                    "description": "Answers for the quiz questions",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "question_uuid",
-                                    "option_index"
-                                ],
                                 "properties": {
-                                    "question_uuid": {
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "option_index": {
-                                        "type": "Integer",
-                                        "example": 1
+                                    "answers": {
+                                        "description": "List of answers",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "question_uuid",
+                                                "answer"
+                                            ],
+                                            "properties": {
+                                                "question_uuid": {
+                                                    "description": "The UUID of the question",
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "answer": {
+                                                    "type": "string",
+                                                    "example": "2"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -352,7 +451,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Answer submitted successfully"
+                        "description": "Answers submitted successfully"
                     },
                     "400": {
                         "description": "This question cannot be answered"
@@ -361,7 +460,7 @@
                         "description": "Some of the quiz properties not found"
                     },
                     "500": {
-                        "description": "An error occurred while processing the answer"
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"
@@ -385,7 +484,7 @@
                         "description": "User not found"
                     },
                     "500": {
-                        "description": "An error occurred while fetching the user"
+                        "description": "An error occurred"
                     }
                 }
             }

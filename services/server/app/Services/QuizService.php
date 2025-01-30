@@ -9,7 +9,7 @@ use App\Models\Quiz;
 use App\Http\Resources\QuestionResource;
 
 use App\Enums\HTTP_Status;
-
+use App\Enums\WhisperFailedEnum;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -33,10 +33,17 @@ class QuizService
                 2 => '2option 2',
                 3 => '2option 3',
                 4 => '2option 4',
-                5 => '2option 5',
             ]
         ],
-
+        [
+            'question' => 'where?',
+            'options' => [
+                'correct' => '3option 1',
+                2 => '3option 2',
+                3 => '3option 3',
+                4 => '3option 4',
+            ]
+        ],
     ];
 
     private GptService $gptService;
@@ -57,7 +64,11 @@ class QuizService
 
             $quizQuestions = $this->gptService->generateQuiz($summary);
 
-            // delete before prod
+            if ($quizQuestions == WhisperFailedEnum::QUIZ_FAILED->value) {
+                $quizQuestions = [];
+            }
+            // DELETE: before prod
+            // TODO: cast the quiz string to array
             $quizQuestions = self::DEMO_QUIZ;
 
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
@@ -72,85 +83,63 @@ class QuizService
         }
     }
 
-    public function getNextQuestion(string $uuid, int $questionIndex)
+    public function getQuizQuestions(string $uuid)
     {
         try {
-            $quiz = Quiz::where('uuid', $uuid)->first();
+            $quiz = Quiz::with('questions')
+                ->where('uuid', $uuid)->first();
 
             if (is_null($quiz)) {
                 return HTTP_Status::NOT_FOUND;
             }
 
-            $nextQuestion = Question::with('questionOptions')
-                ->where('quiz_id', $quiz->id)
-                ->orderBy('id')
-                ->skip($questionIndex - 1)
-                ->first();
-
-            if (is_null($nextQuestion)) {
-                return ['score' => $quiz->score];
-            }
-
-            return new QuestionResource($nextQuestion);
+            return  QuestionResource::collection($quiz->questions);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }
     }
 
-    public function answerQuestion(string $QuizUuid, string $questionUuid, int $optionIndex)
+    public function answerQuiz(string $uuid, array $answers): array|HTTP_Status
     {
         try {
             DB::beginTransaction();
 
             $quiz = Quiz::with('questions.questionOptions')
-                ->where('uuid', $QuizUuid)
+                ->where('uuid', $uuid)
                 ->first();
 
             if (is_null($quiz)) {
                 return HTTP_Status::NOT_FOUND;
             }
 
-            $question = $quiz->questions->firstWhere('uuid', $questionUuid);
-
-            if (is_null($question)) {
-                return HTTP_Status::NOT_FOUND;
-            }
-            if ($question->is_answered) {
+            $score = 0;
+            $numOfQuestions = $quiz->questions->count();
+            $scorePerQuestion = (int)(100 / $numOfQuestions);
+            if ($numOfQuestions <= 0) {
                 return HTTP_Status::BAD_REQUEST;
             }
 
-            $selectedOption = $question->questionOptions->firstWhere('option_index', $optionIndex);
-
-            if (is_null($selectedOption)) {
-                return HTTP_Status::NOT_FOUND;
-            }
-
-            $isCorrect = $selectedOption->is_correct;
-
-            if ($isCorrect) {
-                $questionsCount = $quiz->questions->count();
-
-                $currentScroe = $quiz->score;
-
-                if ($currentScroe >= 100 || $questionsCount <= 0) {
-                    return HTTP_Status::BAD_REQUEST;
+            foreach ($answers as $answer) {
+                $question = $quiz->questions->firstWhere('uuid', $answer['question_uuid']);
+                if (is_null($question)) {
+                    return HTTP_Status::NOT_FOUND;
                 }
+                $correctAnswers = $question->questionOptions->Where('is_correct', true);
+                $isCorrect = $correctAnswers->contains('option_index', $answer['answer']);
 
-                $quiz->update([
-                    'score' => $currentScroe + (100 / $questionsCount),
-                ]);
-
-                $question->update([
-                    'is_answered' => true,
-                ]);
+                if ($isCorrect) {
+                    $score = $score + $scorePerQuestion;
+                }
             }
+
+            $quiz->update([
+                'score' => $score
+            ]);
 
             DB::commit();
 
-            return [
-                'updated_score' => $quiz->score
-            ];
+            return ['score' => $score];
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
@@ -187,7 +176,6 @@ class QuizService
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }

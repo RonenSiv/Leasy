@@ -23,7 +23,6 @@ class QuestionResource extends JsonResource
                     'option_text' => $option->option_text,
                 ];
             }),
-            'is_answered' => $this->is_answered,
         ];
     }
 }

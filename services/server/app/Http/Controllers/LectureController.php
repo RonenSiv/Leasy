@@ -9,6 +9,7 @@ use App\Enums\HTTP_Status;
 use App\Http\Requests\StoreLectureRequest;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,27 +32,43 @@ class LectureController extends Controller
      *          @OA\MediaType(
      *              mediaType="multipart/form-data",
      *              @OA\Schema(
-     *                  required={"video"},
+     *                  required={"video", "title", "description"},
      *                  @OA\Property(
      *                      property="video",
      *                      type="string",
      *                      format="binary",
      *                      description="The video file to upload"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="title",
+     *                      type="string",
+     *                      description="The title of the lecture",
+     *                      example="Introduction to Physics"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="description",
+     *                      type="string",
+     *                      description="The description of the lecture",
+     *                      example="An introductory lecture on the fundamentals of physics."
      *                  )
      *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response=201,
-     *          description="lecture created successfully",
+     *          description="Lecture created successfully",
      *      ),
      *      @OA\Response(
      *          response=500,
      *          description="An error occurred",
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="No content"
      *      )
      * )
      *
-     * @param  StoreUnitRequest  $request
+     * @param  StoreLectureRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
 
@@ -59,6 +76,8 @@ class LectureController extends Controller
     {
         $result = $this->lectureService->store(
             video: $request->file('video'),
+            title: $request->title,
+            description: $request->description,
         );
 
         if ($result instanceof HTTP_Status) {
@@ -119,7 +138,7 @@ class LectureController extends Controller
     /**
      * @OA\Get(
      *     path="/api/lecture",
-     *     description="Retrieve lecture records. Supports pagination.",
+     *     description="Retrieve lecture records. Supports pagination and sorting.",
      *     operationId="getLectures",
      *     tags={"Lectures"},
      *     @OA\Parameter(
@@ -128,6 +147,20 @@ class LectureController extends Controller
      *         required=false,
      *         description="Page number for pagination.",
      *         @OA\Schema(type="integer", example=2)
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_by",
+     *         in="query",
+     *         required=false,
+     *         description="Sort by column (e.g., 'date', 'name', 'progress').",
+     *         @OA\Schema(type="string", enum={"date", "name", "progress"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_direction",
+     *         in="query",
+     *         required=false,
+     *         description="Sort direction (e.g., 'asc', 'desc').",
+     *         @OA\Schema(type="string", enum={"asc", "desc"})
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -144,9 +177,12 @@ class LectureController extends Controller
      * )
      */
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $result = $this->lectureService->index();
+        $result = $this->lectureService->index(
+            sortBy: $request->query('sort_by', 'date'),
+            sortDirection: $request->query('sort_direction', 'asc')
+        );
 
         if ($result instanceof HTTP_Status) {
             return match ($result) {

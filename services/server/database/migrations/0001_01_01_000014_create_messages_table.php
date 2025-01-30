@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('chat_id')->constrained('chats')->onDelete('cascade');
-            $table->enum('sender', ['user', 'bot']);
+            $table->enum('sender', ['user', 'assistant']);
             $table->text('message');
             $table->timestamps();
         });

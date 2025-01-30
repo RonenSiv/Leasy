@@ -6,7 +6,7 @@ use App\Models\Lecture;
 
 use App\Enums\PaginationEnum;
 use App\Enums\HTTP_Status;
-
+use App\Enums\WhisperFailedEnum;
 use App\Http\Resources\LecturesPreviewResource;
 use App\Http\Resources\LectureResource;
 
@@ -29,29 +29,29 @@ class LectureService
         $this->quizService = new QuizService();
     }
 
-    public function store($video): HTTP_Status|array
+    public function store($video, string $title, string $description): HTTP_Status|array
     {
         try {
             DB::beginTransaction();
 
             $newVideo = $this->videoService->storeVideo($video);
 
-            $transcription = $this->gptService->getTranscription();
+            $transcription = $this->gptService->getTranscription($newVideo);
 
-            $summary = $this->gptService->getSummary();
+            if (is_null($transcription)) {
+                $transcription = WhisperFailedEnum::TRANSCRIPTION_FAILED->value;
+            }
 
-            $lectureTitle = $this->gptService->getLectureTitle($summary);
+            $summary = $this->gptService->getSummary($transcription);
 
-            $lecturedescription = $this->gptService->getLectureDescription($summary);
+            $newChat = $this->chatService->storeChat($title);
 
-            $newChat = $this->chatService->storeChat($lectureTitle);
-
-            $newQuiz = $this->quizService->storeQuiz($lectureTitle, $summary);
+            $newQuiz = $this->quizService->storeQuiz($title, $summary);
 
             $newLecture = Lecture::create([
                 'uuid' => Str::uuid(),
-                'title' => $lectureTitle,
-                'description' => $lecturedescription,
+                'title' => $title,
+                'description' => $description,
                 'user_id' => Auth::id(),
                 'video_id' => $newVideo->id,
                 'chat_id' => $newChat->id,
@@ -75,8 +75,8 @@ class LectureService
         try {
             $lecture = Lecture::with(
                 'user',
-                'quiz.questions.questionOptions',
-                'chat.messages',
+                'quiz',
+                'chat',
                 'video.videoUserProgresses'
             )
                 ->where('uuid', $uuid)
@@ -93,17 +93,66 @@ class LectureService
         }
     }
 
-    public function index()
+    public function index(string $sortBy, string $sortDirection)
     {
         try {
-            $lectures = Lecture::with('video.videoUserProgresses')
-                ->where('user_id', Auth::id())
-                ->paginate(PaginationEnum::PER_PAGE->value);
+            $sortableColumns = [
+                'date' => 'lectures.created_at',
+                'name' => 'lectures.title',
+                'progress' => 'video_user_progress.progress',
+            ];
 
-            return LecturesPreviewResource::collection($lectures);
+            $sortColumn = $sortableColumns[$sortBy] ?? 'lectures.created_at';
+
+            $lecturesQuery = Lecture::with('video.videoUserProgresses')
+                ->where('lectures.user_id', Auth::id());
+
+            if ($sortBy === 'progress') {
+                $lecturesQuery->leftJoin('videos', 'lectures.video_id', '=', 'videos.id')
+                    ->leftJoin('video_user_progress', 'videos.id', '=', 'video_user_progress.video_id');
+            }
+
+            $lectures = $lecturesQuery->orderBy($sortColumn, $sortDirection)
+                ->paginate(PaginationEnum::VIDEOS_PER_PAGE->value);
+
+            return [
+                'dashboard' => $this->getLecturesDashboard(),
+                'videos' => LecturesPreviewResource::collection($lectures)
+            ];
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;
         }
+    }
+
+
+
+    // ------------------- private Functions -------------------
+
+    private function getLecturesDashboard()
+    {
+        $lectures = Lecture::with('video.videoUserProgresses')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        $totalVideos = $lectures->count();
+
+        $sumProgress = 0;
+        $numOfCompletedVideos = 0;
+        foreach ($lectures as $lecture) {
+            $sumProgress += $lecture->video->videoUserProgresses->first()->progress;
+            $lecture->video->videoUserProgresses->first()->progress == 100 ? $numOfCompletedVideos++ : null;
+        }
+
+        $overallProgress = $totalVideos == 0 ? 0 : (int)round($sumProgress / $totalVideos);
+
+        $numOfPages = floor($totalVideos / PaginationEnum::VIDEOS_PER_PAGE->value);
+        return [
+            'total_videos' => $totalVideos,
+            'overall_progress' => $overallProgress,
+            'completed_videos' => $numOfCompletedVideos,
+            'incomplete_videos' => $totalVideos - $numOfCompletedVideos,
+            'num_of_pages' => $totalVideos % PaginationEnum::VIDEOS_PER_PAGE->value > 0 ? $numOfPages + 1 : $numOfPages,
+        ];
     }
 }

@@ -8,9 +8,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
-Route::post("login", [AuthController::class, 'login']);
-Route::post("register", [AuthController::class, 'register']);
-Route::get("user", [UserController::class, 'getAuthUser'])->middleware(['auth:api']);
+Route::post("/login", [AuthController::class, 'login']);
+Route::post("/register", [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:api']);
+Route::get("/user", [UserController::class, 'getAuthUser'])->middleware(['auth:api']);
 
 Route::controller(LectureController::class)
   ->prefix('lecture')
@@ -34,14 +35,15 @@ Route::controller(ChatController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::post('/send-message/{uuid}', 'sendMessageToChat');
+    Route::get('/messages/{uuid}', 'getChatMessages');
   });
 
 Route::controller(QuizController::class)
   ->prefix('quiz')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/next-question/{uuid}', 'getNextQuestion');
-    Route::put('/answer/{uuid}', 'answerQuestion');
+    Route::get('/questions/{uuid}', 'getQuizQuestions');
+    Route::put('/answer/{uuid}', 'answerQuiz');
   });
 
 Route::controller(ChatController::class)
