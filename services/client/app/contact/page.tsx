@@ -36,7 +36,8 @@ export default function Contact() {
       >
         <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          We're here to help. Reach out to us with any questions or concerns.
+          We&apos;re here to help. Reach out to us with any questions or
+          concerns.
         </p>
       </motion.div>
 

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth-context";
+import { useClient } from "@/hooks/use-client";
 
 export default function ProtectedLayout({
   children,
@@ -10,19 +10,20 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const client = useClient();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!client.isLoading && !client.user) {
+      console.log("User not found, redirecting to login page");
       router.push("/login");
     }
-  }, [user, isLoading, router]);
+  }, [client.user, client.isLoading, router]);
 
-  if (isLoading) {
+  if (client.isLoading) {
     return <div>Loading user data...</div>;
   }
 
-  if (!user) {
+  if (!client.user) {
     return null;
   }
 

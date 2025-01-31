@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSettings } from "@/context/settings-context";
-import { useAuth } from "@/context/auth-context";
 import { VideoCard } from "../components/video-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,23 +14,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { fakeDb, Video } from "@/lib/fakeDb";
+import { useClient } from "@/hooks/use-client";
 
 export default function FavoritesPage() {
   const { reduceMotion } = useSettings();
-  const { user } = useAuth();
+  const client = useClient();
   const [favorites, setFavorites] = useState<Video[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    if (user) {
+    if (client.user) {
       // In a real application, you would fetch the user's favorites from an API
       // For this example, we'll use the fakeDb to simulate fetching favorites
       const userFavorites = fakeDb
-        .getUserVideos(user.id)
+        .getUserVideos(client.user.id)
         .filter((video) => video.isFavorite);
       setFavorites(userFavorites);
     }
-  }, [user]);
+  }, [client.user]);
 
   const filteredFavorites = favorites.filter((video) =>
     video.title.toLowerCase().includes(searchTerm.toLowerCase()),

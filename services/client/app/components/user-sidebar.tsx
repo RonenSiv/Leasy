@@ -19,7 +19,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useAuth } from "@/context/auth-context";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -34,14 +33,15 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
+import { useClient } from "@/hooks/use-client";
 
 export function UserSidebar() {
-  const { user, logout } = useAuth();
+  const client = useClient();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const router = useRouter();
 
-  if (!user) return null;
+  if (!client.user) return null;
 
   const getInitials = (name: string) => {
     return name
@@ -55,7 +55,7 @@ export function UserSidebar() {
     setShowLogoutDialog(false);
     setIsOpen(false);
     try {
-      await logout();
+      await client.logout();
       router.push("/");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -69,19 +69,23 @@ export function UserSidebar() {
           <Avatar className="h-9 w-9 cursor-pointer">
             {" "}
             {/* Increased from h-8 w-8 */}
-            <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
+            <AvatarFallback>
+              {getInitials(client.user.full_name)}
+            </AvatarFallback>
           </Avatar>
         </SheetTrigger>
         <SheetContent side="right" className="w-80">
           <SheetHeader className="pb-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
+                <AvatarFallback>
+                  {getInitials(client.user.full_name)}
+                </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="font-semibold">{user.full_name}</span>
+                <span className="font-semibold">{client.user.full_name}</span>
                 <span className="text-sm text-muted-foreground">
-                  {user.email}
+                  {client.user.email}
                 </span>
               </div>
             </div>

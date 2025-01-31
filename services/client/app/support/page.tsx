@@ -62,7 +62,7 @@ export default function SupportPage() {
       >
         <h1 className="text-4xl font-bold mb-4">Support</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Need help? We're here to assist you. Check out our FAQs or get in
+          Need help? We&apos;re here to assist you. Check out our FAQs or get in
           touch with us.
         </p>
       </motion.div>
@@ -87,8 +87,8 @@ export default function SupportPage() {
                   <AccordionTrigger>How do I upload a video?</AccordionTrigger>
                   <AccordionContent>
                     To upload a video, go to your dashboard and click on the
-                    "Upload" button. Follow the prompts to select and upload
-                    your video file.
+                    &quot;Upload&quot; button. Follow the prompts to select and
+                    upload your video file.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">

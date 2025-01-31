@@ -50,8 +50,8 @@ const features = [
             </div>
             <div className="flex-1">
               <p className="text-sm">
-                Today, we'll explore the core concepts that form the foundation
-                of AI.
+                Today, we&apos;ll explore the core concepts that form the
+                foundation of AI.
               </p>
             </div>
           </div>
@@ -61,7 +61,7 @@ const features = [
             </div>
             <div className="flex-1">
               <p className="text-sm">
-                Let's begin by understanding what machine learning actually
+                Let&apos;s begin by understanding what machine learning actually
                 means.
               </p>
             </div>
@@ -140,7 +140,7 @@ const features = [
             <div className="bg-primary text-primary-foreground rounded-lg p-3">
               <p className="text-sm">
                 Supervised learning is a type of machine learning where the
-                model learns from labeled data. It's like learning with a
+                model learns from labeled data. It&apos;s like learning with a
                 teacher who provides the correct answers. The model learns to
                 map inputs to known outputs, making it great for tasks like
                 classification and regression.
@@ -257,7 +257,7 @@ export default function FeatureShowcasePage() {
       >
         <h1 className="text-4xl font-bold mb-4">Experience the Power of AI</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          See how Leasy's AI-powered features transform your learning
+          See how Leasy&apos;s AI-powered features transform your learning
           experience.
         </p>
       </motion.div>

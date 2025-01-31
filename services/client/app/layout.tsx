@@ -1,11 +1,11 @@
 import "./globals.css";
 import { Inter, Poppins } from "next/font/google";
-import Header from "./components/home/header";
+import { Header } from "./components/header/header";
 import { Toaster } from "react-hot-toast";
 import ScrollToTopButton from "./components/home/scroll-to-button";
 import { PageTransition } from "./components/page-transition";
 import Footer from "./components/footer";
-import { Providers } from "./providers";
+import { LayoutProvider } from "./providers/layout-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-main" });
 const poppins = Poppins({
@@ -31,14 +31,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground flex flex-col min-h-screen">
-        <Providers>
+        <LayoutProvider>
           <PageTransition />
           <Header />
           <main className="flex-grow">{children}</main>
           <Footer />
           <ScrollToTopButton />
           <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
-        </Providers>
+        </LayoutProvider>
       </body>
     </html>
   );
