@@ -1,89 +1,83 @@
 "use client";
 
-import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { fakeDb } from "@/lib/fakeDb";
+import React, { createContext, useContext } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { authService } from "@/services/auth-api-service";
 
 interface User {
   id: string;
-  name: string;
   email: string;
+  full_name: string;
 }
 
 interface AuthContextType {
   user: User | null;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, fullName: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const loginUser = async (email: string, password: string): Promise<User> => {
-  const user = fakeDb.findUserByEmail(email);
-  if (user && user.password === password) {
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
-  }
-  throw new Error("Invalid credentials");
-};
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = useQueryClient();
 
-const signupUser = async (
-  email: string,
-  password: string,
-  fullName: string,
-): Promise<User> => {
-  const existingUser = fakeDb.findUserByEmail(email);
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
-  const newUser = fakeDb.addUser({ name: fullName, email, password });
-  const { password: _, ...userWithoutPassword } = newUser;
-  return userWithoutPassword;
-};
+  const { data: user, isLoading } = useQuery<User | null>({
+    queryKey: ["authUser"],
+    queryFn: authService.getCurrentUser,
+    staleTime: 1000 * 60,
+  });
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
+  const loginMutation = useMutation({
+    mutationFn: (args: { email: string; password: string }) =>
+      authService.login(args.email, args.password),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["authUser"], data);
+    },
+  });
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  const signupMutation = useMutation({
+    mutationFn: (args: { email: string; password: string; fullName: string }) =>
+      authService.signup(args.email, args.password, args.fullName),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["authUser"], data);
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: authService.logout,
+    onSuccess: () => {
+      queryClient.setQueryData(["authUser"], null);
+    },
+  });
 
   const login = async (email: string, password: string) => {
-    const loggedInUser = await loginUser(email, password);
-    setUser(loggedInUser);
-    localStorage.setItem("user", JSON.stringify(loggedInUser));
+    await loginMutation.mutateAsync({ email, password });
   };
 
   const signup = async (email: string, password: string, fullName: string) => {
-    const newUser = await signupUser(email, password, fullName);
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    await signupMutation.mutateAsync({ email, password, fullName });
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    router.push("/");
+  const logout = async () => {
+    await logoutMutation.mutateAsync();
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextType = {
+    user: user ?? null,
+    isLoading,
+    login,
+    signup,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

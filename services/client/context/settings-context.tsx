@@ -62,7 +62,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     setHasUnsavedChanges(true);
   };
 
-  // Load settings from localStorage
   useEffect(() => {
     const storedSettings = localStorage.getItem("userSettings");
     if (storedSettings) {

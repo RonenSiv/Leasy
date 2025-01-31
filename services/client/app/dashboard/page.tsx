@@ -77,7 +77,9 @@ export default function Dashboard() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-3xl font-bold mb-6">Welcome back, {user.name}!</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Welcome back, {user.full_name}!
+      </h1>
 
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         <StatCard

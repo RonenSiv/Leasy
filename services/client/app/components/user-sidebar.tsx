@@ -45,10 +45,10 @@ export function UserSidebar() {
 
   const getInitials = (name: string) => {
     return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+      ?.split(" ")
+      ?.map((n) => n[0])
+      ?.join("")
+      ?.toUpperCase();
   };
 
   const handleLogout = async () => {
@@ -69,17 +69,17 @@ export function UserSidebar() {
           <Avatar className="h-9 w-9 cursor-pointer">
             {" "}
             {/* Increased from h-8 w-8 */}
-            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
           </Avatar>
         </SheetTrigger>
         <SheetContent side="right" className="w-80">
           <SheetHeader className="pb-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="font-semibold">{user.name}</span>
+                <span className="font-semibold">{user.full_name}</span>
                 <span className="text-sm text-muted-foreground">
                   {user.email}
                 </span>

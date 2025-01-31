@@ -35,14 +35,11 @@ const Header = () => {
     const controlNavbar = () => {
       if (typeof window !== "undefined") {
         if (window.scrollY > lastScrollY) {
-          // if scroll down hide the navbar
           setIsVisible(false);
         } else {
-          // if scroll up show the navbar
           setIsVisible(true);
         }
 
-        // remember current page location to use in the next move
         setLastScrollY(window.scrollY);
       }
     };
