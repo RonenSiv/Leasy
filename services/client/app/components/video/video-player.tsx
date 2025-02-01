@@ -10,7 +10,8 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
-
+  console.log("videoId:", videoId);
+  console.log("videoUrl:", videoUrl);
   useEffect(() => {
     const interval = setInterval(() => {
       api.lecture.updateLastWatchedTime(videoId, currentTime).then();

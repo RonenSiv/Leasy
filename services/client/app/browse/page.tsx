@@ -18,6 +18,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
+// Helper to format seconds into "mm:ss"
+function formatDuration(seconds: any): string {
+  const secs = Number(seconds);
+  if (isNaN(secs)) return "0:00";
+  const mins = Math.floor(secs / 60);
+  const secsRem = Math.floor(secs % 60);
+  return `${mins}:${secsRem < 10 ? "0" : ""}${secsRem}`;
+}
+
 // VideoCard component using shadcn Card and styled similar to YouTube
 function VideoCard({
   title,
@@ -31,6 +42,7 @@ function VideoCard({
     uuid: string;
     preview_image_url: string;
     created_at: string;
+    video_duration: number;
   };
   computedProgress: number;
 }) {
@@ -40,7 +52,7 @@ function VideoCard({
         <Card className="group overflow-hidden">
           <div className="relative">
             <img
-              src={video.preview_image_url}
+              src={`${baseUrl}${video.preview_image_url}`}
               alt={title}
               className="w-full h-48 object-cover"
             />
@@ -56,6 +68,10 @@ function VideoCard({
                   style={{ width: `${computedProgress}%` }}
                 ></div>
               </div>
+            </div>
+            {/* Video duration box at the bottom right */}
+            <div className="absolute bottom-1 right-1 bg-black bg-opacity-75 px-1 py-0.5 text-xs text-white rounded">
+              {formatDuration(video.video_duration)}
             </div>
           </div>
           <CardContent className="p-2">
