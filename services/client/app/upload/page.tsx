@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { UploadForm } from "../components/forms/upload-form";
+import { UploadSkeleton } from "./skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function UploadPage() {
@@ -10,7 +11,7 @@ export default function UploadPage() {
           <CardTitle className="text-3xl font-bold">Upload a Video</CardTitle>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<UploadSkeleton />}>
             <UploadForm />
           </Suspense>
         </CardContent>

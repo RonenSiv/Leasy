@@ -21,10 +21,13 @@ async function VideoPageContent({ id }: { id: string }) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">{videoData.title}</h1>
+      <h1 className="text-3xl font-bold mb-6">{videoData?.title}</h1>
       <div className="grid lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 space-y-6">
-          <VideoPlayer videoUrl={videoData.video_url} videoId={videoData.id} />
+          <VideoPlayer
+            videoUrl={videoData?.video?.video_url}
+            videoId={videoData?.video?.uuid}
+          />
           <VideoContent videoData={videoData} />
         </div>
         <div className="lg:col-span-2">{/* Sidebar content */}</div>

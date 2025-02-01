@@ -1,5 +1,5 @@
 import axios, { AxiosProgressEvent } from "axios";
-import Cookies from "js-cookie";
+import { cookies } from "next/headers";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -10,10 +10,11 @@ const axiosInstance = axios.create({
 });
 
 async function fetchWithAuth(endpoint: string, options: any = {}) {
-  const token = Cookies.get("LeasyToken");
+  const cookieStore = await cookies();
+  const token = cookieStore.get("LeasyToken");
   const headers = {
     "Content-Type": options.headers?.["Content-Type"] || "application/json",
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${token?.value}`,
     ...options.headers,
   };
 

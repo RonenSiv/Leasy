@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { BarChart, LineChart } from "@/components/ui/charts";
 import { VideoProgress } from "../video-progress";
 import { Clock, Eye, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DashboardResource, VideoPreviewResource } from "@/types";
+import { useClient } from "@/hooks/use-client";
 
 interface DashboardContentProps {
   recentVideos: any[];
@@ -28,12 +30,62 @@ interface DashboardContentProps {
   };
 }
 
-export function DashboardContent({
-  recentVideos,
-  stats,
-  weeklyStats,
-}: DashboardContentProps) {
+const getTotalMinutes = (videos: VideoPreviewResource[] = []) => {
+  return videos.reduce(
+    (acc, video) => acc + video.video.video_duration / 60,
+    0,
+  );
+};
+
+const getTotalMinutesWatched = (videos: VideoPreviewResource[] = []) => {
+  return videos.reduce(
+    (acc, video) => acc + video.video.last_watched_time / 60,
+    0,
+  );
+};
+
+export function DashboardContent() {
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const [stats, setStats] = useState<Partial<DashboardResource>>({});
+  const [weeklyStats, setWeeklyStats] = useState({});
+  const [recentVideos, setRecentVideos] = useState<VideoPreviewResource[]>([]);
+  const [progress, setProgress] = useState<{
+    current: number;
+    total: number;
+  }>({ current: 0, total: 0 });
+
+  const client = useClient();
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const stats = {
+        total_videos: client.lectures?.dashboard.total_videos,
+        overall_progress: client.lectures?.dashboard.overall_progress,
+        completed_videos: client.lectures?.dashboard.completed_videos,
+      } as Partial<DashboardResource>;
+      setStats(stats);
+      setProgress({
+        current: getTotalMinutesWatched(client.lectures?.videos),
+        total: getTotalMinutes(client.lectures?.videos),
+      });
+    };
+
+    const fetchRecentVideos = async () => {
+      const videos = client.lectures?.videos?.slice(0, 3) || [];
+      console.log(videos);
+      setRecentVideos(videos);
+    };
+
+    const fetchWeeklyStats = async () => {
+      const watchTime = [120, 150, 90, 200, 180, 210, 240];
+      const views = [100, 120, 80, 150, 130, 160, 180];
+      setWeeklyStats({ watchTime, views });
+    };
+
+    fetchStats();
+    fetchRecentVideos();
+    fetchWeeklyStats();
+  }, [client.lectures]);
 
   return (
     <motion.div
@@ -46,18 +98,18 @@ export function DashboardContent({
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         <StatCard
           icon={<Clock className="h-6 w-6" />}
-          title="Total Watch Time"
-          value={`${stats.totalWatchTime} mins`}
+          title="Total Videos"
+          value={`${stats.total_videos} videos`}
         />
         <StatCard
           icon={<Users className="h-6 w-6" />}
-          title="Total Views"
-          value={stats.totalViews.toLocaleString()}
+          title="Completed Videos"
+          value={stats.completed_videos?.toLocaleString() || "0"}
         />
         <StatCard
           icon={<Eye className="h-6 w-6" />}
-          title="Avg. Engagement"
-          value={`${stats.averageEngagement}%`}
+          title="Overall Progress"
+          value={`${stats.overall_progress}%`}
         />
       </div>
 
@@ -68,7 +120,7 @@ export function DashboardContent({
             <CardDescription>Keep up the great work!</CardDescription>
           </CardHeader>
           <CardContent>
-            <VideoProgress current={120} total={300} />
+            <VideoProgress current={progress.current} total={progress.total} />
           </CardContent>
         </Card>
 
@@ -79,17 +131,17 @@ export function DashboardContent({
               Your performance over the last 7 days
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <LineChart data={weeklyStats.watchTime} labels={weekDays} />
-            <BarChart data={weeklyStats.views} labels={weekDays} />
-          </CardContent>
+          {/*<CardContent>*/}
+          {/*  <LineChart data={weeklyStats?.watchTime} labels={weekDays} />*/}
+          {/*  <BarChart data={weeklyStats?.views} labels={weekDays} />*/}
+          {/*</CardContent>*/}
         </Card>
       </div>
 
       <h2 className="text-2xl font-semibold mb-4">Recent Videos</h2>
       <div className="grid md:grid-cols-3 gap-6 mb-8">
-        {recentVideos ? (
-          recentVideos.map((video) => <VideoCard key={video.id} {...video} />)
+        {recentVideos.length ? (
+          recentVideos.map((video) => <VideoCard key={video.uuid} {...video} />)
         ) : (
           <h2>No Videos Found</h2>
         )}

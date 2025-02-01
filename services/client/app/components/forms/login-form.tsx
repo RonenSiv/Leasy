@@ -44,6 +44,7 @@ export function LoginForm() {
         title: "Logged in successfully!",
         description: "Welcome back to Leasy.",
       });
+
       router.push("/dashboard");
     } catch (error) {
       setError("Login failed. Please check your credentials and try again.");

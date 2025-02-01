@@ -12,6 +12,7 @@ import {
 import { HeaderContent } from "./header-content";
 import { HeaderSkeleton } from "./header-skeleton";
 import { ThemeToggle } from "../theme-toggle";
+import Image from "next/image";
 
 const navItems = [
   { href: "/", label: "Home", ariaLabel: "Go to home page" },
@@ -30,10 +31,13 @@ export function Header() {
       <nav className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="text-2xl font-bold text-primary">
+            <Link
+              href="/"
+              className="text-2xl font-bold text-primary flex items-center"
+            >
+              <Image src={"/main.png"} alt={"Leasy"} width={50} height={50} />
               Leasy
             </Link>
-
             <div className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link

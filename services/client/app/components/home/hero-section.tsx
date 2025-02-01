@@ -30,7 +30,6 @@ export function HeroSection({ onWatchDemo }: HeroSectionProps) {
             <Sparkle className="text-primary/60 -top-8 left-1/4" />
             <Sparkle className="text-secondary/60 top-0 right-1/4" />
           </motion.div>
-
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
             Create course material with AI <br /> in seconds
           </h1>

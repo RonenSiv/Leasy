@@ -6,7 +6,6 @@ import { Circle } from "./components/home/decorations";
 
 import { HeroSection } from "./components/home/hero-section";
 import { StatsSection } from "./components/home/stats-section";
-import { PartnersSection } from "./components/home/partner-section";
 import { FeaturesSection } from "./components/home/features-section";
 import { AITutorSection } from "./components/home/ai-tutor-section";
 import { FAQSection } from "./components/home/faq-section";
@@ -35,7 +34,7 @@ export default function Home() {
       {/* Sections (like old design) */}
       <HeroSection onWatchDemo={() => setIsVideoModalOpen(true)} />
       <StatsSection />
-      <PartnersSection />
+      {/*<PartnersSection />*/}
       <FeaturesSection />
       <AITutorSection />
       <FAQSection />

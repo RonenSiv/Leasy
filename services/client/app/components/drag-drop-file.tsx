@@ -14,7 +14,10 @@ export function DragDropFile({ onFileSelect }: DragDropFileProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        onFileSelect(acceptedFiles[0]);
+        const videoFile = acceptedFiles[0];
+        if (videoFile.type.startsWith("video/")) {
+          onFileSelect(videoFile);
+        }
       }
     },
     [onFileSelect],
@@ -26,6 +29,9 @@ export function DragDropFile({ onFileSelect }: DragDropFileProps) {
       "video/*": [".mp4", ".mov", ".avi", ".mkv"],
     },
     multiple: false,
+    onDragEnter: () => setIsDragging(true),
+    onDragLeave: () => setIsDragging(false),
+    onDropAccepted: () => setIsDragging(false),
   });
 
   return (
@@ -34,7 +40,7 @@ export function DragDropFile({ onFileSelect }: DragDropFileProps) {
       className={`
         border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
         transition-colors duration-200 ease-in-out
-        ${isDragActive ? "border-primary bg-primary/10" : "border-border"}
+        ${isDragActive || isDragging ? "border-primary bg-primary/10" : "border-border"}
         hover:border-primary hover:bg-primary/5
       `}
     >

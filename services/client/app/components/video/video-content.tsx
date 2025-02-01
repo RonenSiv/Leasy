@@ -8,18 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { api } from "@/app/api";
+import { Lecture } from "@/types";
 
-interface VideoContentProps {
-  videoData: {
-    id: string;
-    title: string;
-    description: string;
-    transcription?: string;
-    summary?: string;
-  };
-}
-
-export function VideoContent({ videoData }: VideoContentProps) {
+export function VideoContent({ videoData }: { videoData: Lecture }) {
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState<
     { role: "user" | "assistant"; content: string }[]
@@ -33,7 +24,10 @@ export function VideoContent({ videoData }: VideoContentProps) {
     setMessage("");
 
     try {
-      const response = await api.lecture.sendChatMessage(videoData.id, message);
+      const response = await api.lecture.sendChatMessage(
+        videoData.video.uuid,
+        message,
+      );
       setChatMessages((prev) => [
         ...prev,
         { role: "assistant", content: response },
@@ -55,14 +49,14 @@ export function VideoContent({ videoData }: VideoContentProps) {
           <TabsContent value="transcription">
             <ScrollArea className="h-[calc(100vh-24rem)]">
               <p className="text-sm leading-relaxed p-4">
-                {videoData.transcription || "Transcription not available yet."}
+                {videoData?.transcription || "Transcription not available yet."}
               </p>
             </ScrollArea>
           </TabsContent>
           <TabsContent value="summary">
             <ScrollArea className="h-[calc(100vh-24rem)]">
               <p className="text-sm leading-relaxed p-4">
-                {videoData.summary || "Summary not available yet."}
+                {videoData?.summary || "Summary not available yet."}
               </p>
             </ScrollArea>
           </TabsContent>

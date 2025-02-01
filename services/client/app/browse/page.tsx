@@ -6,33 +6,42 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { VideoCard } from "../components/video-card";
-import { dummyVideos } from "@/lib/fakeDb";
+import { useClient } from "@/hooks/use-client";
+import { VideoPreviewResource } from "@/types";
 
 const ITEMS_PER_PAGE = 6;
 
 export default function BrowsePage() {
-  const [videos, setVideos] = useState(dummyVideos);
+  const client = useClient();
+  const [videos, setVideos] = useState<VideoPreviewResource[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    // Filter videos based on search term
-    const filteredVideos = dummyVideos.filter(
+    const videos = client.lectures?.videos;
+    console.log(videos);
+    const filteredVideos = videos?.filter(
       (video) =>
         video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        video.description.toLowerCase().includes(searchTerm.toLowerCase()),
+        video.description?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
+    if (!filteredVideos) return;
+
     setVideos(filteredVideos);
-    setTotalPages(Math.ceil(filteredVideos.length / ITEMS_PER_PAGE));
+    setTotalPages(Math.ceil(filteredVideos?.length / ITEMS_PER_PAGE));
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, client.lecturesLoading]);
 
   const paginatedVideos = videos.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
+
+  if (client.isLoading || client.lecturesLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4">
@@ -53,7 +62,7 @@ export default function BrowsePage() {
         transition={{ duration: 0.5 }}
       >
         {paginatedVideos.map((video) => (
-          <VideoCard key={video.id} {...video} />
+          <VideoCard key={video.video.uuid} {...video} />
         ))}
       </motion.div>
       <div className="flex justify-center items-center mt-8 space-x-2">

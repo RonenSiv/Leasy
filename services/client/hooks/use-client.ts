@@ -9,10 +9,10 @@ export function useClient() {
 
   return {
     ...auth,
-    lectures: lectures.lectures,
-    recentLectures: lectures.recentLectures,
-    createLecture: lectures.createLecture,
-    updateLastWatchedTime: lectures.updateLastWatchedTime,
+    lectures: auth.user ? lectures.lectures : null,
+    createLecture: auth.user ? lectures.createLecture : null,
+    fetchLectures: auth.user ? lectures.fetchLectures : null,
+    updateLastWatchedTime: auth.user ? lectures.updateLastWatchedTime : null,
     lecturesLoading: lectures.isLoading,
     lecturesError: lectures.error,
   };

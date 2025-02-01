@@ -1,14 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useRef } from "react";
+import type React from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/app/api";
-
-interface User {
-  id: string;
-  email: string;
-  full_name: string;
-}
+import type { User } from "@/types";
 
 interface AuthContextType {
   user: User | null;
@@ -21,14 +17,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const queryClient = useQueryClient();
   const resolveRef = useRef<(() => void) | null>(null);
 
   const { data: user, isLoading } = useQuery<User | null>({
     queryKey: ["authUser"],
-    queryFn: api.auth.getUser,
+    queryFn: async () => {
+      try {
+        const userData = await api.auth.getUser();
+        return userData;
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        return null;
+      }
+    },
     staleTime: 1000 * 60,
+    retry: false,
   });
 
   const waitUntilLoaded = () => {
@@ -45,43 +52,113 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isLoading]);
 
-  const loginMutation = useMutation({
-    mutationFn: (args: { email: string; password: string }) =>
-      api.auth.login(args),
-    onSuccess: (data) => {
+  const loginMutation = useMutation<
+    User,
+    Error,
+    { email: string; password: string }
+  >({
+    mutationFn: async (args) => {
+      try {
+        const result = await api.auth.login(args);
+        if (!result) {
+          throw new Error("Login failed");
+        }
+        return result;
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      }
+    },
+    onSuccess: async (data) => {
       queryClient.setQueryData(["authUser"], data);
+
+      await queryClient.prefetchQuery({
+        queryKey: ["lectures", data.uuid],
+        queryFn: () => api.lecture.getLectures(),
+      });
+    },
+    onError: (error) => {
+      console.error("Login mutation error:", error);
     },
   });
 
-  const signupMutation = useMutation({
-    mutationFn: (args: { email: string; password: string; fullName: string }) =>
-      api.auth.register({
-        email: args.email,
-        full_name: args.fullName,
-        password: args.password,
-      }),
-    onSuccess: (data) => {
+  const signupMutation = useMutation<
+    User,
+    Error,
+    { email: string; password: string; fullName: string }
+  >({
+    mutationFn: async (args) => {
+      try {
+        const result = await api.auth.register({
+          email: args.email,
+          full_name: args.fullName,
+          password: args.password,
+        });
+        if (!result) {
+          throw new Error("Signup failed");
+        }
+        return result;
+      } catch (error) {
+        console.error("Signup error:", error);
+        throw error;
+      }
+    },
+    onSuccess: async (data) => {
+      // First update the user data
       queryClient.setQueryData(["authUser"], data);
+
+      // Then prefetch the lectures data
+      await queryClient.prefetchQuery({
+        queryKey: ["lectures", data.uuid],
+        queryFn: () => api.lecture.getLectures(),
+      });
+    },
+    onError: (error) => {
+      console.error("Signup mutation error:", error);
     },
   });
 
-  const logoutMutation = useMutation({
+  const logoutMutation = useMutation<void, Error, void>({
     mutationFn: api.auth.logout,
     onSuccess: () => {
       queryClient.setQueryData(["authUser"], null);
+      // Clear lectures data on logout
+      queryClient.removeQueries({ queryKey: ["lectures"] });
+    },
+    onError: (error) => {
+      console.error("Logout error:", error);
     },
   });
 
-  const login = async (email: string, password: string) => {
-    await loginMutation.mutateAsync({ email, password });
+  const login = async (email: string, password: string): Promise<void> => {
+    try {
+      await loginMutation.mutateAsync({ email, password });
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
-  const signup = async (email: string, password: string, fullName: string) => {
-    await signupMutation.mutateAsync({ email, password, fullName });
+  const signup = async (
+    email: string,
+    password: string,
+    fullName: string,
+  ): Promise<void> => {
+    try {
+      await signupMutation.mutateAsync({ email, password, fullName });
+    } catch (error) {
+      console.error("Signup failed:", error);
+      throw error;
+    }
   };
 
-  const logout = async () => {
-    await logoutMutation.mutateAsync();
+  const logout = async (): Promise<void> => {
+    try {
+      await logoutMutation.mutateAsync();
+    } catch (error) {
+      console.error("Logout failed:", error);
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
