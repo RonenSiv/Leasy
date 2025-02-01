@@ -11,6 +11,11 @@ interface LectureContextType {
   isLoading: boolean;
   error: Error | null;
   fetchLectures: () => Promise<void>;
+  getLectures: (params: {
+    page?: number;
+    sortBy?: string;
+    sortDirection?: string;
+  }) => Promise<{ data: LecturesPreviewResource }>;
   createLecture: (lectureData: FormData) => Promise<{ uuid: string }>;
   updateLastWatchedTime: (uuid: string, time: number) => Promise<void>;
 }
@@ -121,6 +126,17 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     updateLastWatchedTime: async (uuid, time) => {
       await updateLastWatchedTimeMutation.mutateAsync({ uuid, time });
+    },
+    getLectures: async ({
+      page,
+      sortBy,
+      sortDirection,
+    }: {
+      page?: number;
+      sortBy?: string;
+      sortDirection?: string;
+    }) => {
+      return api.lecture.getLectures(page, sortBy, sortDirection);
     },
   };
 

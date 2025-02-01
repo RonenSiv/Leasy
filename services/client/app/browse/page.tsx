@@ -1,104 +1,341 @@
 "use client";
 
-import { SetStateAction, useEffect, useState } from "react";
+import React, { Suspense, useMemo, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { ErrorBoundary } from "react-error-boundary";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { VideoCard } from "../components/video-card";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useClient } from "@/hooks/use-client";
-import { VideoPreviewResource } from "@/types";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const ITEMS_PER_PAGE = 6;
+// VideoCard component using shadcn Card and styled similar to YouTube
+function VideoCard({
+  title,
+  description,
+  video,
+  computedProgress,
+}: {
+  title: string;
+  description: string;
+  video: {
+    uuid: string;
+    preview_image_url: string;
+    created_at: string;
+  };
+  computedProgress: number;
+}) {
+  return (
+    <Link href={`/video/${video.uuid}`}>
+      <motion.div whileHover={{ scale: 1.05 }} className="cursor-pointer">
+        <Card className="group overflow-hidden">
+          <div className="relative">
+            <img
+              src={video.preview_image_url}
+              alt={title}
+              className="w-full h-48 object-cover"
+            />
+            {/* Play icon appears on hover */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <Play className="w-12 h-12 text-white" />
+            </div>
+            {/* YouTube-style progress bar overlaid at the bottom of the thumbnail */}
+            <div className="absolute bottom-0 left-0 right-0">
+              <div className="h-1 bg-gray-300">
+                <div
+                  className="h-full bg-red-600"
+                  style={{ width: `${computedProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+          <CardContent className="p-2">
+            <CardTitle className="text-sm font-semibold line-clamp-2">
+              {title}
+            </CardTitle>
+            <p className="text-xs text-gray-500 line-clamp-2">{description}</p>
+            <p className="text-xs text-gray-400">
+              {new Date(video.created_at).toLocaleDateString()}
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </Link>
+  );
+}
 
-export default function BrowsePage() {
-  const client = useClient();
-  const [videos, setVideos] = useState<VideoPreviewResource[]>([]);
+// Helper function to fetch all pages and combine videos
+async function fetchAllVideos(client: ReturnType<typeof useClient>) {
+  const firstPageResponse = await client.getLectures({ page: 1 });
+  const firstPageData = firstPageResponse.data;
+  const pageSize = 6;
+  const totalVideos = firstPageData.dashboard.total_videos || 0;
+  const totalPages = Math.ceil(totalVideos / pageSize);
+  let allVideos = firstPageData.videos || [];
+
+  if (totalPages > 1) {
+    const otherPagePromises = [];
+    for (let page = 2; page <= totalPages; page++) {
+      otherPagePromises.push(client.getLectures({ page }));
+    }
+    const otherPagesResults = await Promise.all(otherPagePromises);
+    otherPagesResults.forEach((res) => {
+      allVideos = allVideos.concat(res.data.videos || []);
+    });
+  }
+  return { videos: allVideos, totalVideos };
+}
+
+// Fallback skeleton for video cards grid only
+function VideoCardsSkeleton() {
+  const ITEMS_PER_PAGE = 6;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: ITEMS_PER_PAGE }).map((_, idx) => (
+        <div key={idx} className="h-48 bg-gray-300 rounded animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// Error fallback UI component
+function ErrorFallback({
+  error,
+  resetErrorBoundary,
+}: {
+  error: Error;
+  resetErrorBoundary: () => void;
+}) {
+  return (
+    <div role="alert" className="p-4 bg-red-100 text-red-800">
+      <p>Error loading videos: {error.message}</p>
+      <Button onClick={resetErrorBoundary} className="mt-2">
+        Try again
+      </Button>
+    </div>
+  );
+}
+
+// Pagination component using shadcn Button styles
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  const windowSize = 3;
+  let startPage = Math.max(1, currentPage - 1);
+  if (startPage > totalPages - windowSize + 1) {
+    startPage = Math.max(1, totalPages - windowSize + 1);
+  }
+  const pages: number[] = [];
+  for (let i = 0; i < windowSize && startPage + i <= totalPages; i++) {
+    pages.push(startPage + i);
+  }
+
+  return (
+    <div className="flex items-center justify-center mt-8 gap-2">
+      <Button
+        variant="outline"
+        onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+        disabled={currentPage === 1}
+      >
+        <ChevronLeft className="mr-1 h-4 w-4" /> Prev
+      </Button>
+      {currentPage > 2 && totalPages > windowSize && (
+        <>
+          <Button variant="outline" onClick={() => onPageChange(1)}>
+            1
+          </Button>
+          {startPage > 2 && <span className="px-2">...</span>}
+        </>
+      )}
+      {pages.map((page) => (
+        <Button
+          key={page}
+          variant="outline"
+          onClick={() => onPageChange(page)}
+          className={`px-3 py-1 ${
+            page === currentPage
+              ? "bg-primary text-primary-foreground shadow hover:bg-primary/90"
+              : "bg-secondary text-primary-foreground shadow hover:bg-primary/50"
+          }`}
+        >
+          {page}
+        </Button>
+      ))}
+      {startPage + windowSize - 1 < totalPages && totalPages > windowSize && (
+        <>
+          {startPage + windowSize < totalPages && (
+            <span className="px-2">...</span>
+          )}
+          <Button variant="outline" onClick={() => onPageChange(totalPages)}>
+            {totalPages}
+          </Button>
+        </>
+      )}
+      <Button
+        variant="outline"
+        onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+        disabled={currentPage === totalPages}
+      >
+        Next <ChevronRight className="ml-1 h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
+
+// Main video content component
+function VideosContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [sortField, setSortField] = useState("date"); // "date" | "name" | "progress"
+  const [sortOrder, setSortOrder] = useState("desc"); // "asc" | "desc"
+  const client = useClient();
+  const itemsPerPage = 6;
 
-  useEffect(() => {
-    const videos = client.lectures?.videos;
-    console.log(videos);
-    const filteredVideos = videos?.filter(
-      (video) =>
-        video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        video.description?.toLowerCase().includes(searchTerm.toLowerCase()),
+  // Fetch all videos from the library (across all pages)
+  const { data } = useSuspenseQuery({
+    queryKey: ["allLectures"],
+    queryFn: async () => {
+      if (!client?.getLectures) {
+        throw new Error(
+          "Not authenticated or getLectures function is not available",
+        );
+      }
+      return fetchAllVideos(client);
+    },
+  });
+
+  const allVideos = data.videos;
+
+  // Filter videos client-side based on the search term.
+  const filteredVideos = useMemo(() => {
+    if (!searchTerm) return allVideos;
+    return allVideos.filter((video) =>
+      video.title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
+  }, [searchTerm, allVideos]);
 
-    if (!filteredVideos) return;
+  // Sorting the filtered videos and computing progress percentages if needed
+  const sortedVideos = useMemo(() => {
+    const videosWithProgress = filteredVideos.map((video) => {
+      let progress = video.video.progress_percentages;
+      if (progress === undefined || progress === null) {
+        if (video.video.last_watched_time && video.video.video_duration) {
+          progress =
+            (video.video.last_watched_time / video.video.video_duration) * 100;
+        } else {
+          progress = 0;
+        }
+      }
+      return { ...video, computedProgress: progress };
+    });
 
-    setVideos(filteredVideos);
-    setTotalPages(Math.ceil(filteredVideos?.length / ITEMS_PER_PAGE));
-    setCurrentPage(1);
-  }, [searchTerm, client.lecturesLoading]);
+    return videosWithProgress.sort((a, b) => {
+      let compare = 0;
+      if (sortField === "date") {
+        const dateA = new Date(a.video.created_at);
+        const dateB = new Date(b.video.created_at);
+        compare = dateA.getTime() - dateB.getTime();
+      } else if (sortField === "name") {
+        compare = a.title.localeCompare(b.title);
+      } else if (sortField === "progress") {
+        compare = a.computedProgress - b.computedProgress;
+      }
+      return sortOrder === "asc" ? compare : -compare;
+    });
+  }, [filteredVideos, sortField, sortOrder]);
 
-  const paginatedVideos = videos.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
-
-  if (client.isLoading || client.lecturesLoading) {
-    return <div>Loading...</div>;
-  }
+  // Client-side pagination of the sorted list.
+  const totalPages = Math.ceil(sortedVideos.length / itemsPerPage) || 1;
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedVideos = useMemo(() => {
+    const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+    return sortedVideos.slice(startIdx, startIdx + itemsPerPage);
+  }, [safeCurrentPage, sortedVideos, itemsPerPage]);
 
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-6">Browse Videos</h1>
-      <Input
-        type="text"
-        placeholder="Search videos..."
-        value={searchTerm}
-        onChange={(e: { target: { value: SetStateAction<string> } }) =>
-          setSearchTerm(e.target.value)
-        }
-        className="mb-6"
-      />
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {paginatedVideos.map((video) => (
-          <VideoCard key={video.video.uuid} {...video} />
-        ))}
-      </motion.div>
-      <div className="flex justify-center items-center mt-8 space-x-2">
-        <Button
-          variant="outline"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" /> Previous
-        </Button>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="number"
-            min={1}
-            max={totalPages}
-            value={currentPage}
-            onChange={(e: { target: { value: string } }) => {
-              const page = Number.parseInt(e.target.value);
-              if (page >= 1 && page <= totalPages) {
-                setCurrentPage(page);
-              }
-            }}
-            className="w-16 text-center"
-          />
-          <span className="text-sm text-muted-foreground">of {totalPages}</span>
+      <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-6">
+        <Input
+          type="text"
+          placeholder="Search videos..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="mb-4 md:mb-0"
+        />
+        <div className="flex space-x-4">
+          <Select value={sortField} onValueChange={setSortField}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sort By" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">Date</SelectItem>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="progress">Progress</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortOrder} onValueChange={setSortOrder}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Order" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="asc">Ascending</SelectItem>
+              <SelectItem value="desc">Descending</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Button
-          variant="outline"
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-        >
-          Next <ChevronRight className="h-4 w-4 ml-2" />
-        </Button>
       </div>
+      <Suspense fallback={<VideoCardsSkeleton />}>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          {paginatedVideos.map((video) => (
+            <VideoCard
+              key={video.video.uuid}
+              title={video.title}
+              description={video.description}
+              video={video.video}
+              computedProgress={video.computedProgress}
+            />
+          ))}
+        </motion.div>
+      </Suspense>
+      <Pagination
+        currentPage={safeCurrentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Suspense fallback={<VideoCardsSkeleton />}>
+        <VideosContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

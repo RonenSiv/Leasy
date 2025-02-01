@@ -1,3 +1,4 @@
+// /hooks/use-client.ts
 "use client";
 
 import { useAuth } from "@/context/auth-context";
@@ -9,10 +10,20 @@ export function useClient() {
 
   return {
     ...auth,
-    lectures: auth.user ? lectures.lectures : null,
-    createLecture: auth.user ? lectures.createLecture : null,
-    fetchLectures: auth.user ? lectures.fetchLectures : null,
-    updateLastWatchedTime: auth.user ? lectures.updateLastWatchedTime : null,
+    lectures: lectures.lectures,
+    createLecture: lectures.createLecture,
+    fetchLectures: lectures.fetchLectures,
+    // Instead of returning null when there’s no user,
+    // always return a function. If the user isn’t loaded,
+    // this function will immediately throw.
+    getLectures:
+      lectures.getLectures ??
+      (async () => {
+        throw new Error(
+          "Not authenticated or getLectures function is not available",
+        );
+      }),
+    updateLastWatchedTime: lectures.updateLastWatchedTime,
     lecturesLoading: lectures.isLoading,
     lecturesError: lectures.error,
   };
