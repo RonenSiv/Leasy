@@ -128,7 +128,7 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
 
   return (
     <Card>
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1">
         <div className="flex flex-col h-[400px]">
           {/* Chat messages scrollable container */}
           <div className="flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>

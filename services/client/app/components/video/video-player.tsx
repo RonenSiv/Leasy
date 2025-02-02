@@ -33,7 +33,7 @@ export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
   }, [currentTime, videoId]);
 
   return (
-    <div className="aspect-video bg-black">
+    <div className="aspect-video bg-black flex-1">
       <video
         ref={videoRef}
         src={videoUrl}
