@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { EmptyState } from "../components/empty-state";
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -277,8 +278,8 @@ function VideosContent() {
   }, [filteredVideos, sortField, sortOrder]);
 
   // Client-side pagination of the sorted list.
-  const totalPages = Math.ceil(sortedVideos.length / itemsPerPage) || 1;
-  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const totalPages = Math.ceil(sortedVideos.length / itemsPerPage);
+  const safeCurrentPage = Math.min(currentPage, totalPages || 1);
   const paginatedVideos = useMemo(() => {
     const startIdx = (safeCurrentPage - 1) * itemsPerPage;
     return sortedVideos.slice(startIdx, startIdx + itemsPerPage);
@@ -320,30 +321,36 @@ function VideosContent() {
           </Select>
         </div>
       </div>
-      <Suspense fallback={<VideoCardsSkeleton />}>
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {paginatedVideos.map((video) => (
-            <VideoCard
-              key={video.video.uuid}
-              lectureId={video.uuid}
-              title={video.title}
-              description={video.description}
-              video={video.video}
-              computedProgress={video.computedProgress}
-            />
-          ))}
-        </motion.div>
-      </Suspense>
-      <Pagination
-        currentPage={safeCurrentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      {sortedVideos.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          <Suspense fallback={<VideoCardsSkeleton />}>
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {paginatedVideos.map((video) => (
+                <VideoCard
+                  key={video.video.uuid}
+                  lectureId={video.uuid}
+                  title={video.title}
+                  description={video.description}
+                  video={video.video}
+                  computedProgress={video.computedProgress}
+                />
+              ))}
+            </motion.div>
+          </Suspense>
+          <Pagination
+            currentPage={safeCurrentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
+      )}
     </div>
   );
 }

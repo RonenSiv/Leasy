@@ -17,12 +17,12 @@ import { VideoPreviewResource } from "@/types";
 import { useClient } from "@/hooks/use-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { EmptyState } from "../empty-state";
 
 const RECENT_VIDEOS_COUNT = 3;
 
 function useRecentVideos() {
   const client = useClient();
-
   return useSuspenseQuery<VideoPreviewResource[]>({
     queryKey: ["recentVideos"],
     queryFn: async () => {
@@ -38,26 +38,24 @@ function useRecentVideos() {
 
 export function DashboardContent() {
   const { data: recentVideos } = useRecentVideos();
-  const clinet = useClient();
+  const client = useClient();
   const [stats, setStats] = useState({
     total_videos: 0,
     completed_videos: 0,
     overall_progress: 0,
   });
-
   const [progress, setProgress] = useState({
     current: 0,
     total: 0,
   });
 
   useEffect(() => {
-    const { dashboard, videos } = clinet.lectures;
+    const { dashboard, videos } = client.lectures;
     setStats({
       total_videos: dashboard.total_videos,
       completed_videos: dashboard.completed_videos,
       overall_progress: dashboard.overall_progress,
     });
-
     setProgress({
       current: videos.reduce(
         (acc, videoData) => acc + videoData.video.last_watched_time,
@@ -68,17 +66,20 @@ export function DashboardContent() {
         0,
       ),
     });
-  }, [recentVideos, clinet.lectures]);
+  }, [recentVideos, client.lectures]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="space-y-8"
     >
-      <h1 className="text-3xl font-bold mb-6">Welcome back!</h1>
+      {/* Header */}
+      <h1 className="text-3xl font-bold">Welcome back!</h1>
 
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      {/* Stats */}
+      <div className="grid gap-6 md:grid-cols-3">
         <StatCard
           icon={<Clock className="h-6 w-6" />}
           title="Total Videos"
@@ -96,7 +97,8 @@ export function DashboardContent() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mb-8">
+      {/* Progress & Weekly Stats */}
+      <div className="grid gap-6 md:grid-cols-1">
         <Card>
           <CardHeader>
             <CardTitle>Your Progress</CardTitle>
@@ -106,34 +108,36 @@ export function DashboardContent() {
             <VideoProgress current={progress.current} total={progress.total} />
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Statistics</CardTitle>
-            <CardDescription>
-              Your performance over the last 7 days
-            </CardDescription>
-          </CardHeader>
-        </Card>
       </div>
 
-      <h2 className="text-2xl font-semibold mb-4">Recent Videos</h2>
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+      {/* Recent Videos Section */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Recent Videos</h2>
         {recentVideos.length ? (
-          recentVideos.map((video) => <VideoCard key={video.uuid} {...video} />)
+          <div className="grid md:grid-cols-3 gap-6">
+            {recentVideos.map((video) => (
+              <VideoCard key={video.uuid} {...video} />
+            ))}
+          </div>
         ) : (
-          <h2>No Videos Found</h2>
+          // Center the empty state within the section
+          <div className="flex items-center justify-center py-20">
+            <EmptyState />
+          </div>
         )}
       </div>
 
-      <div className="flex justify-between items-center">
-        <Button asChild>
-          <Link href="/upload">Upload New Video</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/browse">Browse All Videos</Link>
-        </Button>
-      </div>
+      {/* Navigation Buttons */}
+      {recentVideos.length > 0 && (
+        <div className="flex justify-between items-center">
+          <Button asChild>
+            <Link href="/upload">Upload New Video</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/browse">Browse All Videos</Link>
+          </Button>
+        </div>
+      )}
     </motion.div>
   );
 }
