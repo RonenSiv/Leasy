@@ -10,14 +10,21 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { VideoPreviewResource } from "@/types";
 
-export function VideoCard({ title, description, video }: VideoPreviewResource) {
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
+export function VideoCard({
+  uuid,
+  title,
+  description,
+  video,
+}: VideoPreviewResource) {
   return (
     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
       <Card className="h-full flex flex-col overflow-hidden">
         <div className="relative h-72">
           {" "}
           <img
-            src={video.preview_image_url || "/placeholder.svg"}
+            src={`${baseUrl}${video.preview_image_url}` || "/placeholder.svg"}
             alt={title}
             className="w-full h-full object-cover"
           />
@@ -28,7 +35,7 @@ export function VideoCard({ title, description, video }: VideoPreviewResource) {
         </CardHeader>
         <CardFooter className="mt-auto">
           <Button asChild className="w-full">
-            <Link href={`/video/${video.uuid}`}>View Video</Link>
+            <Link href={`/video/${uuid}`}>View Video</Link>
           </Button>
         </CardFooter>
       </Card>

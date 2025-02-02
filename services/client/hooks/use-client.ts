@@ -1,4 +1,3 @@
-// /hooks/use-client.ts
 "use client";
 
 import { useAuth } from "@/context/auth-context";
@@ -13,9 +12,6 @@ export function useClient() {
     lectures: lectures.lectures,
     createLecture: lectures.createLecture,
     fetchLectures: lectures.fetchLectures,
-    // Instead of returning null when there’s no user,
-    // always return a function. If the user isn’t loaded,
-    // this function will immediately throw.
     getLectures:
       lectures.getLectures ??
       (async () => {

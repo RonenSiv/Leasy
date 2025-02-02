@@ -17,18 +17,7 @@ import { useEffect, useState } from "react";
 import { DashboardResource, VideoPreviewResource } from "@/types";
 import { useClient } from "@/hooks/use-client";
 
-interface DashboardContentProps {
-  recentVideos: any[];
-  stats: {
-    totalWatchTime: number;
-    totalViews: number;
-    averageEngagement: number;
-  };
-  weeklyStats: {
-    watchTime: number[];
-    views: number[];
-  };
-}
+const RECENT_VIDEOS_COUNT = 3;
 
 const getTotalMinutes = (videos: VideoPreviewResource[] = []) => {
   return videos.reduce(
@@ -45,9 +34,7 @@ const getTotalMinutesWatched = (videos: VideoPreviewResource[] = []) => {
 };
 
 export function DashboardContent() {
-  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const [stats, setStats] = useState<Partial<DashboardResource>>({});
-  const [weeklyStats, setWeeklyStats] = useState({});
   const [recentVideos, setRecentVideos] = useState<VideoPreviewResource[]>([]);
   const [progress, setProgress] = useState<{
     current: number;
@@ -71,20 +58,19 @@ export function DashboardContent() {
     };
 
     const fetchRecentVideos = async () => {
-      const videos = client.lectures?.videos?.slice(0, 3) || [];
-      console.log(videos);
+      const videos =
+        (
+          await client.getLectures({
+            page: 1,
+            sortBy: "created_at",
+            sortDirection: "desc",
+          })
+        ).data.videos.slice(0, RECENT_VIDEOS_COUNT) || [];
       setRecentVideos(videos);
-    };
-
-    const fetchWeeklyStats = async () => {
-      const watchTime = [120, 150, 90, 200, 180, 210, 240];
-      const views = [100, 120, 80, 150, 130, 160, 180];
-      setWeeklyStats({ watchTime, views });
     };
 
     fetchStats();
     fetchRecentVideos();
-    fetchWeeklyStats();
   }, [client.lectures]);
 
   return (
@@ -131,10 +117,6 @@ export function DashboardContent() {
               Your performance over the last 7 days
             </CardDescription>
           </CardHeader>
-          {/*<CardContent>*/}
-          {/*  <LineChart data={weeklyStats?.watchTime} labels={weekDays} />*/}
-          {/*  <BarChart data={weeklyStats?.views} labels={weekDays} />*/}
-          {/*</CardContent>*/}
         </Card>
       </div>
 

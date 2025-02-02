@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { api } from "@/app/api";
-import { Lecture } from "@/types";
+import type { Lecture } from "@/types";
 
 export function VideoContent({ videoData }: { videoData: Lecture }) {
   const [message, setMessage] = useState("");
@@ -25,7 +25,7 @@ export function VideoContent({ videoData }: { videoData: Lecture }) {
 
     try {
       const response = await api.lecture.sendChatMessage(
-        videoData.video.uuid,
+        videoData.chat.uuid,
         message,
       );
       setChatMessages((prev) => [
@@ -38,31 +38,41 @@ export function VideoContent({ videoData }: { videoData: Lecture }) {
   };
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <Tabs defaultValue="transcription" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+    <Card className="h-full">
+      <CardContent className="p-0 h-full">
+        <Tabs
+          defaultValue="transcription"
+          className="w-full h-full flex flex-col"
+        >
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="transcription">Transcription</TabsTrigger>
             <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="quizlets">Quizlets</TabsTrigger>
             <TabsTrigger value="chat">AI Chat</TabsTrigger>
           </TabsList>
-          <TabsContent value="transcription">
-            <ScrollArea className="h-[calc(100vh-24rem)]">
-              <p className="text-sm leading-relaxed p-4">
-                {videoData?.transcription || "Transcription not available yet."}
-              </p>
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent value="summary">
-            <ScrollArea className="h-[calc(100vh-24rem)]">
-              <p className="text-sm leading-relaxed p-4">
-                {videoData?.summary || "Summary not available yet."}
-              </p>
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent value="chat">
-            <div className="h-[calc(100vh-24rem)] flex flex-col">
-              <ScrollArea className="flex-1 p-4">
+          <div className="flex-grow overflow-hidden">
+            <TabsContent value="transcription" className="h-full">
+              <ScrollArea className="h-full">
+                <div className="p-4 text-sm">
+                  {videoData?.transcription ||
+                    "Transcription not available yet."}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value="summary" className="h-full">
+              <ScrollArea className="h-full">
+                <div className="p-4 text-sm">
+                  {videoData?.summary || "Summary not available yet."}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value="quizlets" className="h-full">
+              <ScrollArea className="h-full">
+                <div className="p-4 text-sm">Quizlets not available yet.</div>
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value="chat" className="h-full flex flex-col">
+              <ScrollArea className="flex-grow p-4">
                 <div className="space-y-4">
                   {chatMessages.map((msg, i) => (
                     <div
@@ -92,8 +102,8 @@ export function VideoContent({ videoData }: { videoData: Lecture }) {
                   <Send className="h-4 w-4" />
                 </Button>
               </form>
-            </div>
-          </TabsContent>
+            </TabsContent>
+          </div>
         </Tabs>
       </CardContent>
     </Card>

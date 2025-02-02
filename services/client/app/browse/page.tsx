@@ -31,11 +31,13 @@ function formatDuration(seconds: any): string {
 
 // VideoCard component using shadcn Card and styled similar to YouTube
 function VideoCard({
+  lectureId,
   title,
   description,
   video,
   computedProgress,
 }: {
+  lectureId: string;
   title: string;
   description: string;
   video: {
@@ -47,7 +49,7 @@ function VideoCard({
   computedProgress: number;
 }) {
   return (
-    <Link href={`/video/${video.uuid}`}>
+    <Link href={`/video/${lectureId}`}>
       <motion.div whileHover={{ scale: 1.05 }} className="cursor-pointer">
         <Card className="group overflow-hidden">
           <div className="relative">
@@ -92,11 +94,11 @@ function VideoCard({
 // Helper function to fetch all pages and combine videos
 async function fetchAllVideos(client: ReturnType<typeof useClient>) {
   const firstPageResponse = await client.getLectures({ page: 1 });
-  const firstPageData = firstPageResponse.data;
+  const firstPageData = firstPageResponse?.data;
   const pageSize = 6;
-  const totalVideos = firstPageData.dashboard.total_videos || 0;
+  const totalVideos = firstPageData?.dashboard.total_videos || 0;
   const totalPages = Math.ceil(totalVideos / pageSize);
-  let allVideos = firstPageData.videos || [];
+  let allVideos = firstPageData?.videos || [];
 
   if (totalPages > 1) {
     const otherPagePromises = [];
@@ -234,7 +236,6 @@ function VideosContent() {
       return fetchAllVideos(client);
     },
   });
-
   const allVideos = data.videos;
 
   // Filter videos client-side based on the search term.
@@ -329,6 +330,7 @@ function VideosContent() {
           {paginatedVideos.map((video) => (
             <VideoCard
               key={video.video.uuid}
+              lectureId={video.uuid}
               title={video.title}
               description={video.description}
               video={video.video}

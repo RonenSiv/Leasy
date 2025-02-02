@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { VideoPlayer } from "../../components/video/video-player";
-import { VideoContent } from "../../components/video/video-content";
 import { VideoSkeleton } from "../../components/video/video-skeleton";
+import { VideoChat } from "../../components/video/video-chat";
+import { VideoInfoTabs } from "../../components/video/video-info-tabs";
 import { api } from "@/app/api/server-api";
 
 async function getLectureData(id: string) {
@@ -9,6 +10,7 @@ async function getLectureData(id: string) {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+
 export default function VideoPage({ params }: { params: { id: string } }) {
   return (
     <Suspense fallback={<VideoSkeleton />}>
@@ -18,21 +20,23 @@ export default function VideoPage({ params }: { params: { id: string } }) {
 }
 
 async function VideoPageContent({ id }: { id: string }) {
-  console.log("id:", id);
   const { data } = await getLectureData(id);
-  console.log(data);
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">{data?.title}</h1>
-      <div className="grid lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 space-y-6">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left Column: Video player on top, Chat below */}
+        <div className="flex flex-col lg:w-1/2 space-y-6">
           <VideoPlayer
             videoUrl={`${baseUrl}${data?.video?.video_url}`}
             videoId={data?.video?.uuid}
           />
-          <VideoContent videoData={data} />
+          <VideoChat videoData={data} />
         </div>
-        <div className="lg:col-span-2">{/* Sidebar content */}</div>
+        {/* Right Column: Tabs for transcription, summary, and quizlets */}
+        <div className="lg:w-1/2">
+          <VideoInfoTabs videoData={data} />
+        </div>
       </div>
     </div>
   );
