@@ -18,7 +18,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { SettingsConfirmationModal } from "../settings/settings-confirmation-modal";
-import { toast } from "@/hooks/use-toast";
 import { useClient } from "@/hooks/use-client";
 
 export function SettingsForm() {
@@ -104,10 +103,6 @@ export function SettingsForm() {
       keyboardShortcuts,
       enhancedScreenReader,
       colorScheme,
-    });
-    toast({
-      title: "Settings saved",
-      description: "Your settings have been updated successfully.",
     });
   };
 

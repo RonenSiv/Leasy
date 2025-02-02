@@ -11,8 +11,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "@/hooks/use-toast";
 import { useClient } from "@/hooks/use-client";
+import toast from "react-hot-toast";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -40,19 +40,10 @@ export function LoginForm() {
     setError(null);
     try {
       await client.login(data.email, data.password);
-      toast({
-        title: "Logged in successfully!",
-        description: "Welcome back to Leasy.",
-      });
-
+      toast.success("Login successful");
       router.push("/dashboard");
     } catch (error) {
       setError("Login failed. Please check your credentials and try again.");
-      toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -66,10 +57,12 @@ export function LoginForm() {
           id="email"
           type="email"
           {...register("email")}
-          className={errors.email ? "border-red-500" : ""}
+          className={errors.email ? "dark:border-red-200 border-red-500" : ""}
         />
         {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          <p className="dark:text-red-200 text-red-500 text-sm mt-1">
+            {errors.email.message}
+          </p>
         )}
       </div>
       <div>

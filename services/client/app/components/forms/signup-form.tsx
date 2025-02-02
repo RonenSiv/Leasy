@@ -11,8 +11,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "@/hooks/use-toast";
 import { useClient } from "@/hooks/use-client";
+import toast from "react-hot-toast";
 
 const signupSchema = z
   .object({
@@ -56,18 +56,10 @@ export function SignupForm() {
     setError(null);
     try {
       await client.signup(data.email, data.password, data.fullName);
-      toast({
-        title: "Account created successfully!",
-        description: "Welcome to Leasy.",
-      });
+      toast.success("Signup successful");
       router.push("/dashboard");
     } catch (error) {
       setError("Signup failed. Please try again.");
-      toast({
-        title: "Signup failed",
-        description: "Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +72,14 @@ export function SignupForm() {
         <Input
           id="fullName"
           {...register("fullName")}
-          className={errors.fullName ? "border-red-500" : ""}
+          className={
+            errors.fullName ? "dark:border-red-200 border-red-500" : ""
+          }
         />
         {errors.fullName && (
-          <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
+          <p className="dark:text-red-200 text-red-500 text-sm mt-1">
+            {errors.fullName.message}
+          </p>
         )}
       </div>
       <div>
@@ -92,10 +88,12 @@ export function SignupForm() {
           id="email"
           type="email"
           {...register("email")}
-          className={errors.email ? "border-red-500" : ""}
+          className={errors.email ? "dark:border-red-200 border-red-500" : ""}
         />
         {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          <p className="dark:text-red-200 text-red-500 text-sm mt-1">
+            {errors.email.message}
+          </p>
         )}
       </div>
       <div>
@@ -104,10 +102,14 @@ export function SignupForm() {
           id="password"
           type="password"
           {...register("password")}
-          className={errors.password ? "border-red-500" : ""}
+          className={
+            errors.password ? "dark:border-red-200 border-red-500" : ""
+          }
         />
         {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+          <p className="dark:text-red-200 text-red-500 text-sm mt-1">
+            {errors.password.message}
+          </p>
         )}
       </div>
       <div>
@@ -116,10 +118,12 @@ export function SignupForm() {
           id="confirmPassword"
           type="password"
           {...register("confirmPassword")}
-          className={errors.confirmPassword ? "border-red-500" : ""}
+          className={
+            errors.confirmPassword ? "dark:border-red-200 border-red-500" : ""
+          }
         />
         {errors.confirmPassword && (
-          <p className="text-red-500 text-sm mt-1">
+          <p className="dark:text-red-200 text-red-500 text-sm mt-1">
             {errors.confirmPassword.message}
           </p>
         )}

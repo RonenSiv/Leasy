@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +12,7 @@ import { useSettings } from "@/context/settings-context";
 import { useClient } from "@/hooks/use-client";
 import Image from "next/image";
 import { api } from "@/app/api";
+import toast from "react-hot-toast";
 
 export function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -28,11 +28,7 @@ export function UploadForm() {
 
   useEffect(() => {
     if (!client.user) {
-      toast({
-        title: "Authentication required",
-        description: "Please login to upload videos",
-        variant: "destructive",
-      });
+      toast.error("You must be logged in to upload a video");
       router.push("/login");
     }
   }, [client.user, router]);
@@ -67,12 +63,9 @@ export function UploadForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log(file, client.user?.uuid);
     if (!file || !client.user?.uuid) {
-      toast({
-        title: "Missing required information",
-        description: "Please select a file and ensure you're logged in",
-        variant: "destructive",
-      });
+      toast.error("Please select a file to upload");
       return;
     }
 
@@ -103,19 +96,11 @@ export function UploadForm() {
 
       await client.fetchLectures?.();
 
-      toast({
-        title: "Upload successful!",
-        description: "Video processing started",
-      });
+      toast.success("Video uploaded successfully");
       router.push(`/video/${response.data.uuid}`);
     } catch (error) {
       console.error("Upload error:", error);
-      toast({
-        title: "Upload failed",
-        description:
-          error instanceof Error ? error.message : "Unknown error occurred",
-        variant: "destructive",
-      });
+      toast.error("Failed to upload video. Please try again");
     } finally {
       setUploading(false);
       setUploadProgress(0);
