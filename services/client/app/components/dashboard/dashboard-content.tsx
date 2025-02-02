@@ -44,6 +44,7 @@ export function DashboardContent() {
     completed_videos: 0,
     overall_progress: 0,
   });
+  // Use numbers (seconds) for progress.
   const [progress, setProgress] = useState({
     current: 0,
     total: 0,
@@ -56,15 +57,18 @@ export function DashboardContent() {
       completed_videos: dashboard.completed_videos,
       overall_progress: dashboard.overall_progress,
     });
+    const currentSeconds = videos.reduce(
+      (acc, videoData) => acc + videoData.video.last_watched_time,
+      0,
+    );
+    const totalSeconds = videos.reduce(
+      (acc, videoData) => acc + videoData.video.video_duration,
+      0,
+    );
+
     setProgress({
-      current: videos.reduce(
-        (acc, videoData) => acc + videoData.video.last_watched_time,
-        0,
-      ),
-      total: videos.reduce(
-        (acc, videoData) => acc + videoData.video.video_duration,
-        0,
-      ),
+      current: currentSeconds,
+      total: totalSeconds,
     });
   }, [recentVideos, client.lectures]);
 
