@@ -28,7 +28,7 @@ async function VideoPageContent({ id }: { id: string }) {
         {/* Left Column: Video player and Chat */}
         <div className="flex flex-col lg:w-1/2 gap-2 ">
           <VideoPlayer
-            videoUrl={`${baseUrl}${data?.video?.video_url}`}
+            videoUrl={data?.video?.video_url}
             videoId={data?.video?.uuid}
           />
           <VideoChat videoData={data} />

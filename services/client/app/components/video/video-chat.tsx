@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { api } from "@/app/api";
 import { Lecture } from "@/types";
+import { Spinner } from "@/app/components/spinner";
 
 type ChatMessage = {
   role: string;
@@ -47,7 +48,6 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
     async function fetchChatHistory() {
       try {
         const allMessages = await fetchAllChatMessages(videoData.chat.uuid);
-        console.log("All chat messages:", allMessages);
         if (allMessages) {
           const transformed: ChatMessage[] = allMessages
             .map((msg: any) => ({
@@ -88,7 +88,6 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
         videoData.chat.uuid,
         userMessage,
       );
-      console.log("Chat send response:", response);
 
       let assistantMessage = "";
       if (
@@ -102,8 +101,6 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
       } else if (response?.data) {
         assistantMessage = response.data;
       }
-
-      console.log("Extracted assistant message:", assistantMessage);
 
       // Replace the pending assistant message with the actual response.
       setChatMessages((prev) =>
@@ -134,27 +131,7 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
           <div className="flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
             {isChatHistoryLoading ? (
               <div className="flex flex-col items-center justify-center h-full">
-                <svg
-                  className="animate-spin h-6 w-6 text-gray-500"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  ></path>
-                </svg>
-                <p className="mt-2 text-sm text-gray-500">
-                  Loading messages...
-                </p>
+                <Spinner />
               </div>
             ) : (
               <div className="space-y-4">
@@ -175,26 +152,7 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
                         }`}
                       >
                         {msg.content || (isPending ? "" : "")}
-                        {isPending && (
-                          <svg
-                            className="animate-spin ml-2 h-4 w-4 text-gray-500"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8v8H4z"
-                            ></path>
-                          </svg>
-                        )}
+                        {isPending && <Spinner className={`h-4 w-4`} />}
                       </div>
                     </div>
                   );
