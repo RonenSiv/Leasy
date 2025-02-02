@@ -13,65 +13,62 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { VideoProgress } from "../video-progress";
 import { Clock, Eye, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { DashboardResource, VideoPreviewResource } from "@/types";
+import { VideoPreviewResource } from "@/types";
 import { useClient } from "@/hooks/use-client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 const RECENT_VIDEOS_COUNT = 3;
 
-const getTotalMinutes = (videos: VideoPreviewResource[] = []) => {
-  return videos.reduce(
-    (acc, video) => acc + video.video.video_duration / 60,
-    0,
-  );
-};
-
-const getTotalMinutesWatched = (videos: VideoPreviewResource[] = []) => {
-  return videos.reduce(
-    (acc, video) => acc + video.video.last_watched_time / 60,
-    0,
-  );
-};
-
-export function DashboardContent() {
-  const [stats, setStats] = useState<Partial<DashboardResource>>({});
-  const [recentVideos, setRecentVideos] = useState<VideoPreviewResource[]>([]);
-  const [progress, setProgress] = useState<{
-    current: number;
-    total: number;
-  }>({ current: 0, total: 0 });
-
+function useRecentVideos() {
   const client = useClient();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const stats = {
-        total_videos: client.lectures?.dashboard.total_videos,
-        overall_progress: client.lectures?.dashboard.overall_progress,
-        completed_videos: client.lectures?.dashboard.completed_videos,
-      } as Partial<DashboardResource>;
-      setStats(stats);
-      setProgress({
-        current: getTotalMinutesWatched(client.lectures?.videos),
-        total: getTotalMinutes(client.lectures?.videos),
+  return useSuspenseQuery<VideoPreviewResource[]>({
+    queryKey: ["recentVideos"],
+    queryFn: async () => {
+      const response = await client.getLectures({
+        page: 1,
+        sortBy: "created_at",
+        sortDirection: "desc",
       });
-    };
+      return response.data.videos.slice(0, RECENT_VIDEOS_COUNT);
+    },
+  });
+}
 
-    const fetchRecentVideos = async () => {
-      const videos =
-        (
-          await client.getLectures({
-            page: 1,
-            sortBy: "created_at",
-            sortDirection: "desc",
-          })
-        ).data.videos.slice(0, RECENT_VIDEOS_COUNT) || [];
-      setRecentVideos(videos);
-    };
+export function DashboardContent() {
+  const { data: recentVideos } = useRecentVideos();
+  const clinet = useClient();
+  const [stats, setStats] = useState({
+    total_videos: 0,
+    completed_videos: 0,
+    overall_progress: 0,
+  });
 
-    fetchStats();
-    fetchRecentVideos();
-  }, [client.lectures]);
+  const [progress, setProgress] = useState({
+    current: 0,
+    total: 0,
+  });
+
+  useEffect(() => {
+    const { dashboard, videos } = clinet.lectures;
+    setStats({
+      total_videos: dashboard.total_videos,
+      completed_videos: dashboard.completed_videos,
+      overall_progress: dashboard.overall_progress,
+    });
+
+    setProgress({
+      current: videos.reduce(
+        (acc, videoData) => acc + videoData.video.last_watched_time,
+        0,
+      ),
+      total: videos.reduce(
+        (acc, videoData) => acc + videoData.video.video_duration,
+        0,
+      ),
+    });
+  }, [recentVideos, clinet.lectures]);
 
   return (
     <motion.div

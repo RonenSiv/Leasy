@@ -20,6 +20,14 @@ interface LectureContextType {
   updateLastWatchedTime: (uuid: string, time: number) => Promise<void>;
 }
 
+const queryKeys = {
+  lectures: (userId?: string) => ["lectures", userId],
+  allLectures: ["allLectures"],
+  recentVideos: ["recentVideos"],
+  dashboardData: ["dashboardData"],
+  lecture: (id: string) => ["lecture", id],
+} as const;
+
 const LectureContext = createContext<LectureContextType | undefined>(undefined);
 
 export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -28,12 +36,28 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  // Helper function to update all relevant caches
+  const invalidateAllLectureQueries = () => {
+    return queryClient.invalidateQueries({
+      predicate: (query) => {
+        const queryKey = query.queryKey[0] as string;
+        return (
+          queryKey === "allLectures" ||
+          queryKey === "lectures" ||
+          queryKey === "recentVideos" ||
+          queryKey === "dashboardData" ||
+          queryKey === "lecture"
+        );
+      },
+    });
+  };
+
   const {
     data: lecturesData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["lectures", user?.uuid],
+    queryKey: queryKeys.lectures(user?.uuid),
     queryFn: () => api.lecture.getLectures(),
     enabled: !!user?.uuid,
     staleTime: 1000 * 60 * 5,
@@ -42,73 +66,63 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
   const createLectureMutation = useMutation({
     mutationFn: (lectureData: FormData) =>
       api.lecture.createLecture(lectureData),
-    onSuccess: async (newLecture) => {
-      // Get the current lectures data
-      const currentData = queryClient.getQueryData<{
-        data: LecturesPreviewResource;
-      }>(["lectures", user?.uuid]);
-
-      if (currentData) {
-        // Create a new lectures object with the updated data
-        const updatedData = {
+    onSuccess: (newLecture) => {
+      // Optimistically update the cache
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.lectures(user?.uuid) },
+        (old: any) => ({
           data: {
             dashboard: {
-              ...currentData.data.dashboard,
-              total_videos: (currentData.data.dashboard.total_videos || 0) + 1,
+              ...old.data.dashboard,
+              total_videos: (old.data.dashboard.total_videos || 0) + 1,
             },
-            videos: [newLecture, ...(currentData.data.videos || [])],
+            videos: [newLecture, ...(old.data.videos || [])],
           },
-        };
+        }),
+      );
 
-        // Update the cache immediately
-        queryClient.setQueryData(["lectures", user?.uuid], updatedData);
-      }
-
-      // Still refetch in the background to ensure consistency
-      await queryClient.invalidateQueries({
-        queryKey: ["lectures", user?.uuid],
-        exact: true,
-      });
+      // Invalidate all queries to ensure consistency
+      return invalidateAllLectureQueries();
     },
   });
 
   const updateLastWatchedTimeMutation = useMutation({
     mutationFn: ({ uuid, time }: { uuid: string; time: number }) =>
       api.lecture.updateLastWatchedTime(uuid, time),
-    onSuccess: async (_, { uuid, time }) => {
-      // Get the current lectures data
-      const currentData = queryClient.getQueryData<{
-        data: LecturesPreviewResource;
-      }>(["lectures", user?.uuid]);
+    onMutate: async ({ uuid, time }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.lectures(user?.uuid),
+      });
 
-      if (currentData) {
-        const updatedData = {
-          data: {
-            ...currentData.data,
-            videos: currentData.data.videos.map((video) =>
-              video.uuid === uuid
-                ? {
-                    ...video,
-                    video: { ...video.video, last_watched_time: time },
-                  }
-                : video,
-            ),
-          },
+      // Update the video in all relevant queries
+      const updateVideo = (data: any) => {
+        if (!data?.videos) return data;
+        return {
+          ...data,
+          videos: data.videos.map((video: any) =>
+            video.uuid === uuid
+              ? {
+                  ...video,
+                  video: { ...video.video, last_watched_time: time },
+                }
+              : video,
+          ),
         };
+      };
 
-        // Update the cache immediately
-        queryClient.setQueryData(["lectures", user?.uuid], updatedData);
-      }
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.lectures(user?.uuid) },
+        (old: any) => updateVideo(old),
+      );
 
-      // Invalidate queries to refetch in background
-      await queryClient.invalidateQueries({
-        queryKey: ["lectures", user?.uuid],
-        exact: true,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ["lecture", uuid],
-        exact: true,
-      });
+      queryClient.setQueriesData(
+        { queryKey: queryKeys.recentVideos },
+        (old: any) => updateVideo(old),
+      );
+    },
+    onSettled: () => {
+      return invalidateAllLectureQueries();
     },
   });
 
@@ -118,8 +132,7 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
     lectures,
     isLoading,
     error,
-    fetchLectures: () =>
-      queryClient.invalidateQueries({ queryKey: ["lectures", user?.uuid] }),
+    fetchLectures: invalidateAllLectureQueries,
     createLecture: async (lectureData) => {
       if (!user?.uuid) throw new Error("User not authenticated");
       return createLectureMutation.mutateAsync(lectureData);
@@ -128,13 +141,9 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
       await updateLastWatchedTimeMutation.mutateAsync({ uuid, time });
     },
     getLectures: async ({
-      page,
-      sortBy,
-      sortDirection,
-    }: {
-      page?: number;
-      sortBy?: string;
-      sortDirection?: string;
+      page = 1,
+      sortBy = "created_at",
+      sortDirection = "desc",
     }) => {
       return api.lecture.getLectures(page, sortBy, sortDirection);
     },

@@ -1,3 +1,4 @@
+// UploadPage.tsx
 import { Suspense } from "react";
 import { UploadForm } from "../components/forms/upload-form";
 import { UploadSkeleton } from "./skeleton";

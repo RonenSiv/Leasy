@@ -122,8 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     mutationFn: api.auth.logout,
     onSuccess: () => {
       queryClient.setQueryData(["authUser"], null);
-      // Clear lectures data on logout
-      queryClient.removeQueries({ queryKey: ["lectures"] });
+      queryClient.clear();
     },
     onError: (error) => {
       console.error("Logout error:", error);
