@@ -20,28 +20,28 @@ class QuizService
         [
             'question' => 'why?',
             'options' => [
-                1 => '1option 1',
-                2 => '1option 2',
-                'correct' => '1option 3',
-                3 => '1option 4',
+                1 => 'option 1',
+                2 => 'option 2',
+                'correct' => 'option 3',
+                3 => 'option 4',
             ]
         ],
         [
             'question' => 'how?',
             'options' => [
-                'correct' => '2option 1',
-                2 => '2option 2',
-                3 => '2option 3',
-                4 => '2option 4',
+                'correct' => 'option 1',
+                2 => 'option 2',
+                3 => 'option 3',
+                4 => 'option 4',
             ]
         ],
         [
             'question' => 'where?',
             'options' => [
-                'correct' => '3option 1',
-                2 => '3option 2',
-                3 => '3option 3',
-                4 => '3option 4',
+                'correct' => 'option 1',
+                2 => 'option 2',
+                3 => 'option 3',
+                4 => 'option 4',
             ]
         ],
     ];
@@ -69,6 +69,7 @@ class QuizService
             }
             // DELETE: before prod
             // TODO: cast the quiz string to array
+            // $quizQuestions = [];
             $quizQuestions = self::DEMO_QUIZ;
 
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
@@ -93,7 +94,7 @@ class QuizService
                 return HTTP_Status::NOT_FOUND;
             }
 
-            return  QuestionResource::collection($quiz->questions);
+            return QuestionResource::collection($quiz->questions);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HTTP_Status::ERROR;

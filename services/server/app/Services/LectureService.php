@@ -93,7 +93,7 @@ class LectureService
         }
     }
 
-    public function index(string $sortBy, string $sortDirection)
+    public function index(string|null $searchByTitle, string $sortBy, string $sortDirection)
     {
         try {
             $sortableColumns = [
@@ -106,6 +106,10 @@ class LectureService
 
             $lecturesQuery = Lecture::with('video.videoUserProgresses')
                 ->where('lectures.user_id', Auth::id());
+
+            if (!is_null($searchByTitle)) {
+                $lecturesQuery->where('lectures.title', 'LIKE', "{$searchByTitle}%");
+            }
 
             if ($sortBy === 'progress') {
                 $lecturesQuery->leftJoin('videos', 'lectures.video_id', '=', 'videos.id')

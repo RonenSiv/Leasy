@@ -64,7 +64,7 @@ class QuizController extends Controller
             };
         }
 
-        if (empty($result['data'])) {
+        if ($result->isEmpty()) {
             return response()->json(['message' => WhisperFailedEnum::QUIZ_FAILED->value], Response::HTTP_OK);
         }
 

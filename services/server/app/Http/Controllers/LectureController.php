@@ -149,6 +149,13 @@ class LectureController extends Controller
      *         @OA\Schema(type="integer", example=2)
      *     ),
      *     @OA\Parameter(
+     *         name="search_by_title",
+     *         in="query",
+     *         required=false,
+     *         description="Search lectures by title prefix (e.g., 'Intro' matches 'Introduction to Physics').",
+     *         @OA\Schema(type="string", example="Intro")
+     *     ),
+     *     @OA\Parameter(
      *         name="sort_by",
      *         in="query",
      *         required=false,
@@ -180,6 +187,7 @@ class LectureController extends Controller
     public function index(Request $request): JsonResponse
     {
         $result = $this->lectureService->index(
+            searchByTitle: $request->query('search_by_title', null),
             sortBy: $request->query('sort_by', 'date'),
             sortDirection: $request->query('sort_direction', 'asc')
         );
