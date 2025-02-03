@@ -88,7 +88,7 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateLastWatchedTimeMutation = useMutation({
     mutationFn: ({ uuid, time }: { uuid: string; time: number }) =>
-      api.lecture.updateLastWatchedTime(uuid, time),
+      api.lecture.updateLastWatchedTime(uuid, time + 1),
     onMutate: async ({ uuid, time }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
@@ -100,13 +100,17 @@ export const LectureProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!data?.videos) return data;
         return {
           ...data,
-          videos: data.videos.map((video: any) =>
-            video.uuid === uuid
+          videos: data.videos.map((lecture: any) =>
+            lecture.uuid === uuid
               ? {
-                  ...video,
-                  video: { ...video.video, last_watched_time: time },
+                  ...lecture,
+                  video: {
+                    ...lecture.video,
+                    last_watched_time: time + 1,
+                    is_completed: time - 1 >= lecture.video.video_duration,
+                  },
                 }
-              : video,
+              : lecture,
           ),
         };
       };

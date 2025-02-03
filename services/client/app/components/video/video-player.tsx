@@ -17,17 +17,21 @@ export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
   const client = useClient();
   const handleTimeUpdate = () => {
     if (videoRef.current) {
-      console.log("Current time:", Math.floor(videoRef.current.currentTime));
       const time = Math.floor(videoRef.current.currentTime);
       if (time - currentTime > 5) {
         updateLastWatchedTime(time);
         setCurrentTime(time);
       }
+
+      // check if the video has ended
+      if (videoRef.current.currentTime >= videoRef.current.duration - 1) {
+        updateLastWatchedTime(videoRef.current.duration);
+        setCurrentTime(videoRef.current.duration);
+      }
     }
   };
 
   const updateLastWatchedTime = (time: number = currentTime) => {
-    console.log("Updating last watched time:", time);
     client
       .updateLastWatchedTime(videoId, time)
       .catch((err) => console.error(err));
