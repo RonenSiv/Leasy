@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EmptyState } from "../empty-state";
-import { VideoCard } from "@/app/components/browse/video-card";
+import { VideoCard } from "@/app/components/video-card";
 import { VideoCardSkeleton } from "@/app/components/browse/video-card-skeleton";
 import { Lecture } from "@/types";
 

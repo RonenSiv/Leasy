@@ -17,7 +17,7 @@ import { useClient } from "@/hooks/use-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { EmptyState } from "../empty-state";
-import { VideoCard } from "@/app/components/browse/video-card";
+import { VideoCard } from "@/app/components/video-card";
 
 const RECENT_VIDEOS_COUNT = 3;
 

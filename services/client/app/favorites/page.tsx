@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSettings } from "@/context/settings-context";
-import { VideoCard } from "../components/video-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,7 +26,7 @@ export default function FavoritesPage() {
       // In a real application, you would fetch the user's favorites from an API
       // For this example, we'll use the fakeDb to simulate fetching favorites
       const userFavorites = fakeDb
-        .getUserVideos(client.user.id)
+        .getUserVideos(client.user.uuid)
         .filter((video) => video.isFavorite);
       setFavorites(userFavorites);
     }
@@ -92,7 +91,7 @@ export default function FavoritesPage() {
               key={video.id}
               variants={reduceMotion ? {} : itemVariants}
             >
-              <VideoCard {...video} />
+              {/*<VideoCard {...video} />*/}
             </motion.div>
           ))
         ) : (
