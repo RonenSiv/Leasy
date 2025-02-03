@@ -17,7 +17,9 @@ export default async function BrowsePage() {
         </div>
       }
     >
-      <VideosContent initialData={initialData} />
+      <div className={"container mx-auto px-4 sm:px-6 lg:px-8 py-10"}>
+        <VideosContent initialData={initialData} />
+      </div>
     </Suspense>
   );
 }
