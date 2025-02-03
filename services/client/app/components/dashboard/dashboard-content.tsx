@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { VideoCard } from "../video-card";
 import {
   Card,
   CardContent,
@@ -18,6 +17,7 @@ import { useClient } from "@/hooks/use-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { EmptyState } from "../empty-state";
+import { VideoCard } from "@/app/components/browse/video-card";
 
 const RECENT_VIDEOS_COUNT = 3;
 
@@ -51,17 +51,17 @@ export function DashboardContent() {
   });
 
   useEffect(() => {
-    const { dashboard, videos } = client.lectures;
+    const { dashboard, videos: lectures } = client.lectures;
     setStats({
       total_videos: dashboard.total_videos,
       completed_videos: dashboard.completed_videos,
       overall_progress: dashboard.overall_progress,
     });
-    const currentSeconds = videos.reduce(
+    const currentSeconds = lectures.reduce(
       (acc, videoData) => acc + videoData.video.last_watched_time,
       0,
     );
-    const totalSeconds = videos.reduce(
+    const totalSeconds = lectures.reduce(
       (acc, videoData) => acc + videoData.video.video_duration,
       0,
     );
@@ -119,8 +119,20 @@ export function DashboardContent() {
         <h2 className="text-2xl font-semibold mb-4">Recent Videos</h2>
         {recentVideos.length ? (
           <div className="grid md:grid-cols-3 gap-6">
-            {recentVideos.map((video) => (
-              <VideoCard key={video.uuid} {...video} />
+            {recentVideos.map((lectures) => (
+              <div key={lectures.uuid}>
+                <VideoCard
+                  lectureId={lectures.uuid}
+                  title={lectures.title}
+                  description={lectures.description}
+                  computedProgress={
+                    (lectures.video.last_watched_time /
+                      lectures.video.video_duration) *
+                    100
+                  }
+                  video={lectures.video}
+                />
+              </div>
             ))}
           </div>
         ) : (
@@ -130,7 +142,6 @@ export function DashboardContent() {
           </div>
         )}
       </div>
-
       {/* Navigation Buttons */}
       {recentVideos.length > 0 && (
         <div className="flex justify-between items-center">
