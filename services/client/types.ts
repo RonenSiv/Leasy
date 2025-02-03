@@ -89,24 +89,15 @@ type VideoUserProgress = {
   progress: number;
 };
 
-type Video = {
+export interface Video {
   uuid: string;
-  video_path: string;
-  video_url: string;
-  video_name: string;
-  video_mime_type: string;
-  video_duration: number;
-  audio_path: string;
-  audio_url: string;
-  audio_name: string;
-  audio_mime_type: string;
-  preview_image_path: string;
   preview_image_url: string;
-  preview_image_name: string;
-  preview_image_mime_type: string;
-  lecture: Lecture[];
-  videoUserProgresses: VideoUserProgress[];
-};
+  last_watched_time: number;
+  video_duration: number;
+  progress_percentages: number;
+  is_completed: boolean;
+  created_at: string;
+}
 
 export interface Lecture {
   uuid: string;

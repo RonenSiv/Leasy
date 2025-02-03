@@ -6,13 +6,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Quizlet } from "@/app/components/quizlet/quizlet";
 import { Lecture } from "@/types";
 
-export function VideoInfoTabs({ videoData }: { videoData: Lecture }) {
-  const handleNewQuestion = () => {
-    console.log("New question");
-  };
+interface VideoInfoTabsProps {
+  videoData: Lecture;
+  // Optional fixed height (e.g., "600px") that will be applied as both min and max height.
+  height?: string;
+}
+
+export function VideoInfoTabs({ videoData, height }: VideoInfoTabsProps) {
+  // If a height is provided, apply it as inline style.
+  const containerStyle = height
+    ? { minHeight: height, maxHeight: height }
+    : undefined;
+
   return (
-    <Card className="h-full">
-      <CardContent className="p h-full">
+    <Card style={containerStyle} className="h-full">
+      <CardContent style={containerStyle} className="p-0 h-full">
         <Tabs defaultValue="transcription" className="w-full h-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="transcription">Transcription</TabsTrigger>
@@ -37,7 +45,6 @@ export function VideoInfoTabs({ videoData }: { videoData: Lecture }) {
             <ScrollArea className="h-full">
               <div className="p-4 text-sm">
                 <Quizlet
-                  onNewQuestions={handleNewQuestion}
                   questions={[
                     {
                       id: "1",
@@ -67,3 +74,5 @@ export function VideoInfoTabs({ videoData }: { videoData: Lecture }) {
     </Card>
   );
 }
+
+VideoInfoTabs.displayName = "VideoInfoTabs";
