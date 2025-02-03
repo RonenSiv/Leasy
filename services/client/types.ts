@@ -149,3 +149,15 @@ type QuestionOption = {
   option_text: string;
   is_correct: boolean;
 };
+
+export interface CreateLectureResponse {
+  data: {
+    uuid: string;
+  };
+}
+
+export interface CreateLectureResponse {
+  data: {
+    uuid: string;
+  };
+}

@@ -10,68 +10,41 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { VideoProgress } from "../video-progress";
 import { Clock, Eye, Users } from "lucide-react";
-import { VideoPreviewResource } from "@/types";
-import { useClient } from "@/hooks/use-client";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { EmptyState } from "../empty-state";
 import { VideoCard } from "@/app/components/video-card";
+import { VideoProgress } from "../video-progress";
+import { useUser } from "@/hooks/use-user";
+import { LecturesPreviewResource } from "@/types";
 
 const RECENT_VIDEOS_COUNT = 3;
 
-function useRecentVideos() {
-  const client = useClient();
-  return useSuspenseQuery<VideoPreviewResource[]>({
-    queryKey: ["recentVideos"],
-    queryFn: async () => {
-      const response = await client.getLectures({
-        page: 1,
-        sortBy: "created_at",
-        sortDirection: "desc",
-      });
-      return response.data.videos.slice(0, RECENT_VIDEOS_COUNT);
-    },
-  });
+interface DashboardContentProps {
+  serverData: {
+    data: LecturesPreviewResource;
+  };
 }
 
-export function DashboardContent() {
-  const { data: recentVideos } = useRecentVideos();
-  const client = useClient();
-  const [stats, setStats] = useState({
-    total_videos: 0,
-    completed_videos: 0,
-    overall_progress: 0,
-  });
-  // Use numbers (seconds) for progress.
-  const [progress, setProgress] = useState({
-    current: 0,
-    total: 0,
-  });
+export function DashboardContent({ serverData }: DashboardContentProps) {
+  const { dashboard, videos } = serverData.data;
+  const { user } = useUser();
+  const { total_videos, completed_videos, overall_progress } = dashboard;
+  const recentVideos = videos.slice(0, RECENT_VIDEOS_COUNT);
 
-  useEffect(() => {
-    const { dashboard, videos: lectures } = client.lectures;
-    setStats({
-      total_videos: dashboard.total_videos,
-      completed_videos: dashboard.completed_videos,
-      overall_progress: dashboard.overall_progress,
-    });
-    const currentSeconds = lectures.reduce(
-      (acc, videoData) => acc + videoData.video.last_watched_time,
-      0,
-    );
-    const totalSeconds = lectures.reduce(
-      (acc, videoData) => acc + videoData.video.video_duration,
-      0,
-    );
+  // We might greet the user by name if we have a separate user hook
+  const userName = user?.full_name?.split(" ")[0] || "there";
 
-    setProgress({
-      current: currentSeconds,
-      total: totalSeconds,
-    });
-  }, [recentVideos, client.lectures]);
-
+  const progressMessage = () => {
+    if (overall_progress < 20) {
+      return "You're just getting started! Keep it up!";
+    } else if (overall_progress < 50) {
+      return "You're making good progress! Keep it up!";
+    } else if (overall_progress < 80) {
+      return "You're almost there! Keep it up!";
+    } else {
+      return "All caught up! Great job!";
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -80,71 +53,71 @@ export function DashboardContent() {
       className="space-y-8"
     >
       {/* Header */}
-      <h1 className="text-3xl font-bold">
-        Welcome back {client.user?.full_name.split(" ")[0]} 👋
-      </h1>
+      <h1 className="text-3xl font-bold">Welcome back {userName} 👋</h1>
 
       {/* Stats */}
       <div className="grid gap-6 md:grid-cols-3">
         <StatCard
           icon={<Clock className="h-6 w-6" />}
           title="Total Videos"
-          value={`${stats.total_videos} videos`}
+          value={`${total_videos} videos`}
         />
         <StatCard
           icon={<Users className="h-6 w-6" />}
           title="Completed Videos"
-          value={stats.completed_videos?.toLocaleString() || "0"}
+          value={completed_videos.toString()}
         />
         <StatCard
           icon={<Eye className="h-6 w-6" />}
           title="Overall Progress"
-          value={`${stats.overall_progress}%`}
+          value={`${overall_progress}%`}
         />
       </div>
 
-      {/* Progress & Weekly Stats */}
+      {/* Progress */}
       <div className="grid gap-6 md:grid-cols-1">
         <Card>
           <CardHeader>
             <CardTitle>Your Progress</CardTitle>
-            <CardDescription>Keep up the great work!</CardDescription>
+            <CardDescription>{progressMessage()}</CardDescription>
           </CardHeader>
           <CardContent>
-            <VideoProgress current={progress.current} total={progress.total} />
+            <VideoProgress progress={overall_progress} />
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Videos Section */}
+      {/* Recent Videos */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Recent Videos</h2>
         {recentVideos.length ? (
           <div className="grid md:grid-cols-3 gap-6">
-            {recentVideos.map((lectures) => (
-              <div key={lectures.uuid}>
+            {recentVideos.map((lecture) => (
+              <div key={lecture.uuid}>
                 <VideoCard
-                  lectureId={lectures.uuid}
-                  title={lectures.title}
-                  description={lectures.description}
+                  lectureId={lecture.uuid}
+                  title={lecture.title}
+                  description={lecture.description}
                   computedProgress={
-                    (lectures.video.last_watched_time /
-                      lectures.video.video_duration) *
-                    100
+                    lecture.video.video_duration
+                      ? (lecture.video.last_watched_time /
+                          lecture.video.video_duration) *
+                        100
+                      : 0
                   }
-                  video={lectures.video}
+                  video={lecture.video}
                 />
               </div>
             ))}
           </div>
         ) : (
-          // Center the empty state within the section
           <div className="flex items-center justify-center py-20">
             <EmptyState />
           </div>
         )}
       </div>
-      {/* Navigation Buttons */}
+
+      {/* Nav Buttons (only if we have some videos) */}
       {recentVideos.length > 0 && (
         <div className="flex justify-between items-center">
           <Button asChild>

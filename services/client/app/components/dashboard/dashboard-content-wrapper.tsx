@@ -1,28 +1,75 @@
 "use client";
 
-import { DashboardContent } from "@/app/components/dashboard/dashboard-content";
-import { useClient } from "@/hooks/use-client";
+import React, { Suspense } from "react";
+import { useSWRConfig } from "swr";
+import { useLectures } from "@/hooks/use-lectures";
+import { DashboardSkeleton } from "@/app/dashboard/skeleton";
+import { DashboardContent } from "./dashboard-content";
 
-export function DashboardContentWrapper() {
-  const client = useClient();
+/**
+ * The shape from your server fetch
+ */
+interface DashboardServerData {
+  data: {
+    dashboard: {
+      total_videos: number;
+      overall_progress: number;
+      completed_videos: number;
+      num_of_pages: number;
+    };
+    videos: any[]; // or typed
+  };
+}
 
-  if (client.isLoading || client.lecturesLoading) {
-    throw new Promise((resolve) => {
-      setTimeout(resolve, 1000);
-    });
+interface Props {
+  fallbackData: DashboardServerData;
+}
+
+/**
+ * This is the top-level client wrapper.
+ * We store fallbackData into SWR's cache if we like,
+ * then wrap the "InnerWrapper" in Suspense.
+ */
+export function DashboardContentWrapper({ fallbackData }: Props) {
+  const { cache } = useSWRConfig();
+
+  // Optional: We can pre-populate SWR’s cache so the initial fetch is not needed
+  // cache.set("/api/lecture?page=1&sort_by=created_at&sort_direction=desc", fallbackData);
+
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <InnerWrapper fallbackData={fallbackData} />
+    </Suspense>
+  );
+}
+
+/**
+ * InnerWrapper actually calls the SWR hook with fallbackData,
+ * so no "Fallback data is required when using Suspense in SSR."
+ * We also catch any re-fetch that might suspend in the client.
+ */
+function InnerWrapper({ fallbackData }: Props) {
+  const { data, error, isLoading } = useLectures(
+    { page: 1, sortField: "created_at", sortOrder: "desc" },
+    { fallbackData },
+  );
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
   }
 
-  if (client.lectures) {
-    client.fetchLectures?.();
+  if (error) {
+    return (
+      <div className="p-8 text-red-500">Failed to load dashboard data</div>
+    );
   }
-
-  if (!client.isLoading && !client.user) {
+  if (!data) {
     return null;
   }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <DashboardContent />
+      <DashboardContent serverData={data} />
     </div>
   );
 }

@@ -1,11 +1,7 @@
-import { Suspense } from "react";
-import { DashboardSkeleton } from "./skeleton";
 import { DashboardContentWrapper } from "../components/dashboard/dashboard-content-wrapper";
+import { getLectures } from "@/app/actions/server-actions";
 
-export default function Dashboard() {
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardContentWrapper />
-    </Suspense>
-  );
+export default async function DashboardPage() {
+  const serverData = await getLectures();
+  return <DashboardContentWrapper fallbackData={serverData} />;
 }
