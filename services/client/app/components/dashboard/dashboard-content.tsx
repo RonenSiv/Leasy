@@ -80,7 +80,9 @@ export function DashboardContent() {
       className="space-y-8"
     >
       {/* Header */}
-      <h1 className="text-3xl font-bold">Welcome back!</h1>
+      <h1 className="text-3xl font-bold">
+        Welcome back {client.user?.full_name.split(" ")[0]} 👋
+      </h1>
 
       {/* Stats */}
       <div className="grid gap-6 md:grid-cols-3">

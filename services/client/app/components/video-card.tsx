@@ -49,7 +49,7 @@ export function VideoCard({
               <div className="h-1 bg-gray-300">
                 <div
                   className="h-full bg-red-600"
-                  style={{ width: `${computedProgress}%` }}
+                  style={{ width: `${computedProgress + 1}%` }}
                 ></div>
               </div>
             </div>
