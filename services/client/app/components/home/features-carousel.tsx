@@ -193,15 +193,17 @@ function FeatureItem({
   src: string;
 }) {
   return (
-    <section className="bg-muted/50 relative lg:h-[400px] flex items-center justify-center rounded-lg p-8">
+    <section className="bg-muted/50 relative xl:h-[400px] flex items-center justify-center rounded-lg md:p-8">
       <div className="absolute md:w-[400px] md:h-[400px] bg-secondary/20 bottom-0 right-0 rounded-full blur-3xl" />
-      <div className="container  mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className={"flex items-center justify-self-center"}
+            className={
+              "flex items-center justify-self-center bg-card/20 p-4 rounded-lg"
+            }
           >
             <img src={src} alt={title} className="w-48 h-48" />
             <div>
@@ -221,7 +223,7 @@ function FeatureItem({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className={"justify-self-center"}
+            className={"justify-self-center max-md:w-full"}
           >
             {component}
           </motion.div>
