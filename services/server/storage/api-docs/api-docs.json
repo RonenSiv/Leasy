@@ -237,6 +237,16 @@
                         }
                     },
                     {
+                        "name": "search_by_title",
+                        "in": "query",
+                        "description": "Search lectures by title prefix (e.g., 'Intro' matches 'Introduction to Physics').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Intro"
+                        }
+                    },
+                    {
                         "name": "sort_by",
                         "in": "query",
                         "description": "Sort by column (e.g., 'date', 'name', 'progress').",
