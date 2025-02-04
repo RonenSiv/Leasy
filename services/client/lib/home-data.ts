@@ -9,26 +9,32 @@ export const stats = [
 export const faqItems = [
   {
     id: "item-1",
-    question: "What is StudyFetch?",
+    question: "What is Leasy?",
     answer:
-      "StudyFetch is an AI-powered platform that transforms educational videos or docs into comprehensive learning materials.",
+      "Leasy is an AI-powered platform that transforms educational videos into comprehensive learning materials.",
   },
   {
     id: "item-2",
     question: "How does it work?",
     answer:
-      "Upload your lecture slides, PDFs, or videos, and StudyFetch AI automatically generates the best study resources.",
+      "Upload your lecture videos, and Leasy AI automatically generates the best study resources.",
   },
   {
     id: "item-3",
     question: "What formats are supported?",
     answer:
-      "Most common file types: video, PDF, PPT, etc. The max file size is 2GB per upload.",
+      "Currently, Leasy supports MP4. We recommend using MP4 with H.264 encoding.",
   },
   {
     id: "item-4",
-    question: "Is there a free plan?",
+    question: "How long does processing take?",
     answer:
-      "Absolutely! You can try StudyFetch for free with our basic plan, which includes up to 3 uploads.",
+      "Most videos are processed within 10-30 minutes. Larger files may take longer.",
+  },
+  {
+    id: "item-5",
+    question: "How do I get started?",
+    answer:
+      "Sign up for an account, upload your videos, and let Leasy do the rest!",
   },
 ];
