@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { api } from "./app/api/server-api";
+import { getUser } from "@/app/actions/server-actions";
 
 const protectedRoutes = [
   "/dashboard",
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   // Check if the pathname is an auth route
   const isAuthRoute = authRoutes.some((route) => pathname === route);
 
-  const isLoggedIn = await api.auth.getUser();
+  const isLoggedIn = await getUser();
   // If it's a protected route and there's no token
   if (isProtectedRoute && !isLoggedIn) {
     const response = NextResponse.redirect(new URL("/login", request.url));

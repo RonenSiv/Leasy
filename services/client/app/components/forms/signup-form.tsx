@@ -11,8 +11,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useClient } from "@/hooks/use-client";
 import toast from "react-hot-toast";
+import { useUser } from "@/hooks/use-user";
 
 const signupSchema = z
   .object({
@@ -41,7 +41,7 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const client = useClient();
+  const { handleRegister } = useUser();
 
   const {
     register,
@@ -55,10 +55,15 @@ export function SignupForm() {
     setIsLoading(true);
     setError(null);
     try {
-      await client.signup(data.email, data.password, data.fullName);
+      const result = await handleRegister({
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+      });
       toast.success("Signup successful");
-      router.push("/dashboard");
-    } catch (error) {
+      router.push("/login");
+    } catch (err) {
+      console.error(err);
       setError("Signup failed. Please try again.");
     } finally {
       setIsLoading(false);

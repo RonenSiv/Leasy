@@ -1,9 +1,9 @@
 "use client";
 
 import useSWR, { SWRConfiguration } from "swr";
+import { getLectures } from "@/app/actions/server-actions";
 import { Video } from "@/types";
 
-/** The shape from /api/lecture. */
 interface LectureAPIResponse {
   data: {
     dashboard: {
@@ -16,14 +16,6 @@ interface LectureAPIResponse {
   };
 }
 
-async function fetchLectures(url: string) {
-  const res = await fetch(url, { credentials: "include" });
-  if (!res.ok) {
-    throw new Error(`Lecture fetch failed: ${res.status} ${res.statusText}`);
-  }
-  return res.json() as Promise<LectureAPIResponse>;
-}
-
 interface UseLecturesParams {
   page?: number;
   search?: string;
@@ -31,19 +23,40 @@ interface UseLecturesParams {
   sortOrder?: "asc" | "desc";
 }
 
-/**
- * Additional SWR options, including fallbackData
- */
 interface UseLecturesOptions extends SWRConfiguration {
   fallbackData?: LectureAPIResponse;
 }
 
-/**
- * A single SWR hook that:
- * - Defaults to page=1, sort_by=created_at, sort_direction=desc
- * - Uses Suspense
- * - Accepts fallbackData for SSR
- */
+// This function wraps getLectures in a promise that supports cancellation.
+function fetchServerLecturesWithAbort(
+  params: UseLecturesParams,
+  signal: AbortSignal,
+): Promise<LectureAPIResponse> {
+  return new Promise((resolve, reject) => {
+    const abortHandler = () => {
+      reject(new Error("Fetch aborted"));
+    };
+
+    signal.addEventListener("abort", abortHandler);
+
+    getLectures({
+      page: params.page,
+      search: params.search,
+      // Convert sortField "date" to "created_at" as in your original code.
+      sortField: params.sortField === "date" ? "created_at" : params.sortField,
+      sortOrder: params.sortOrder,
+    })
+      .then((response) => {
+        signal.removeEventListener("abort", abortHandler);
+        resolve(response);
+      })
+      .catch((error) => {
+        signal.removeEventListener("abort", abortHandler);
+        reject(error);
+      });
+  });
+}
+
 export function useLectures(
   {
     page = 1,
@@ -53,23 +66,28 @@ export function useLectures(
   }: UseLecturesParams = {},
   options: UseLecturesOptions = {},
 ) {
-  const params = new URLSearchParams();
-  params.set("page", String(page));
-  if (search) params.set("search", search);
-  if (sortField) params.set("sort_by", sortField);
-  if (sortOrder) params.set("sort_direction", sortOrder);
+  const params = { page, search, sortField, sortOrder };
 
-  const url = `/api/lecture?${params.toString()}`;
+  // Our custom fetcher creates an AbortController for each request.
+  const fetcher = () => {
+    const controller = new AbortController();
+    // Wrap the getLectures call with support for abort.
+    const promise = fetchServerLecturesWithAbort(params, controller.signal);
+    // Attach a cancel method so SWR can abort if the key changes.
+    (promise as any).cancel = () => controller.abort();
+    return promise;
+  };
 
-  const { data, error, isLoading, isValidating } = useSWR<LectureAPIResponse>(
-    url,
-    fetchLectures,
-    {
-      suspense: true,
-      fallbackData: options.fallbackData,
-      ...options,
-    },
-  );
+  const {
+    data: lecture,
+    error,
+    isLoading,
+    isValidating,
+  } = useSWR(JSON.stringify(params), fetcher, {
+    suspense: true,
+    fallbackData: options.fallbackData,
+    ...options,
+  });
 
-  return { data, error, isLoading, isValidating };
+  return { data: lecture?.data, error, isLoading, isValidating };
 }

@@ -33,15 +33,20 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
-import { useClient } from "@/hooks/use-client";
+import { useUser } from "@/hooks/use-user";
+import { Spinner } from "@/app/components/spinner";
 
 export function UserSidebar() {
-  const client = useClient();
+  const { user, isLoading, handleLogout: userLogout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const router = useRouter();
 
-  if (!client.user) return null;
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (!user) return null;
 
   const getInitials = (name: string) => {
     return name
@@ -55,8 +60,10 @@ export function UserSidebar() {
     setShowLogoutDialog(false);
     setIsOpen(false);
     try {
-      await client.logout();
-      router.push("/");
+      const result = await userLogout();
+      if (result?.success) {
+        router.push("/login");
+      }
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -67,25 +74,19 @@ export function UserSidebar() {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Avatar className="h-9 w-9 cursor-pointer">
-            {" "}
-            {/* Increased from h-8 w-8 */}
-            <AvatarFallback>
-              {getInitials(client.user.full_name)}
-            </AvatarFallback>
+            <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
           </Avatar>
         </SheetTrigger>
         <SheetContent side="right" className="w-80">
           <SheetHeader className="pb-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarFallback>
-                  {getInitials(client.user.full_name)}
-                </AvatarFallback>
+                <AvatarFallback>{getInitials(user.full_name)}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="font-semibold">{client.user.full_name}</span>
+                <span className="font-semibold">{user.full_name}</span>
                 <span className="text-sm text-muted-foreground">
-                  {client.user.email}
+                  {user.email}
                 </span>
               </div>
             </div>

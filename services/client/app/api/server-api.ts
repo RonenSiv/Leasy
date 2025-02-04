@@ -1,97 +1,242 @@
-import axios, { AxiosProgressEvent } from "axios";
+"use server";
+
+import axios, { AxiosProgressEvent, AxiosRequestConfig } from "axios";
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
+import { LectureResource, User, Video } from "@/types";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
+/**
+ * Create an Axios instance with the base URL and withCredentials enabled.
+ */
 const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   withCredentials: true,
 });
 
-async function fetchWithAuth(endpoint: string, options: any = {}) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("LeasyToken");
+/**
+ * A universal server-side fetch function using Axios.
+ * It reads the LeasyToken from cookies and sets it in the Authorization header.
+ * NOTE: We remove the "next: { tags: ... }" option since Axios does not support it.
+ */
+export async function axiosServerFetch(
+  endpoint: string,
+  options: AxiosRequestConfig & {
+    onUploadProgress?: (e: AxiosProgressEvent) => void;
+  } = {},
+) {
+  // Get token from cookies
+  const token = cookies().get("LeasyToken")?.value;
+
   const headers = {
     "Content-Type": options.headers?.["Content-Type"] || "application/json",
-    Authorization: `Bearer ${token?.value}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
   try {
-    const response = await axiosInstance({
+    const response = await axiosInstance.request({
       url: endpoint,
-      ...options,
+      method: options.method || "GET",
+      data: options.data,
+      params: options.params,
       headers,
       onUploadProgress: options.onUploadProgress,
+      ...options,
     });
+
+    // Optionally, if the response contains a Set-Cookie header, update the cookie.
+    // (Axios does not pass Next.js-specific options so you must handle it manually.)
+    const setCookieHeader = response.headers["set-cookie"];
+    if (
+      setCookieHeader &&
+      Array.isArray(setCookieHeader) &&
+      setCookieHeader.length > 0
+    ) {
+      // Example: extract token value from "LeasyToken=...; path=/; httponly; samesite=lax"
+      const cookieStr = setCookieHeader[0];
+      const tokenMatch = cookieStr.match(/^LeasyToken=([^;]+)/);
+      if (tokenMatch) {
+        const newToken = tokenMatch[1];
+        cookies().set("LeasyToken", newToken, {
+          path: "/",
+          httpOnly: true,
+          sameSite: "lax",
+        });
+      }
+    }
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`API call failed: ${error.response?.statusText}`);
+      console.error(
+        `API call failed: ${error.response?.statusText}`,
+        error.response?.data,
+      );
+    } else {
+      console.error("Unknown error:", error);
     }
+    throw error;
   }
 }
 
-export const api = {
-  auth: {
-    register: (data: { email: string; full_name: string; password: string }) =>
-      fetchWithAuth("/register", { method: "POST", data }),
+/** Authentication */
+export async function loginUser({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
+  const res = await axiosServerFetch("/login", {
+    method: "POST",
+    data: JSON.stringify({ email, password }),
+  });
+  revalidateTag("user");
+  return res;
+}
 
-    login: (data: { email: string; password: string }) =>
-      fetchWithAuth("/login", { method: "POST", data }),
+export async function registerUser({
+  email,
+  password,
+  name,
+}: {
+  email: string;
+  password: string;
+  name: string;
+}) {
+  console.log("Registering user");
+  await axiosServerFetch("/register", {
+    method: "POST",
+    data: JSON.stringify({
+      full_name: name,
+      email,
+      password,
+    }),
+  });
+  redirect("/login");
+}
 
-    logout: () => fetchWithAuth("/logout", { method: "POST" }),
+export async function logoutUser() {
+  cookies().delete("LeasyToken");
+  redirect("/login");
+}
 
-    getUser: () => fetchWithAuth("/user"),
-  },
-  lecture: {
-    getLectures: (page = 1, sortBy = "date", sortDirection = "desc") =>
-      fetchWithAuth(
-        `/lecture?page=${page}&sort_by=${sortBy}&sort_direction=${sortDirection}`,
-      ),
+/** User */
+export async function getUser(): Promise<User> {
+  return axiosServerFetch("/user");
+}
 
-    createLecture: (
-      data: FormData,
-      config?: {
-        onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
-      },
-    ) =>
-      fetchWithAuth("/lecture", {
-        method: "POST",
-        data,
-        headers: { "Content-Type": "multipart/form-data" },
-        ...config,
-      }),
+/** Lectures */
+export async function getLectures(
+  params: {
+    page?: number;
+    search?: string;
+    sortField?: string;
+    sortOrder?: "asc" | "desc";
+  } = {},
+): Promise<{
+  data: {
+    dashboard: {
+      total_videos: number;
+      overall_progress: number;
+      completed_videos: number;
+      num_of_pages: number;
+    };
+    videos: Video[];
+  };
+}> {
+  const searchParams = new URLSearchParams();
+  if (params.page) searchParams.set("page", String(params.page));
+  if (params.search) searchParams.set("search", params.search);
+  if (params.sortField) searchParams.set("sort_by", params.sortField);
+  if (params.sortOrder) searchParams.set("sort_direction", params.sortOrder);
+  return axiosServerFetch(`/lecture?${searchParams.toString()}`);
+}
 
-    getLecture: (uuid: string): Promise<any> =>
-      fetchWithAuth(`/lecture/${uuid}`),
+export async function getLecture(uuid: string): Promise<{
+  data: LectureResource;
+}> {
+  return axiosServerFetch(`/lecture/${uuid}`);
+}
 
-    updateLastWatchedTime: (uuid: string, lastWatchedTime: number) =>
-      fetchWithAuth(`/video/last-watched-time/${uuid}`, {
-        method: "PUT",
-        data: { last_watched_time: lastWatchedTime },
-      }),
+export async function createLecture(formData: FormData) {
+  const newFormData = new FormData();
+  for (const [key, value] of formData.entries()) {
+    newFormData.append(key, value as any);
+  }
+  const res = await axiosServerFetch("/lecture", {
+    method: "POST",
+    data: newFormData,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  if (!res) {
+    throw new Error("Lecture creation failed");
+  }
+  revalidateTag("lectures");
+  redirect("/browse");
+}
 
-    fixAudio: (uuid: string) =>
-      fetchWithAuth(`/video/fix-audio/${uuid}`, { method: "PUT" }),
+/** Video */
+export async function updateWatchTime(uuid: string, time: number) {
+  await axiosServerFetch(`/video/last-watched-time/${uuid}`, {
+    method: "PUT",
+    data: JSON.stringify({ last_watched_time: time }),
+  });
+  revalidateTag(`lecture-${uuid}`);
+  revalidateTag("lectures");
+}
 
-    getQuizQuestions: (uuid: string) =>
-      fetchWithAuth(`/quiz/questions/${uuid}`),
+export async function fixVideoAudio(uuid: string) {
+  return axiosServerFetch(`/video/fix-audio/${uuid}`, {
+    method: "PUT",
+  });
+}
 
-    answerQuiz: (uuid: string, answers: Record<string, string>) =>
-      fetchWithAuth(`/quiz/answer/${uuid}`, {
-        method: "PUT",
-        data: answers,
-      }),
+/** Chats */
+export async function sendChatMessage(chatUuid: string, message: string) {
+  const res = await axiosServerFetch(`/chat/send-message/${chatUuid}`, {
+    method: "POST",
+    data: JSON.stringify({ message }),
+  });
+  revalidateTag(`lecture-chat-${chatUuid}`);
+  return res;
+}
 
-    sendChatMessage: (uuid: string, message: string) =>
-      fetchWithAuth(`/chat/send-message/${uuid}`, {
-        method: "POST",
-        data: { message },
-      }),
+export async function getChatMessages(chatUuid: string, page = 1) {
+  return axiosServerFetch(`/chat/messages/${chatUuid}?page=${page}`);
+}
 
-    getChatMessages: (uuid: string, page = 1) =>
-      fetchWithAuth(`/chat/messages/${uuid}?page=${page}`),
-  },
-};
+/** Quizzes */
+export async function getQuizQuestions(quizUuid: string): Promise<any[]> {
+  return axiosServerFetch(`/quiz/questions/${quizUuid}`);
+}
+
+export async function submitQuizAnswer(quizUuid: string, answers: any[]) {
+  return axiosServerFetch(`/quiz/answer/${quizUuid}`, {
+    method: "PUT",
+    data: JSON.stringify({ answers }),
+  });
+}
+
+export async function serverInitialLectureLoad(params?: {
+  page?: number;
+  search?: string;
+  sortField?: string;
+  sortOrder?: "asc" | "desc";
+}) {
+  try {
+    const response = await getLectures({
+      page: params?.page,
+      search: params?.search,
+      sortField:
+        params?.sortField === "date" ? "created_at" : params?.sortField,
+      sortOrder: params?.sortOrder,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Initial server-side lecture load failed", error);
+    return null;
+  }
+}

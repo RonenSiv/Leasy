@@ -3,16 +3,23 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserSidebar } from "../user-sidebar";
-import { useClient } from "@/hooks/use-client";
+import { useUser } from "@/hooks/use-user";
+import { Spinner } from "@/app/components/spinner";
 
 export function HeaderContent() {
-  const client = useClient();
-  if (client.isLoading) {
-    throw client.waitUntilLoaded();
+  const { user, isLoading } = useUser();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-9 w-9">
+        <Spinner className="h-5 w-5" />
+      </div>
+    );
   }
+
   return (
     <>
-      {client.user ? (
+      {user ? (
         <UserSidebar />
       ) : (
         <div className="flex items-center space-x-4">

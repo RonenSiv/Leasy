@@ -2,19 +2,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Spinner } from "@/app/components/spinner";
-import { useClient } from "@/hooks/use-client";
+import { updateWatchTime } from "@/app/actions/server-actions";
 
 interface VideoPlayerProps {
   videoUrl: string;
   videoId: string;
+  startTime?: number; // last watched time in seconds
 }
 
-export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
+export function VideoPlayer({
+  videoUrl,
+  videoId,
+  startTime = 0,
+}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(startTime);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const client = useClient();
+  const hasSetStartTimeRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       const time = Math.floor(videoRef.current.currentTime);
@@ -22,8 +29,6 @@ export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
         updateLastWatchedTime(time);
         setCurrentTime(time);
       }
-
-      // check if the video has ended
       if (videoRef.current.currentTime >= videoRef.current.duration - 1) {
         updateLastWatchedTime(videoRef.current.duration);
         setCurrentTime(videoRef.current.duration);
@@ -32,39 +37,45 @@ export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
   };
 
   const updateLastWatchedTime = (time: number = currentTime) => {
-    client
-      .updateLastWatchedTime(videoId, time)
-      .catch((err) => console.error(err));
+    updateWatchTime(videoId, time).catch((err) => console.error(err));
   };
 
-  // Fetch the video blob and convert to an object URL.
   useEffect(() => {
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
     let blobUrl: string | null = null;
+    let isMounted = true;
 
-    async function fetchVideo() {
+    const fetchVideo = async () => {
       if (!videoUrl) return;
       try {
+        setLoading(true);
         const videoEndpoint = videoUrl.split("/").pop();
-        const response = await fetch(`/api/video/${videoEndpoint}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch video");
-        }
+        const response = await fetch(`/api/video/${videoEndpoint}`, {
+          signal,
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("Failed to fetch video");
         const blob = await response.blob();
         blobUrl = URL.createObjectURL(blob);
-        setVideoSrc(blobUrl);
+        if (isMounted) {
+          setVideoSrc(blobUrl);
+          setLoading(false);
+        }
       } catch (error) {
-        console.error("API call failed:", error);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          console.error("API call failed:", error);
+          setLoading(false);
+        }
       }
-    }
+    };
 
     fetchVideo();
 
     return () => {
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl);
-      }
+      isMounted = false;
+      abortControllerRef.current?.abort();
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
   }, [videoUrl]);
 
@@ -80,6 +91,16 @@ export function VideoPlayer({ videoUrl, videoId }: VideoPlayerProps) {
         src={videoSrc || undefined}
         controls
         preload="auto"
+        onCanPlay={() => {
+          if (
+            videoRef.current &&
+            videoRef.current.currentTime < 1 &&
+            !hasSetStartTimeRef.current
+          ) {
+            videoRef.current.currentTime = startTime;
+            hasSetStartTimeRef.current = true;
+          }
+        }}
         onTimeUpdate={handleTimeUpdate}
         onLoadedData={() => setLoading(false)}
         onSeekedCapture={() => {

@@ -12,43 +12,58 @@ import {
 } from "@/components/ui/select";
 import { Pagination } from "./pagination";
 import { VideoCardSkeleton } from "@/app/components/browse/video-card-skeleton";
+import { useLectures } from "@/hooks/use-lectures";
 import { EmptyState } from "../empty-state";
 import { VideoCard } from "@/app/components/video-card";
-import { useLectures } from "@/hooks/use-lectures";
 
+/**
+ * Main VideosContent component:
+ * - Search bar on top (with debounce)
+ * - Suspense in the middle for the grid
+ * - Pagination at the bottom
+ */
 export function VideosContent() {
-  // We do client states for search, page, etc.
+  // local states for search, page, etc.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   const [searchTerm, setSearchTerm] = useState("");
+  // Debounced search term updated only after a delay.
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<"date" | "name" | "progress">(
     "date",
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Debounce effect: update debouncedSearchTerm after 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-6">Browse Videos</h1>
 
-      {/* Search & Sort (always rendered) */}
+      {/* Search + Sort controls (always visible) */}
       <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-6">
         <Input
           type="text"
           placeholder="Search videos..."
           value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="mb-4 md:mb-0"
         />
         <div className="flex space-x-4">
           <Select
             value={sortField}
             onValueChange={(val) => {
-              setSortField(val as any);
+              setSortField(val as "date" | "name" | "progress");
               setCurrentPage(1);
             }}
           >
@@ -65,7 +80,7 @@ export function VideosContent() {
           <Select
             value={sortOrder}
             onValueChange={(val) => {
-              setSortOrder(val as any);
+              setSortOrder(val as "asc" | "desc");
               setCurrentPage(1);
             }}
           >
@@ -80,94 +95,92 @@ export function VideosContent() {
         </div>
       </div>
 
-      {/* Suspense around only the "video grid" area */}
+      {/* The grid is behind Suspense, so it might show a skeleton if loading. */}
       <Suspense
         fallback={
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             {[...Array(6)].map((_, i) => (
               <VideoCardSkeleton key={i} />
             ))}
           </div>
         }
       >
-        {/* Only render the grid if mounted */}
         {mounted && (
           <VideoGrid
             page={currentPage}
-            search={searchTerm}
+            search={debouncedSearchTerm}
             sortField={sortField}
             sortOrder={sortOrder}
-            onPageChange={setCurrentPage}
+            onUpdateTotalPages={setTotalPages}
           />
         )}
       </Suspense>
+
+      {/* Pagination below the grid (always visible). */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(p) => setCurrentPage(p)}
+        />
+      )}
     </div>
   );
 }
 
 /**
- * A sub-component that calls our SWR hook in suspense mode.
- * This is the portion that "suspends" and shows fallback while loading.
+ * The sub-component that actually fetches data with SWR in suspense mode.
  */
 function VideoGrid({
   page,
   search,
   sortField,
   sortOrder,
-  onPageChange,
+  onUpdateTotalPages,
 }: {
   page: number;
   search: string;
   sortField: "date" | "name" | "progress";
   sortOrder: "asc" | "desc";
-  onPageChange: (p: number) => void;
+  onUpdateTotalPages: (tp: number) => void;
 }) {
-  // We pass suspense: true so SWR "throws" a promise if data isn't cached yet
+  // Call useLectures with the debounced search value.
   const { data } = useLectures(
     { page, search, sortField, sortOrder },
-    { suspense: true }, // <--- Key
+    { suspense: true },
   );
 
-  // If there's no data at all (very unlikely if fallbackData or anything else),
-  // you could do an error boundary or check for errors in the hook.
-
-  // We'll assume we have data
   if (!data) return null;
 
-  const { dashboard, videos } = data.data;
+  const { dashboard, videos } = data;
   const totalPages = dashboard.num_of_pages || 1;
+
+  // Update parent's totalPages
+  useEffect(() => {
+    onUpdateTotalPages(totalPages);
+  }, [totalPages, onUpdateTotalPages]);
 
   if (videos.length === 0) {
     return <EmptyState />;
   }
 
   return (
-    <>
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {videos.map((video: any) => (
-          <VideoCard
-            key={video.uuid}
-            lectureId={video.uuid}
-            title={video.title}
-            description={video.description}
-            video={video.video}
-            computedProgress={video.video.progress_percentages}
-          />
-        ))}
-      </motion.div>
-
-      {totalPages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
+    <motion.div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {videos.map((video: any) => (
+        <VideoCard
+          key={video.uuid}
+          lectureId={video.uuid}
+          title={video.title}
+          description={video.description}
+          video={video.video}
+          computedProgress={video.video.progress_percentages}
         />
-      )}
-    </>
+      ))}
+    </motion.div>
   );
 }

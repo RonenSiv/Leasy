@@ -33,7 +33,7 @@ interface QuestionResource {
   }[];
 }
 
-interface LectureResource {
+export interface LectureResource {
   uuid: string;
   title: string;
   description: string;
@@ -115,20 +115,20 @@ export interface Lecture {
   quiz: Quiz;
 }
 
-type Chat = {
+export type Chat = {
   uuid: string;
   title: string;
   messages: Message[];
   lectures: Lecture[];
 };
 
-type Message = {
+export type Message = {
   chat_id: string;
   sender: string;
   message: string;
 };
 
-type Quiz = {
+export type Quiz = {
   uuid: string;
   title: string;
   score: number;
@@ -136,14 +136,14 @@ type Quiz = {
   lecture: Lecture[];
 };
 
-type Question = {
+export type Question = {
   uuid: string;
   quiz_id: string;
   question_text: string;
   questionOptions: QuestionOption[];
 };
 
-type QuestionOption = {
+export type QuestionOption = {
   question_id: string;
   option_index: number;
   option_text: string;

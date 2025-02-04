@@ -4,16 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Quizlet } from "@/app/components/quizlet/quizlet";
-import { Lecture } from "@/types";
+import { LectureResource } from "@/types";
 
 interface VideoInfoTabsProps {
-  videoData: Lecture;
-  // Optional fixed height (e.g., "600px") that will be applied as both min and max height.
+  videoData: LectureResource;
   height?: string;
 }
 
 export function VideoInfoTabs({ videoData, height }: VideoInfoTabsProps) {
-  // If a height is provided, apply it as inline style.
   const containerStyle = height
     ? { minHeight: height, maxHeight: height }
     : undefined;

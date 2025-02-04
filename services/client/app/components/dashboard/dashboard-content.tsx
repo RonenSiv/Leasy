@@ -20,13 +20,11 @@ import { LecturesPreviewResource } from "@/types";
 const RECENT_VIDEOS_COUNT = 3;
 
 interface DashboardContentProps {
-  serverData: {
-    data: LecturesPreviewResource;
-  };
+  serverData: LecturesPreviewResource;
 }
 
 export function DashboardContent({ serverData }: DashboardContentProps) {
-  const { dashboard, videos } = serverData.data;
+  const { dashboard, videos } = serverData;
   const { user } = useUser();
   const { total_videos, completed_videos, overall_progress } = dashboard;
   const recentVideos = videos.slice(0, RECENT_VIDEOS_COUNT);

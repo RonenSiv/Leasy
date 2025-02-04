@@ -36,7 +36,7 @@ export function VideoCard({
         <Card className="group overflow-hidden">
           <div className="relative">
             <img
-              src={`${baseUrl}${video.preview_image_url}`}
+              src={`${baseUrl}/${video.preview_image_url}`}
               alt={title}
               className="w-full h-48 object-cover"
             />
@@ -49,7 +49,9 @@ export function VideoCard({
               <div className="h-1 bg-gray-300">
                 <div
                   className="h-full bg-red-600"
-                  style={{ width: `${computedProgress + 1}%` }}
+                  style={{
+                    width: `${computedProgress ? computedProgress + 1 : computedProgress}%`,
+                  }}
                 ></div>
               </div>
             </div>

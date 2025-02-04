@@ -1,3 +1,4 @@
+// components/video/video-chat.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -6,20 +7,30 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { api } from "@/app/api";
-import { Lecture } from "@/types";
+import { LectureResource } from "@/types";
 import { Spinner } from "@/app/components/spinner";
+import { sendChatMessage } from "@/app/actions/server-actions";
 
-type ChatMessage = {
+export type ChatMessage = {
   role: string;
   content: string;
-  pending?: boolean; // used to show spinner for assistant
+  pending?: boolean;
 };
 
-export function VideoChat({ videoData }: { videoData: Lecture }) {
+interface VideoChatProps {
+  videoData: LectureResource;
+  initialMessages?: ChatMessage[];
+}
+
+export function VideoChat({ videoData, initialMessages = [] }: VideoChatProps) {
   const [message, setMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatMessages, setChatMessages] =
+    useState<ChatMessage[]>(initialMessages);
+  // If no initial messages are provided, set loading to true.
+  const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(
+    initialMessages.length === 0,
+  );
   const [isSending, setIsSending] = useState(false);
-  const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll the chat container whenever messages change.
@@ -30,7 +41,32 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
     }
   }, [chatMessages]);
 
-  // Helper: Fetch all pages of chat messages.
+  // In case initialMessages wasn’t provided, fetch chat history.
+  useEffect(() => {
+    if (initialMessages.length === 0) {
+      const fetchChatHistory = async () => {
+        try {
+          const allMessages = await fetchAllChatMessages(videoData.chat.uuid);
+          if (allMessages) {
+            const transformed: ChatMessage[] = allMessages
+              .map((msg: any) => ({
+                role: msg.sender === "assistant" ? "assistant" : "user",
+                content: msg.message,
+              }))
+              .reverse();
+            setChatMessages(transformed);
+          }
+        } catch (error) {
+          console.error("Error fetching chat history:", error);
+        } finally {
+          setIsChatHistoryLoading(false);
+        }
+      };
+
+      fetchChatHistory();
+    }
+  }, [videoData.chat.uuid, initialMessages]);
+
   async function fetchAllChatMessages(chatUuid: string) {
     let page = 1;
     const allData: any[] = [];
@@ -43,34 +79,10 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
     return allData;
   }
 
-  // Fetch chat history on mount (all pages) and reverse so oldest is at the top.
-  useEffect(() => {
-    async function fetchChatHistory() {
-      try {
-        const allMessages = await fetchAllChatMessages(videoData.chat.uuid);
-        if (allMessages) {
-          const transformed: ChatMessage[] = allMessages
-            .map((msg: any) => ({
-              role: msg.sender === "assistant" ? "assistant" : "user",
-              content: msg.message,
-            }))
-            .reverse();
-          setChatMessages(transformed);
-        }
-      } catch (error) {
-        console.error("Error fetching chat history:", error);
-      } finally {
-        setIsChatHistoryLoading(false);
-      }
-    }
-
-    fetchChatHistory();
-  }, [videoData.chat.uuid]);
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || isSending || isChatHistoryLoading) return;
-    // Append user's message immediately.
+    // Append the user's message.
     setChatMessages((prev) => [...prev, { role: "user", content: message }]);
     const userMessage = message;
     setMessage("");
@@ -80,15 +92,10 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
       ...prev,
       { role: "assistant", content: "", pending: true },
     ]);
-
     setIsSending(true);
 
     try {
-      const response = await api.lecture.sendChatMessage(
-        videoData.chat.uuid,
-        userMessage,
-      );
-
+      const response = await sendChatMessage(videoData.chat.uuid, userMessage);
       let assistantMessage = "";
       if (
         response &&
@@ -101,8 +108,7 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
       } else if (response?.data) {
         assistantMessage = response.data;
       }
-
-      // Replace the pending assistant message with the actual response.
+      // Replace the pending assistant message with the actual reply.
       setChatMessages((prev) =>
         prev.map((msg) =>
           msg.pending ? { role: "assistant", content: assistantMessage } : msg,
@@ -140,9 +146,7 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
                   return (
                     <div
                       key={i}
-                      className={`flex ${
-                        msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
+                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                       <div
                         className={`max-w-[80%] rounded-lg px-4 py-2 flex items-center ${
@@ -151,8 +155,8 @@ export function VideoChat({ videoData }: { videoData: Lecture }) {
                             : "bg-muted"
                         }`}
                       >
-                        {msg.content || (isPending ? "" : "")}
-                        {isPending && <Spinner className={`h-4 w-4`} />}
+                        {msg.content}
+                        {isPending && <Spinner className="h-4 w-4" />}
                       </div>
                     </div>
                   );

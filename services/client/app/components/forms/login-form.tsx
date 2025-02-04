@@ -11,8 +11,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useClient } from "@/hooks/use-client";
 import toast from "react-hot-toast";
+import { useUser } from "@/hooks/use-user";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -25,8 +25,8 @@ export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const client = useClient();
-
+  // Note: we destructure both the login function and the mutate from our hook.
+  const { handleLogin, mutate } = useUser();
   const {
     register,
     handleSubmit,
@@ -39,10 +39,24 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
     try {
-      await client.login(data.email, data.password);
-      toast.success("Login successful");
-      router.push("/dashboard");
+      const result = await handleLogin({
+        email: data.email,
+        password: data.password,
+      });
+      console.log(result);
+      if (result?.email) {
+        toast.success("Login successful");
+        // Revalidate user data so that components (e.g. header) get updated
+        await mutate();
+        // Refresh the current route so any server-side changes are reflected
+        router.refresh();
+        // Navigate to the dashboard
+        router.push("/dashboard");
+      } else {
+        setError("Login failed. Please check your credentials and try again.");
+      }
     } catch (error) {
+      console.error(error);
       setError("Login failed. Please check your credentials and try again.");
     } finally {
       setIsLoading(false);

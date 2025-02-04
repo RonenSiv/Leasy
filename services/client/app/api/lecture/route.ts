@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     `${process.env.NEXT_PUBLIC_API_URL}/lecture?` +
     new URLSearchParams({
       page,
-      search,
+      search_by_title: search,
       sort_by: sortBy,
       sort_direction: sortDirection,
     });

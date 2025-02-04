@@ -1,39 +1,34 @@
-import { Suspense } from "react";
-import { VideoPlayer } from "../../components/video/video-player";
-import { VideoSkeleton } from "../../components/video/video-skeleton";
-import { VideoChat } from "../../components/video/video-chat";
-import { VideoInfoTabs } from "../../components/video/video-info-tabs";
-import { getLecture } from "@/app/actions/server-actions";
+// app/video/[id]/page.tsx
+import { VideoPlayer } from "@/app/components/video/video-player";
+import { VideoChat } from "@/app/components/video/video-chat";
+import { VideoInfoTabs } from "@/app/components/video/video-info-tabs";
+import { getFullLectureData } from "@/app/actions/fetch-all-lecture-data";
 
-async function getLectureData(id: string) {
-  return await getLecture(id);
-}
-
-export default function VideoPage({ params }: { params: { id: string } }) {
-  return (
-    <Suspense fallback={<VideoSkeleton />}>
-      <VideoPageContent id={params.id} />
-    </Suspense>
-  );
-}
-
-async function VideoPageContent({ id }: { id: string }) {
-  const { data } = await getLectureData(id);
+export default async function VideoPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const videoData = await getFullLectureData(params.id);
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">{data?.title}</h1>
+      <h1 className="text-3xl font-bold mb-6">{videoData.title}</h1>
       <div className="flex flex-col lg:flex-row gap-6 h-[90vh] overflow-y-hidden">
         {/* Left Column: Video player and Chat */}
-        <div className="flex flex-col lg:w-1/2 gap-2 ">
+        <div className="flex flex-col lg:w-1/2 gap-2">
           <VideoPlayer
-            videoUrl={data?.video?.video_url}
-            videoId={data?.video?.uuid}
+            videoUrl={videoData.video.video_url}
+            videoId={videoData.video.uuid}
+            startTime={videoData.video?.last_watched_time || 0}
           />
-          <VideoChat videoData={data} />
+          <VideoChat
+            videoData={videoData}
+            initialMessages={videoData.chatHistory}
+          />
         </div>
-        {/* Right Column: Tabs */}
+        {/* Right Column: Info Tabs */}
         <div className="lg:w-1/2 h-full">
-          <VideoInfoTabs videoData={data} />
+          <VideoInfoTabs videoData={videoData} />
         </div>
       </div>
     </div>
