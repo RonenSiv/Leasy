@@ -378,7 +378,7 @@
                 }
             }
         },
-        "/api/lecture/add-to-favorites/{uuid}": {
+        "/api/lecture/favorite/{uuid}": {
             "put": {
                 "tags": [
                     "Lectures"
@@ -398,6 +398,27 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "description": "Payload containing the favorite status.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "favorite"
+                                ],
+                                "properties": {
+                                    "favorite": {
+                                        "description": "Set to true to add to favorites, false to remove.",
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Lecture has been successfully added to favorites"

@@ -20,7 +20,7 @@ Route::controller(LectureController::class)
     Route::post('/', 'store');
     Route::get('/', 'index');
     Route::get('/{uuid}', 'show');
-    Route::put('add-to-favorites/{uuid}', 'addToFavorites');
+    Route::put('favorite/{uuid}', 'addToOrRemoveFromFavorites');
   });
 
 Route::controller(VideoController::class)

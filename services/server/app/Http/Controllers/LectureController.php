@@ -6,6 +6,7 @@ use App\Services\LectureService;
 
 use App\Enums\HttpStatusEnum;
 use App\Enums\SortingParametersEnum;
+use App\Http\Requests\addToOrRemoveFromFavoritesRequest;
 use App\Http\Requests\StoreLectureRequest;
 
 use Illuminate\Http\JsonResponse;
@@ -209,7 +210,7 @@ class LectureController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/lecture/add-to-favorites/{uuid}",
+     *     path="/api/lecture/favorite/{uuid}",
      *     description="Add a lecture to the user's favorites.",
      *     operationId="addLectureToFavorites",
      *     tags={"Lectures"},
@@ -219,6 +220,14 @@ class LectureController extends Controller
      *         required=true,
      *         description="UUID of the lecture to add to favorites.",
      *         @OA\Schema(type="string", format="uuid", example="123e4567-e89b-12d3-a456-426614174000")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Payload containing the favorite status.",
+     *         @OA\JsonContent(
+     *             required={"favorite"},
+     *             @OA\Property(property="favorite", type="boolean", example=true, description="Set to true to add to favorites, false to remove.")
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -239,16 +248,18 @@ class LectureController extends Controller
      * )
      */
 
-    public function addToFavorites(string $uuid)
+    public function addToOrRemoveFromFavorites(string $uuid, addToOrRemoveFromFavoritesRequest $request)
     {
-        $status = $this->lectureService->addToFavorites(
+        $status = $this->lectureService->addToOrRemoveFromFavorites(
             uuid: $uuid,
+            favorite: $request->favorite,
         );
 
+        $addedOrRemove = $request->favorite ? 'added to' : 'removed from';
         return match ($status) {
             HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
             HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Lecture Not Found'], Response::HTTP_NOT_FOUND),
-            HttpStatusEnum::OK => response()->json(['message' => 'Lecture has been successfully added to favorites'], Response::HTTP_OK),
+            HttpStatusEnum::OK => response()->json(['message' => 'Lecture has been successfully ' . $addedOrRemove . ' favorites'], Response::HTTP_OK),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
     }

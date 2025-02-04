@@ -134,7 +134,7 @@ class LectureService
         }
     }
 
-    public function addToFavorites(string $uuid)
+    public function addToOrRemoveFromFavorites(string $uuid, bool $favorite)
     {
         try {
             $lecture = Lecture::where('uuid', $uuid)->first();
@@ -144,7 +144,7 @@ class LectureService
             }
 
             $lecture->update([
-                'is_favorite' => true,
+                'is_favorite' => $favorite,
             ]);
 
             return HttpStatusEnum::OK;
