@@ -27,10 +27,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/home/features-section"
-                  className="text-sm hover:underline"
-                >
+                <Link href="/showcase" className="text-sm hover:underline">
                   Features
                 </Link>
               </li>

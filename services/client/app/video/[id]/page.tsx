@@ -1,4 +1,3 @@
-// app/video/[id]/page.tsx
 import { VideoPlayer } from "@/app/components/video/video-player";
 import { VideoChat } from "@/app/components/video/video-chat";
 import { VideoInfoTabs } from "@/app/components/video/video-info-tabs";

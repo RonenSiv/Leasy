@@ -167,24 +167,3 @@ export async function submitQuizAnswer(quizUuid: string, answers: any[]) {
     body: JSON.stringify({ answers }),
   });
 }
-
-export async function serverInitialLectureLoad(params?: {
-  page?: number;
-  search?: string;
-  sortField?: string;
-  sortOrder?: "asc" | "desc";
-}) {
-  try {
-    const response = await getLectures({
-      page: params?.page,
-      search: params?.search,
-      sortField:
-        params?.sortField === "date" ? "created_at" : params?.sortField,
-      sortOrder: params?.sortOrder,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Initial server-side lecture load failed", error);
-    return null;
-  }
-}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSettings } from "@/context/settings-context";
 import { Button } from "@/components/ui/button";
@@ -12,239 +12,184 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Brain,
-  FileText,
-  MessageSquare,
-  Pause,
-  Play,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Brain, FileText, MessageSquare, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VideoChat } from "@/app/components/video/video-chat";
+import { Quizlet } from "@/app/components/quizlet/quizlet";
 
+// For demo purposes, use a public sample video URL.
+const SAMPLE_VIDEO_URL = "https://www.w3schools.com/html/mov_bbb.mp4";
+
+// A shared video player that is memoized so it does not re-render
+// eslint-disable-next-line react/display-name
+const SharedVideoPlayer = memo(() => (
+  <video
+    className="w-full"
+    src={SAMPLE_VIDEO_URL}
+    loop
+    autoPlay
+    muted
+    playsInline
+  />
+));
+
+// For transcription and summary, we now only supply the details part.
+const transcriptionDetails = (
+  <div className="space-y-4 p-6 bg-muted rounded-lg">
+    <div className="flex items-start space-x-4">
+      <div className="min-w-[60px] text-sm text-muted-foreground">00:00</div>
+      <div className="flex-1 text-sm">Welcome to the demo video.</div>
+    </div>
+    <div className="flex items-start space-x-4">
+      <div className="min-w-[60px] text-sm text-muted-foreground">00:05</div>
+      <div className="flex-1 text-sm">
+        Here we demonstrate a quick overview of our transcription feature.
+      </div>
+    </div>
+    <div className="flex items-start space-x-4">
+      <div className="min-w-[60px] text-sm text-muted-foreground">00:10</div>
+      <div className="flex-1 text-sm">
+        Enjoy the seamless conversion from video to text.
+      </div>
+    </div>
+  </div>
+);
+
+const summaryDetails = (
+  <div className="space-y-6 p-6 bg-muted rounded-lg">
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold">Summary</h3>
+      <p className="text-sm text-muted-foreground">
+        The video demonstrates a short clip where our AI-powered tools
+        automatically convert spoken content into text, making it easily
+        accessible and reviewable. This summary captures the core points for a
+        quick overview.
+      </p>
+    </div>
+  </div>
+);
+
+// For the other features, we keep the same component definitions.
 const features = [
   {
     id: "transcription",
     title: "Automatic Transcription",
-    description: "Convert your video content into accurate, searchable text.",
+    description: "Watch and see the transcription in real-time.",
+    details:
+      "Below is a short demo video. The transcript (hardcoded for this demo) appears underneath the video.",
     icon: <FileText className="w-6 h-6" />,
-    demo: {
-      video: "/transcription-demo.mp4",
-      fallback: "/placeholder.svg?height=400&width=600",
-      content: (
-        <div className="space-y-4 p-6">
-          <div className="flex items-start space-x-4 animate-fade-in">
-            <div className="min-w-[60px] text-sm text-muted-foreground">
-              00:00
-            </div>
-            <div className="flex-1">
-              <p className="text-sm">
-                Welcome to our comprehensive guide on machine learning
-                fundamentals.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-4 animate-fade-in [--animation-delay:200ms]">
-            <div className="min-w-[60px] text-sm text-muted-foreground">
-              00:15
-            </div>
-            <div className="flex-1">
-              <p className="text-sm">
-                Today, we&apos;ll explore the core concepts that form the
-                foundation of AI.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-4 animate-fade-in [--animation-delay:400ms]">
-            <div className="min-w-[60px] text-sm text-muted-foreground">
-              00:30
-            </div>
-            <div className="flex-1">
-              <p className="text-sm">
-                Let&apos;s begin by understanding what machine learning actually
-                means.
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
-    },
+    // We'll now use the shared video plus details rendered conditionally in the parent.
+    component: transcriptionDetails,
   },
   {
     id: "summary",
     title: "AI-Powered Summary",
-    description: "Get concise summaries of your video content.",
+    description: "Get a quick summary of the video content.",
+    details:
+      "This feature processes the video and provides a concise summary of the key points.",
     icon: <Brain className="w-6 h-6" />,
-    demo: {
-      video: "/summary-demo.mp4",
-      fallback: "/placeholder.svg?height=400&width=600",
-      content: (
-        <div className="space-y-6 p-6">
-          <div className="space-y-2 animate-fade-in">
-            <h3 className="text-lg font-semibold">Key Points</h3>
-            <ul className="list-disc list-inside space-y-2 text-sm">
-              <li>Introduction to machine learning concepts</li>
-              <li>Overview of supervised and unsupervised learning</li>
-              <li>Real-world applications and examples</li>
-              <li>Best practices and common pitfalls</li>
-            </ul>
-          </div>
-          <div className="space-y-2 animate-fade-in [--animation-delay:200ms]">
-            <h3 className="text-lg font-semibold">Main Takeaways</h3>
-            <p className="text-sm text-muted-foreground">
-              This comprehensive guide covers the fundamentals of machine
-              learning, explaining key concepts through practical examples. The
-              video emphasizes the importance of data quality and model
-              selection in successful ML projects.
-            </p>
-          </div>
-        </div>
-      ),
-    },
+    component: summaryDetails,
   },
   {
     id: "chatbot",
     title: "Interactive Chatbot",
     description:
       "Engage with an AI chatbot to answer questions about your content.",
+    details:
+      "Our AI-powered chatbot allows learners to ask questions and receive instant, contextually relevant answers about the video content.",
     icon: <MessageSquare className="w-6 h-6" />,
-    demo: {
-      video: "/chatbot-demo.mp4",
-      fallback: "/placeholder.svg?height=400&width=600",
-      content: (
-        <div className="flex flex-col space-y-4 p-6">
-          <div className="self-start max-w-[75%] animate-fade-in">
-            <div className="bg-muted rounded-lg p-3">
-              <p className="text-sm">
-                What are the main types of machine learning?
-              </p>
-            </div>
-          </div>
-          <div className="self-end max-w-[75%] animate-fade-in [--animation-delay:500ms]">
-            <div className="bg-primary text-primary-foreground rounded-lg p-3">
-              <p className="text-sm">
-                There are three main types of machine learning: 1. Supervised
-                Learning 2. Unsupervised Learning 3. Reinforcement Learning
-                Would you like me to explain each type in detail?
-              </p>
-            </div>
-          </div>
-          <div className="self-start max-w-[75%] animate-fade-in [--animation-delay:1000ms]">
-            <div className="bg-muted rounded-lg p-3">
-              <p className="text-sm">
-                Yes, please explain supervised learning.
-              </p>
-            </div>
-          </div>
-          <div className="self-end max-w-[75%] animate-fade-in [--animation-delay:1500ms]">
-            <div className="bg-primary text-primary-foreground rounded-lg p-3">
-              <p className="text-sm">
-                Supervised learning is a type of machine learning where the
-                model learns from labeled data. It&apos;s like learning with a
-                teacher who provides the correct answers. The model learns to
-                map inputs to known outputs, making it great for tasks like
-                classification and regression.
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
-    },
+    component: (
+      <VideoChat
+        videoData={
+          {
+            chat: { uuid: "sample-chat-uuid", title: "Sample Lecture" },
+            title: "Sample Lecture",
+          } as any
+        }
+        initialMessages={[
+          {
+            role: "assistant",
+            content:
+              "Hello! How can I help you with the lecture on machine learning fundamentals?",
+          },
+        ]}
+        isShowcase={true}
+      />
+    ),
   },
   {
     id: "quizlet",
     title: "Smart Quizzes",
     description: "Automatically generate quizzes from your video content.",
+    details:
+      "Our system automatically generates quizzes based on the video content, helping reinforce learning and assess understanding.",
     icon: <Zap className="w-6 h-6" />,
-    demo: {
-      video: "/quizlet-demo.mp4",
-      fallback: "/placeholder.svg?height=400&width=600",
-      content: (
-        <div className="space-y-6 p-6">
-          <div className="space-y-8">
-            <div className="space-y-4 animate-fade-in">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Question 1 of 5</h3>
-                <span className="text-sm text-muted-foreground">
-                  Score: 2/5
-                </span>
-              </div>
-              <div className="bg-muted p-4 rounded-lg">
-                <p className="text-sm font-medium mb-4">
-                  What is the main advantage of supervised learning?
-                </p>
-                <div className="grid grid-cols-1 gap-2">
-                  <Button variant="outline" className="justify-start">
-                    A. No labeled data required
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="justify-start bg-destructive/10 border-destructive/20"
-                  >
-                    B. Faster training process
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="justify-start bg-primary/10 border-primary"
-                  >
-                    C. Clear feedback on model performance
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    D. Reduced computational resources
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 animate-fade-in [--animation-delay:400ms]">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Question 2 of 5</h3>
-              </div>
-              <div className="bg-muted p-4 rounded-lg">
-                <p className="text-sm font-medium mb-4">
-                  Which of these is NOT a type of machine learning?
-                </p>
-                <div className="grid grid-cols-1 gap-2">
-                  <Button variant="outline" className="justify-start">
-                    A. Supervised Learning
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    B. Unsupervised Learning
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    C. Reinforcement Learning
-                  </Button>
-                  <Button variant="outline" className="justify-start">
-                    D. Directional Learning
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-    },
+    component: (
+      <ScrollArea className="h-[400px] w-full border p-4">
+        <Quizlet
+          questions={[
+            {
+              id: "q1",
+              question:
+                "How does Leasy enhance the learning experience compared to traditional video platforms?",
+              options: [
+                "By providing longer videos",
+                "Through AI-powered features like transcription, summarization, and quizzes",
+                "By offering more video content",
+                "Through social media integration",
+              ],
+              correctAnswer:
+                "Through AI-powered features like transcription, summarization, and quizzes",
+            },
+            {
+              id: "q2",
+              question:
+                "What unique feature does Leasy offer to help users understand video content better?",
+              options: [
+                "Background music",
+                "Subtitles in multiple languages",
+                "An AI-powered chatbot for asking questions about the video",
+                "Virtual reality experiences",
+              ],
+              correctAnswer:
+                "An AI-powered chatbot for asking questions about the video",
+            },
+            {
+              id: "q3",
+              question:
+                "How does Leasy's summarization feature benefit learners?",
+              options: [
+                "It provides longer video content",
+                "It offers concise overviews of key points from the video",
+                "It translates the video into different languages",
+                "It adds background music to the video",
+              ],
+              correctAnswer:
+                "It offers concise overviews of key points from the video",
+            },
+          ]}
+        />
+      </ScrollArea>
+    ),
   },
 ];
 
 export default function FeatureShowcasePage() {
   const { reduceMotion } = useSettings();
   const [activeFeature, setActiveFeature] = useState(features[0]);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
   };
 
   return (
@@ -257,46 +202,70 @@ export default function FeatureShowcasePage() {
       >
         <h1 className="text-4xl font-bold mb-4">Experience the Power of AI</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          See how Leasy&apos;s AI-powered features transform your learning
+          See how Leasy's AI-powered features transform your learning
           experience.
         </p>
       </motion.div>
 
       <div className="grid lg:grid-cols-5 gap-8">
+        {/* Left side: Accordion list */}
         <motion.div
           className="lg:col-span-2 space-y-4"
           variants={reduceMotion ? {} : containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {features.map((feature) => (
-            <motion.div
-              key={feature.id}
-              variants={reduceMotion ? {} : itemVariants}
-            >
-              <Card
-                className={cn(
-                  "cursor-pointer transition-colors hover:bg-muted/50",
-                  activeFeature.id === feature.id && "border-primary",
-                )}
-                onClick={() => setActiveFeature(feature)}
+          <Accordion
+            type="single"
+            collapsible
+            value={activeFeature.id}
+            onValueChange={(value) => {
+              const feature = features.find((f) => f.id === value);
+              if (feature) setActiveFeature(feature);
+            }}
+          >
+            {features.map((feature) => (
+              <AccordionItem
+                key={feature.id}
+                value={feature.id}
+                className="border-0 mb-2"
               >
-                <CardHeader>
-                  <div className="flex items-center space-x-4">
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                      {feature.icon}
-                    </div>
-                    <div>
-                      <CardTitle>{feature.title}</CardTitle>
-                      <CardDescription>{feature.description}</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            </motion.div>
-          ))}
+                <Card
+                  className={cn(
+                    "cursor-pointer transition-colors hover:bg-muted/50",
+                    activeFeature.id === feature.id && "bg-primary/20",
+                  )}
+                >
+                  <CardHeader>
+                    <AccordionTrigger
+                      disableChevron
+                      className="hover:no-underline flex items-center justify-between w-full"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                          {feature.icon}
+                        </div>
+                        <div className="text-left">
+                          <CardTitle>{feature.title}</CardTitle>
+                          <CardDescription>
+                            {feature.description}
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                  </CardHeader>
+                </Card>
+                <AccordionContent>
+                  <p className="p-4 text-sm text-muted-foreground">
+                    {feature.details}
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </motion.div>
 
+        {/* Right side: Active feature content */}
         <motion.div
           className="lg:col-span-3"
           variants={reduceMotion ? {} : containerVariants}
@@ -309,35 +278,34 @@ export default function FeatureShowcasePage() {
               <CardDescription>{activeFeature.description}</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="relative">
-                <img
-                  src={activeFeature.demo.fallback || "/placeholder.svg"}
-                  alt={`${activeFeature.title} demo`}
-                  className="w-full h-[300px] object-cover"
-                />
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="absolute bottom-4 right-4"
-                  onClick={() => setIsPlaying(!isPlaying)}
-                >
-                  {isPlaying ? (
-                    <Pause className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeFeature.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  {activeFeature.demo.content}
-                </motion.div>
-              </AnimatePresence>
+              {/* For transcription and summary, render the shared video once and animate only the details */}
+              {activeFeature.id === "transcription" ||
+              activeFeature.id === "summary" ? (
+                <>
+                  <SharedVideoPlayer />
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeFeature.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      {activeFeature.component}
+                    </motion.div>
+                  </AnimatePresence>
+                </>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeFeature.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {activeFeature.component}
+                  </motion.div>
+                </AnimatePresence>
+              )}
             </CardContent>
           </Card>
         </motion.div>

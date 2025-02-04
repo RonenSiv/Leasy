@@ -7,10 +7,10 @@ import { Circle } from "./components/home/decorations";
 import { HeroSection } from "./components/home/hero-section";
 import { StatsSection } from "./components/home/stats-section";
 import { FeaturesSection } from "./components/home/features-section";
-import { AITutorSection } from "./components/home/ai-tutor-section";
 import { FAQSection } from "./components/home/faq-section";
 import { CTASection } from "./components/home/cta-section";
 import { VideoModal } from "./components/home/video-modal";
+import { FeaturesCarousel } from "./components/home/features-carousel";
 
 export default function Home() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function Home() {
       <StatsSection />
       {/*<PartnersSection />*/}
       <FeaturesSection />
-      <AITutorSection />
+      <FeaturesCarousel />
       <FAQSection />
       <CTASection />
 

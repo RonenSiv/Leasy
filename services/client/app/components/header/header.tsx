@@ -16,10 +16,9 @@ import Image from "next/image";
 
 const navItems = [
   { href: "/", label: "Home", ariaLabel: "Go to home page" },
-  { href: "/features", label: "Features", ariaLabel: "View Leasy features" },
   {
     href: "/showcase",
-    label: "Feature Showcase",
+    label: "Features",
     ariaLabel: "View feature showcase",
   },
   { href: "/about", label: "About", ariaLabel: "Learn about Leasy" },
