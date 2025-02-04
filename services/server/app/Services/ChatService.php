@@ -6,7 +6,7 @@ use App\Models\Message;
 use App\Models\Chat;
 
 use App\Enums\PaginationEnum;
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 use App\Enums\SenderEnum;
 
 use App\Http\Resources\MessageResource;
@@ -41,7 +41,7 @@ class ChatService
             return $newChat;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -68,9 +68,9 @@ class ChatService
 
             $chatResponse = $this->gptService->getChatResponse($message, $chatHistory);
 
-            if ($chatResponse instanceof HTTP_Status) {
+            if ($chatResponse instanceof HttpStatusEnum) {
                 Log::error('Error with GPT integration');
-                return HTTP_Status::ERROR;
+                return HttpStatusEnum::ERROR;
             }
 
             Message::insert([
@@ -96,7 +96,7 @@ class ChatService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -112,7 +112,7 @@ class ChatService
             return  MessageResource::collection($messages);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 }

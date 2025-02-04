@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Models\Lecture;
 
 use App\Enums\PaginationEnum;
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
+use App\Enums\SortingParametersEnum;
 use App\Enums\WhisperFailedEnum;
 use App\Http\Resources\LecturesPreviewResource;
 use App\Http\Resources\LectureResource;
@@ -29,7 +30,7 @@ class LectureService
         $this->quizService = new QuizService();
     }
 
-    public function store($video, string $title, string $description): HTTP_Status|array
+    public function store($video, string $title, string $description): HttpStatusEnum|array
     {
         try {
             DB::beginTransaction();
@@ -66,7 +67,7 @@ class LectureService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -83,17 +84,17 @@ class LectureService
                 ->first();
 
             if (is_null($lecture)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             return new LectureResource($lecture);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function index(string|null $searchByTitle, string $sortBy, string $sortDirection)
+    public function index(string|null $searchByTitle, string $sortBy, string $sortDirection, bool $onlyFavorites)
     {
         try {
             $sortableColumns = [
@@ -107,11 +108,15 @@ class LectureService
             $lecturesQuery = Lecture::with('video.videoUserProgresses')
                 ->where('lectures.user_id', Auth::id());
 
+            if ($onlyFavorites) {
+                $lecturesQuery->where('lectures.is_favorite', true);
+            }
+
             if (!is_null($searchByTitle)) {
                 $lecturesQuery->where('lectures.title', 'LIKE', "{$searchByTitle}%");
             }
 
-            if ($sortBy === 'progress') {
+            if ($sortBy === SortingParametersEnum::PROGRESS->value) {
                 $lecturesQuery->leftJoin('videos', 'lectures.video_id', '=', 'videos.id')
                     ->leftJoin('video_user_progress', 'videos.id', '=', 'video_user_progress.video_id');
             }
@@ -121,15 +126,33 @@ class LectureService
 
             return [
                 'dashboard' => $this->getLecturesDashboard(),
-                'videos' => LecturesPreviewResource::collection($lectures)
+                'lectures' => LecturesPreviewResource::collection($lectures)
             ];
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
+    public function addToFavorites(string $uuid)
+    {
+        try {
+            $lecture = Lecture::where('uuid', $uuid)->first();
 
+            if (is_null($lecture)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
+            $lecture->update([
+                'is_favorite' => true,
+            ]);
+
+            return HttpStatusEnum::OK;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HttpStatusEnum::ERROR;
+        }
+    }
 
     // ------------------- private Functions -------------------
 
@@ -152,10 +175,10 @@ class LectureService
 
         $numOfPages = floor($totalVideos / PaginationEnum::VIDEOS_PER_PAGE->value);
         return [
-            'total_videos' => $totalVideos,
+            'total_lectures' => $totalVideos,
             'overall_progress' => $overallProgress,
-            'completed_videos' => $numOfCompletedVideos,
-            'incomplete_videos' => $totalVideos - $numOfCompletedVideos,
+            'completed_lectures' => $numOfCompletedVideos,
+            'incomplete_lectures' => $totalVideos - $numOfCompletedVideos,
             'num_of_pages' => $totalVideos % PaginationEnum::VIDEOS_PER_PAGE->value > 0 ? $numOfPages + 1 : $numOfPages,
         ];
     }

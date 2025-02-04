@@ -8,7 +8,7 @@ use App\Models\Quiz;
 
 use App\Http\Resources\QuestionResource;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 use App\Enums\WhisperFailedEnum;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -80,7 +80,7 @@ class QuizService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -91,17 +91,17 @@ class QuizService
                 ->where('uuid', $uuid)->first();
 
             if (is_null($quiz)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             return QuestionResource::collection($quiz->questions);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function answerQuiz(string $uuid, array $answers): array|HTTP_Status
+    public function answerQuiz(string $uuid, array $answers): array|HttpStatusEnum
     {
         try {
             DB::beginTransaction();
@@ -111,21 +111,21 @@ class QuizService
                 ->first();
 
             if (is_null($quiz)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             $score = 0;
             $numOfQuestions = $quiz->questions->count();
             $scorePerQuestion = (int)(100 / $numOfQuestions);
             if ($numOfQuestions <= 0) {
-                return HTTP_Status::BAD_REQUEST;
+                return HttpStatusEnum::BAD_REQUEST;
             }
 
             $questionsData = [];
             foreach ($answers as $answer) {
                 $question = $quiz->questions->where('uuid', $answer['question_uuid'])->first();
                 if (is_null($question)) {
-                    return HTTP_Status::NOT_FOUND;
+                    return HttpStatusEnum::NOT_FOUND;
                 }
                 $correctAnswer = $question->questionOptions->where('is_correct', true)->first();
 
@@ -152,7 +152,7 @@ class QuizService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -186,7 +186,7 @@ class QuizService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 }

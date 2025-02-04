@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\LectureService;
 
-use App\Enums\HTTP_Status;
-
+use App\Enums\HttpStatusEnum;
+use App\Enums\SortingParametersEnum;
 use App\Http\Requests\StoreLectureRequest;
 
 use Illuminate\Http\JsonResponse;
@@ -67,9 +67,6 @@ class LectureController extends Controller
      *          description="No content"
      *      )
      * )
-     *
-     * @param  StoreLectureRequest  $request
-     * @return \Illuminate\Http\JsonResponse
      */
 
     public function store(StoreLectureRequest $request): JsonResponse
@@ -80,9 +77,9 @@ class LectureController extends Controller
             description: $request->description,
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
@@ -124,10 +121,10 @@ class LectureController extends Controller
             uuid: $uuid
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Lecture not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Lecture not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
@@ -147,6 +144,13 @@ class LectureController extends Controller
      *         required=false,
      *         description="Page number for pagination.",
      *         @OA\Schema(type="integer", example=2)
+     *     ),
+     *     @OA\Parameter(
+     *         name="only_favorites",
+     *         in="query",
+     *         required=false,
+     *         description="Filter only favorite lectures (true or false).",
+     *         @OA\Schema(type="boolean", example=true)
      *     ),
      *     @OA\Parameter(
      *         name="search_by_title",
@@ -188,17 +192,64 @@ class LectureController extends Controller
     {
         $result = $this->lectureService->index(
             searchByTitle: $request->query('search_by_title', null),
-            sortBy: $request->query('sort_by', 'date'),
-            sortDirection: $request->query('sort_direction', 'asc')
+            sortBy: $request->query('sort_by', SortingParametersEnum::DATE->value),
+            sortDirection: $request->query('sort_direction', 'asc'),
+            onlyFavorites: $request->boolean('only_favorites', false),
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
 
         return response()->json(['data' => $result], Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/lecture/add-to-favorites/{uuid}",
+     *     description="Add a lecture to the user's favorites.",
+     *     operationId="addLectureToFavorites",
+     *     tags={"Lectures"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the lecture to add to favorites.",
+     *         @OA\Schema(type="string", format="uuid", example="123e4567-e89b-12d3-a456-426614174000")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lecture has been successfully added to favorites",
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="No content"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Lecture Not Found",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="An error occurred",
+     *     )
+     * )
+     */
+
+    public function addToFavorites(string $uuid)
+    {
+        $status = $this->lectureService->addToFavorites(
+            uuid: $uuid,
+        );
+
+        return match ($status) {
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Lecture Not Found'], Response::HTTP_NOT_FOUND),
+            HttpStatusEnum::OK => response()->json(['message' => 'Lecture has been successfully added to favorites'], Response::HTTP_OK),
+            default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+        };
     }
 }

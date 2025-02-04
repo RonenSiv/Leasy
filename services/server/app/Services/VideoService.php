@@ -4,7 +4,7 @@ namespace App\Services;
 
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Models\VideoUserProgress;
 use App\Models\Video;
@@ -84,7 +84,7 @@ class VideoService
             if (Storage::disk(config('filesystems.storage_service'))->exists($videoName)) {
                 Storage::disk(config('filesystems.storage_service'))->delete($videoName);
             }
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -96,7 +96,7 @@ class VideoService
                 ->first();
 
             if (is_null($video)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             $progress = (int)round(($video->videoUserProgresses->first()->last_watched_time / $video->video_duration) * 100);
@@ -108,10 +108,10 @@ class VideoService
                     'progress' => $progress,
                 ]);
 
-            return HTTP_Status::OK;
+            return HttpStatusEnum::OK;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -121,7 +121,7 @@ class VideoService
             $video = Video::where('uuid', $uuid)->first();
 
             if (is_null($video)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
@@ -130,15 +130,15 @@ class VideoService
                 $output = shell_exec($command);
 
                 if ($output == "ok") {
-                    return HTTP_Status::OK;
+                    return HttpStatusEnum::OK;
                 }
             }
 
             Log::error('Error in Python script');
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 }

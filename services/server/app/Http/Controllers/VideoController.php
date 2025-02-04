@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\VideoService;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Http\Requests\UpdateLastWatchedTimeRequest;
 
@@ -72,9 +72,9 @@ class VideoController extends Controller
         );
 
         return match ($result) {
-            HTTP_Status::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HTTP_Status::OK => response()->json(['message' => 'last watched time update successfully'], Response::HTTP_OK),
+            HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::OK => response()->json(['message' => 'last watched time update successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
     }
@@ -117,11 +117,11 @@ class VideoController extends Controller
             uuid: $uuid,
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Video Not Found'], Response::HTTP_NOT_FOUND),
-                HTTP_Status::OK => response()->json(['message' => 'Audio fixed successfully'], Response::HTTP_OK),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Video Not Found'], Response::HTTP_NOT_FOUND),
+                HttpStatusEnum::OK => response()->json(['message' => 'Audio fixed successfully'], Response::HTTP_OK),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }

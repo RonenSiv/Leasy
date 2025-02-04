@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\QuizService;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 use App\Enums\WhisperFailedEnum;
 use App\Http\Requests\AnswerQuestionRequest;
 
@@ -56,10 +56,10 @@ class QuizController extends Controller
             uuid: $uuid,
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Quiz not found'], Response::HTTP_NOT_FOUND),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Quiz not found'], Response::HTTP_NOT_FOUND),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
@@ -141,11 +141,11 @@ class QuizController extends Controller
             answers: $request->answers,
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Some of the quiz properties not found'], Response::HTTP_NOT_FOUND),
-                HTTP_Status::BAD_REQUEST => response()->json(['message' => 'This question cannot be answered'], Response::HTTP_BAD_REQUEST),
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Some of the quiz properties not found'], Response::HTTP_NOT_FOUND),
+                HttpStatusEnum::BAD_REQUEST => response()->json(['message' => 'This question cannot be answered'], Response::HTTP_BAD_REQUEST),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
