@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClient } from "@/hooks/use-client";
+import { useUser } from "@/hooks/use-user";
 
 export function ProfileSettings() {
-  const client = useClient();
-  const [name, setName] = useState(client.user?.full_name || "");
-  const [email, setEmail] = useState(client.user?.email || "");
+  const { user } = useUser();
+  const [name, setName] = useState(user?.full_name || "");
+  const [email, setEmail] = useState(user?.email || "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

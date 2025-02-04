@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import toast from "react-hot-toast";
 
 interface SettingsContextType {
@@ -26,7 +25,6 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 );
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const { setTheme } = useTheme();
   const [fontSize, setFontSizeState] = useState<"small" | "medium" | "large">(
     "medium",
   );

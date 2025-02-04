@@ -16,6 +16,7 @@ import { VideoCard } from "@/app/components/video-card";
 import { VideoProgress } from "../video-progress";
 import { useUser } from "@/hooks/use-user";
 import { LecturesPreviewResource } from "@/types";
+import React from "react";
 
 const RECENT_VIDEOS_COUNT = 3;
 

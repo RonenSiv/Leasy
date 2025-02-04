@@ -2,17 +2,7 @@
 
 import useSWR, { SWRConfiguration } from "swr";
 import { getLectures } from "@/app/actions/server-actions";
-import { LecturesPreviewResource, Video } from "@/types";
-
-interface LectureAPIResponse {
-  dashboard: {
-    total_videos: number;
-    overall_progress: number;
-    completed_videos: number;
-    num_of_pages: number;
-  };
-  videos: Video[];
-}
+import { LecturesPreviewResource } from "@/types";
 
 interface UseLecturesParams {
   page?: number;
@@ -25,7 +15,6 @@ interface UseLecturesOptions extends SWRConfiguration {
   fallbackData?: Partial<LecturesPreviewResource>;
 }
 
-// This function wraps getLectures in a promise that supports cancellation.
 function fetchServerLecturesWithAbort(
   params: UseLecturesParams,
   signal: AbortSignal,

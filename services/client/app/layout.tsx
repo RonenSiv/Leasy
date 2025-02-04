@@ -6,6 +6,7 @@ import ScrollToTopButton from "./components/home/scroll-to-button";
 import { PageTransition } from "./components/page-transition";
 import Footer from "./components/footer";
 import { LayoutProvider } from "./providers/layout-provider";
+import React from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-main" });
 const poppins = Poppins({

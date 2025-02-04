@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useClient } from "@/hooks/use-client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function AccountSettings() {
-  const client = useClient();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

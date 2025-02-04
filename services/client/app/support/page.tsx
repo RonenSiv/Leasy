@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useSettings } from "@/context/settings-context";
 import { Button } from "@/components/ui/button";

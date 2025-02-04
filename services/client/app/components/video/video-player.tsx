@@ -70,7 +70,12 @@ export function VideoPlayer({
       }
     };
 
-    fetchVideo();
+    fetchVideo().then(() => {
+      if (isMounted && videoRef.current) {
+        videoRef.current.currentTime = startTime;
+        hasSetStartTimeRef.current = true;
+      }
+    });
 
     return () => {
       isMounted = false;

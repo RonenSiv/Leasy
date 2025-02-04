@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSettings } from "@/context/settings-context";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, Search } from "lucide-react";
@@ -158,7 +157,6 @@ Automatic quiz creation:
 ];
 
 export default function DocumentationPage() {
-  const { reduceMotion } = useSettings();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSection, setActiveSection] = useState("getting-started");
   const [activeSubsection, setActiveSubsection] = useState("introduction");

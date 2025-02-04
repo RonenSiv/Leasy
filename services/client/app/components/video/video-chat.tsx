@@ -84,7 +84,7 @@ export function VideoChat({
         }
       };
 
-      fetchChatHistory();
+      fetchChatHistory().then((r) => r);
     }
   }, [videoData.chat.uuid, initialMessages, isShowcase]);
 

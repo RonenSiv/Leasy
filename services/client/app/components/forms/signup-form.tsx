@@ -55,7 +55,7 @@ export function SignupForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await handleRegister({
+      await handleRegister({
         fullName: data.fullName,
         email: data.email,
         password: data.password,

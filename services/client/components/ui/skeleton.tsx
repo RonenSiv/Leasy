@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import React from "react";
 
 function Skeleton({
   className,
@@ -12,10 +13,7 @@ function Skeleton({
   );
 }
 
-const SVGSkeleton = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+const SVGSkeleton = ({ className }: React.HTMLAttributes<HTMLDivElement>) => (
   <svg className={className + " animate-pulse rounded bg-gray-300"} />
 );
 

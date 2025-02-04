@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Brain, FileText, MessageSquare, Zap } from "lucide-react";
+import React from "react";
 
 function FeatureItem({
   icon,
