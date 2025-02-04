@@ -123,6 +123,7 @@ const features = [
       "Get accurate, timestamped transcriptions of your video content.",
     icon: <FileText className="h-6 w-6" />,
     component: <TranscriptionComponent />,
+    src: "/signup.png",
   },
   {
     id: "summary",
@@ -130,6 +131,7 @@ const features = [
     description: "Generate concise summaries that capture key concepts.",
     icon: <Brain className="h-6 w-6" />,
     component: <SummaryComponent />,
+    src: "/main.png",
   },
   {
     id: "chatbot",
@@ -138,6 +140,7 @@ const features = [
       "Receive instant, contextually relevant answers about your content.",
     icon: <BotMessageSquare className="h-6 w-6" />,
     component: <ChatComponent />,
+    src: "/quiz.png",
   },
   {
     id: "quizlet",
@@ -145,23 +148,23 @@ const features = [
     description: "Create engaging quizzes to test understanding.",
     icon: <FileQuestion className="h-6 w-6" />,
     component: <QuizComponent />,
+    src: "/think.png",
   },
 ];
 
 export function FeaturesCarousel() {
   return (
     <section className="py-32 bg-muted/50 relative">
-      {/* Optional decorative element */}
       <div className="absolute w-[500px] h-[500px] bg-primary/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto md:px-4 relative z-10">
         <h2 className="text-3xl font-bold mb-8 text-center">
           Explore Our Features
         </h2>
         <Carousel>
           <CarouselContent>
             {features.map((feature) => (
-              <CarouselItem key={feature.id} className="p-2">
+              <CarouselItem key={feature.id}>
                 <FeatureItem {...feature} />
               </CarouselItem>
             ))}
@@ -174,37 +177,44 @@ export function FeaturesCarousel() {
   );
 }
 
-export function FeatureItem({
+function FeatureItem({
   id,
   title,
   description,
   icon,
   component,
+  src,
 }: {
   id: string;
   title: string;
   description: string;
   icon: React.ReactNode;
   component: React.ReactNode;
+  src: string;
 }) {
   return (
-    <section className="bg-muted/50 relative h-[400px] flex items-center justify-center rounded-lg p-8">
-      <div className="absolute w-[400px] h-[400px] bg-secondary/20 bottom-0 right-0 rounded-full blur-3xl" />
-      <div className="container px-4 mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+    <section className="bg-muted/50 relative lg:h-[400px] flex items-center justify-center rounded-lg p-8">
+      <div className="absolute md:w-[400px] md:h-[400px] bg-secondary/20 bottom-0 right-0 rounded-full blur-3xl" />
+      <div className="container  mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className={"justify-self-center"}
+            className={"flex items-center justify-self-center"}
           >
-            <div className="flex items-center mb-8">
-              <div className={"bg-primary/10 p-4 rounded-full"}>{icon}</div>
-              <div className={"bg-primary/10 py-2 px-6 rounded-full"}>
-                <h2 className="text-3xl font-bold">{title}</h2>
+            <img src={src} alt={title} className="w-48 h-48" />
+            <div>
+              <div className="flex items-center mb-8">
+                <div className={"bg-primary/10 p-4 rounded-full"}>{icon}</div>
+                <div className={"bg-primary/10 py-2 px-6 rounded-full"}>
+                  <h2 className="text-3xl font-bold">{title}</h2>
+                </div>
               </div>
+              <p className="text-xl text-muted-foreground mb-8">
+                {description}
+              </p>
             </div>
-            <p className="text-xl text-muted-foreground mb-8">{description}</p>
           </motion.div>
 
           <motion.div
