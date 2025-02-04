@@ -2,18 +2,16 @@
 
 import useSWR, { SWRConfiguration } from "swr";
 import { getLectures } from "@/app/actions/server-actions";
-import { Video } from "@/types";
+import { LecturesPreviewResource, Video } from "@/types";
 
 interface LectureAPIResponse {
-  data: {
-    dashboard: {
-      total_videos: number;
-      overall_progress: number;
-      completed_videos: number;
-      num_of_pages: number;
-    };
-    videos: Video[];
+  dashboard: {
+    total_videos: number;
+    overall_progress: number;
+    completed_videos: number;
+    num_of_pages: number;
   };
+  videos: Video[];
 }
 
 interface UseLecturesParams {
@@ -24,14 +22,14 @@ interface UseLecturesParams {
 }
 
 interface UseLecturesOptions extends SWRConfiguration {
-  fallbackData?: LectureAPIResponse;
+  fallbackData?: Partial<LecturesPreviewResource>;
 }
 
 // This function wraps getLectures in a promise that supports cancellation.
 function fetchServerLecturesWithAbort(
   params: UseLecturesParams,
   signal: AbortSignal,
-): Promise<LectureAPIResponse> {
+): Promise<Partial<LecturesPreviewResource>> {
   return new Promise((resolve, reject) => {
     const abortHandler = () => {
       reject(new Error("Fetch aborted"));
@@ -48,7 +46,7 @@ function fetchServerLecturesWithAbort(
     })
       .then((response) => {
         signal.removeEventListener("abort", abortHandler);
-        resolve(response);
+        resolve(response.data as any);
       })
       .catch((error) => {
         signal.removeEventListener("abort", abortHandler);
@@ -89,5 +87,5 @@ export function useLectures(
     ...options,
   });
 
-  return { data: lecture?.data, error, isLoading, isValidating };
+  return { data: lecture, error, isLoading, isValidating };
 }

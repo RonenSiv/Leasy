@@ -163,6 +163,7 @@ export async function getLecture(uuid: string): Promise<{
 
 export async function createLecture(formData: FormData) {
   const newFormData = new FormData();
+  // @ts-ignore
   for (const [key, value] of formData.entries()) {
     newFormData.append(key, value as any);
   }

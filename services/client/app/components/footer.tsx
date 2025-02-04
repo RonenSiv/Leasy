@@ -42,26 +42,6 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/terms" className="text-sm hover:underline">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-sm hover:underline">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/cookies" className="text-sm hover:underline">
-                  Cookie Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
             <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
             <div className="flex space-x-4">
               <a href="#" className="text-foreground hover:text-primary">

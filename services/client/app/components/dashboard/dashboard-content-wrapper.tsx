@@ -5,24 +5,14 @@ import { useSWRConfig } from "swr";
 import { useLectures } from "@/hooks/use-lectures";
 import { DashboardSkeleton } from "@/app/dashboard/skeleton";
 import { DashboardContent } from "./dashboard-content";
+import { LecturesPreviewResource } from "@/types";
 
 /**
  * The shape from your server fetch
  */
-interface DashboardServerData {
-  data: {
-    dashboard: {
-      total_videos: number;
-      overall_progress: number;
-      completed_videos: number;
-      num_of_pages: number;
-    };
-    videos: any[]; // or typed
-  };
-}
 
 interface Props {
-  fallbackData: DashboardServerData;
+  fallbackData: LecturesPreviewResource;
 }
 
 /**
@@ -57,6 +47,7 @@ function InnerWrapper({ fallbackData }: Props) {
   if (isLoading) {
     return <DashboardSkeleton />;
   }
+  console.log("DATA", data);
 
   if (error) {
     return (
@@ -69,7 +60,7 @@ function InnerWrapper({ fallbackData }: Props) {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <DashboardContent serverData={data} />
+      <DashboardContent serverData={data as LecturesPreviewResource} />
     </div>
   );
 }

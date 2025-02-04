@@ -96,7 +96,7 @@ export function Quizlet({ questions, onNewQuestions }: QuizletProps) {
                     option !== q.correctAnswer
                   ) {
                     additionalClasses =
-                      "bg-destructive/10 border-destructive/20";
+                      "bg-destructive/50 border-destructive/60";
                   }
                 } else {
                   if (answers[q.id] === option) {

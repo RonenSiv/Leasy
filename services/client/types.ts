@@ -54,7 +54,6 @@ export interface DashboardResource {
   total_videos: number;
   overall_progress: number;
   completed_videos: number;
-  incomplete_videos: number;
   num_of_pages: number;
 }
 

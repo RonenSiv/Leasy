@@ -41,8 +41,8 @@ export function EmptyState() {
           </motion.div>
           <h3 className="text-3xl font-bold mb-4">No Videos Found</h3>
           <p className="text-xl text-muted-foreground mb-8 max-w-md">
-            You haven't uploaded any videos yet. Get started by uploading your
-            first video and transform your learning experience.
+            You haven&apos;t uploaded any videos yet. Get started by uploading
+            your first video and transform your learning experience.
           </p>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button

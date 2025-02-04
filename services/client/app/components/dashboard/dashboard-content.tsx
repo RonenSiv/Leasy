@@ -24,6 +24,7 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ serverData }: DashboardContentProps) {
+  console.log(serverData);
   const { dashboard, videos } = serverData;
   const { user } = useUser();
   const { total_videos, completed_videos, overall_progress } = dashboard;
