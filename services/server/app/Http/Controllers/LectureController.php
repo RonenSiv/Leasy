@@ -231,7 +231,7 @@ class LectureController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Lecture has been successfully added to favorites",
+     *         description="Lecture has been successfully added to or removed from favorites",
      *     ),
      *     @OA\Response(
      *         response=204,
