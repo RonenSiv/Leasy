@@ -121,17 +121,22 @@ class QuizService
                 return HTTP_Status::BAD_REQUEST;
             }
 
+            $questionsData = [];
             foreach ($answers as $answer) {
-                $question = $quiz->questions->firstWhere('uuid', $answer['question_uuid']);
+                $question = $quiz->questions->where('uuid', $answer['question_uuid'])->first();
                 if (is_null($question)) {
                     return HTTP_Status::NOT_FOUND;
                 }
-                $correctAnswers = $question->questionOptions->Where('is_correct', true);
-                $isCorrect = $correctAnswers->contains('option_index', $answer['answer']);
+                $correctAnswer = $question->questionOptions->where('is_correct', true)->first();
 
-                if ($isCorrect) {
+                if ($correctAnswer->option_index == $answer['answer']) {
                     $score = $score + $scorePerQuestion;
                 }
+
+                $questionsData[] = [
+                    'selected_option' => (int)$answer['answer'],
+                    'correct_option' => $correctAnswer->option_index,
+                ];
             }
 
             $quiz->update([
@@ -140,7 +145,10 @@ class QuizService
 
             DB::commit();
 
-            return ['score' => $score];
+            return [
+                'score' => $score,
+                'questions_data' => $questionsData,
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
