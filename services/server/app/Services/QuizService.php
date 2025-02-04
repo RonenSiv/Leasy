@@ -8,8 +8,9 @@ use App\Models\Quiz;
 
 use App\Http\Resources\QuestionResource;
 
-use App\Enums\HttpStatusEnum;
 use App\Enums\WhisperFailedEnum;
+use App\Enums\HttpStatusEnum;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -52,7 +53,7 @@ class QuizService
         $this->gptService = new GptService();
     }
 
-    public function storeQuiz(string $lectureTitle, string $summary)
+    public function storeQuiz(string $lectureTitle, string $summary): Quiz|HttpStatusEnum
     {
         try {
             DB::beginTransaction();
@@ -157,7 +158,7 @@ class QuizService
     }
 
     // ----------------------- Private Functions -----------------------
-    private function storeQuizQuestions(Quiz $quiz, array $quizQuestions)
+    private function storeQuizQuestions(Quiz $quiz, array $quizQuestions): HttpStatusEnum
     {
         try {
             DB::beginTransaction();
@@ -183,6 +184,8 @@ class QuizService
                 }
             }
             DB::commit();
+
+            return HttpStatusEnum::OK;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());

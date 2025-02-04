@@ -21,13 +21,13 @@ class ChatController extends Controller
     public function __construct()
     {
         $this->chatService = new ChatService();
-        // TEST - DELETE
+        // TEST - DELETE before prod
         $this->client = new Client([
             'base_uri' => config('app.openai_base_uri'),
         ]);
     }
 
-    // TEST - DELETE
+    // TEST - DELETE before prod
     public function testGPT()
     {
         try {

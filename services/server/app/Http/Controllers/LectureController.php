@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Services\LectureService;
 
-use App\Enums\HttpStatusEnum;
 use App\Enums\SortingParametersEnum;
+use App\Enums\HttpStatusEnum;
+
 use App\Http\Requests\addToOrRemoveFromFavoritesRequest;
 use App\Http\Requests\StoreLectureRequest;
 
@@ -256,6 +257,7 @@ class LectureController extends Controller
         );
 
         $addedOrRemove = $request->favorite ? 'added to' : 'removed from';
+        
         return match ($status) {
             HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
             HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Lecture Not Found'], Response::HTTP_NOT_FOUND),

@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Services\QuizService;
 
-use App\Enums\HttpStatusEnum;
 use App\Enums\WhisperFailedEnum;
+use App\Enums\HttpStatusEnum;
+
 use App\Http\Requests\AnswerQuestionRequest;
 
 use Symfony\Component\HttpFoundation\Response;

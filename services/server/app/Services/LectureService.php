@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Models\Lecture;
 
-use App\Enums\PaginationEnum;
-use App\Enums\HttpStatusEnum;
 use App\Enums\SortingParametersEnum;
 use App\Enums\WhisperFailedEnum;
+use App\Enums\PaginationEnum;
+use App\Enums\HttpStatusEnum;
+
 use App\Http\Resources\LecturesPreviewResource;
 use App\Http\Resources\LectureResource;
 
@@ -94,7 +95,7 @@ class LectureService
         }
     }
 
-    public function index(string|null $searchByTitle, string $sortBy, string $sortDirection, bool $onlyFavorites)
+    public function index(string|null $searchByTitle, string $sortBy, string $sortDirection, bool $onlyFavorites): HttpStatusEnum|array
     {
         try {
             $sortableColumns = [
@@ -134,7 +135,7 @@ class LectureService
         }
     }
 
-    public function addToOrRemoveFromFavorites(string $uuid, bool $favorite)
+    public function addToOrRemoveFromFavorites(string $uuid, bool $favorite): HttpStatusEnum
     {
         try {
             $lecture = Lecture::where('uuid', $uuid)->first();
@@ -156,7 +157,7 @@ class LectureService
 
     // ------------------- private Functions -------------------
 
-    private function getLecturesDashboard()
+    private function getLecturesDashboard(): array
     {
         $lectures = Lecture::with('video.videoUserProgresses')
             ->where('user_id', Auth::id())

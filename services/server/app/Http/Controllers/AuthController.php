@@ -118,10 +118,12 @@ class AuthController extends Controller
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
+        
         $filteredResult = [
             "email" => $result["email"],
             "full_name" => $result["full_name"],
         ];
+
         return response()
             ->json($filteredResult, Response::HTTP_OK)
             ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -11,11 +12,10 @@ use Laravel\Passport\Token;
 use App\Enums\HttpStatusEnum;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
-  public function register(string $fullName, string $email, string $password)
+  public function register(string $fullName, string $email, string $password): HttpStatusEnum
   {
     try {
       User::create([

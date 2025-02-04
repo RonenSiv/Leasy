@@ -12,14 +12,18 @@ use App\Models\Video;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class VideoService
 {
-    public function storeVideo($video)
+    public function storeVideo($video): Video|HttpStatusEnum
     {
         $newVideo = null;
         try {
+
+            DB::beginTransaction();
+
             $videoExtension = $video->getClientOriginalExtension();
             $videoName = uniqid() . '_' . Str::random(10) . '.' . $videoExtension;
             $videoPath = config('filesystems.storage_path') . "/" . $videoName;
@@ -78,8 +82,11 @@ class VideoService
                 'video_id' => $newVideo->id,
             ]);
 
+            DB::commit();
+
             return $newVideo;
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e->getMessage());
             if (Storage::disk(config('filesystems.storage_service'))->exists($videoName)) {
                 Storage::disk(config('filesystems.storage_service'))->delete($videoName);
@@ -88,7 +95,7 @@ class VideoService
         }
     }
 
-    public function updateLastWatchedTime(string $uuid, int $lastWatchedTime)
+    public function updateLastWatchedTime(string $uuid, int $lastWatchedTime): HttpStatusEnum
     {
         try {
             $video = Video::with('videoUserProgresses')
@@ -115,7 +122,7 @@ class VideoService
         }
     }
 
-    public function fixAudio(string $uuid)
+    public function fixAudio(string $uuid): HttpStatusEnum
     {
         try {
             $video = Video::where('uuid', $uuid)->first();

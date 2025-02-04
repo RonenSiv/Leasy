@@ -11,12 +11,12 @@ use App\Models\User;
 
 class UserService
 {
-    public function getAuthUser()
+    public function getAuthUser(): User|HttpStatusEnum
     {
         try {
             $user = User::where('id', Auth::id())->first();
 
-            if (!$user) {
+            if (is_null($user)) {
                 return HttpStatusEnum::NOT_FOUND;
             }
 

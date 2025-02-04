@@ -23,7 +23,7 @@ class ChatService
         $this->gptService = new GptService();
     }
 
-    public function storeChat(string $lectureTitle)
+    public function storeChat(string $lectureTitle): Chat|HttpStatusEnum
     {
         try {
             $newChat = Chat::create([
