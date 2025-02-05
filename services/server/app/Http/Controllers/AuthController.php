@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Http\Requests\RegisterRequest;
 
@@ -62,8 +62,8 @@ class AuthController extends Controller
         );
 
         return match ($status) {
-            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HTTP_Status::CREATED => response()->json(['message' => 'User created successfully'], Response::HTTP_OK),
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::CREATED => response()->json(['message' => 'User created successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
         };
     }
@@ -111,17 +111,19 @@ class AuthController extends Controller
             email: $request->email,
             password: $request->password,
         );
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
+        
         $filteredResult = [
             "email" => $result["email"],
             "full_name" => $result["full_name"],
         ];
+
         return response()
             ->json($filteredResult, Response::HTTP_OK)
             ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
@@ -153,8 +155,8 @@ class AuthController extends Controller
         $status = $this->service->logout();
 
         return match ($status) {
-            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HTTP_Status::OK => response()->json(['message' => 'User logged out successfully'], Response::HTTP_OK),
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::OK => response()->json(['message' => 'User logged out successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
         };
     }

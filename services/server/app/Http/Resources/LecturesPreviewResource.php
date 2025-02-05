@@ -30,6 +30,7 @@ class LecturesPreviewResource extends JsonResource
                 'is_completed' => $progressPercentages == 100,
                 'created_at' => $this->video->created_at->format('d/m/Y'),
             ],
+            'is_favorite' => $this->is_favorite
         ];
     }
 }

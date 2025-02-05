@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Video;
 
 use App\Enums\GptPropmtsEnum;
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 use App\Enums\WhisperFailedEnum;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +28,7 @@ class GptService
             return 'transcription';
 
             if (is_null($video)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
             $output = null;
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
@@ -48,7 +48,7 @@ class GptService
             return $output;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -68,7 +68,7 @@ class GptService
             return $summary;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -86,7 +86,7 @@ class GptService
             return $quiz;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -98,7 +98,7 @@ class GptService
             return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE_PROMPT->value . $message, $chatHistory);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -144,7 +144,7 @@ class GptService
             return $answer;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 }

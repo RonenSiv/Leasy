@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 use Laravel\Passport\Token;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
-  public function register(string $fullName, string $email, string $password)
+  public function register(string $fullName, string $email, string $password): HttpStatusEnum
   {
     try {
       User::create([
@@ -25,21 +25,21 @@ class AuthService
         'password' => Hash::make($password),
       ]);
 
-      return HTTP_Status::CREATED;
+      return HttpStatusEnum::CREATED;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
-      return HTTP_Status::ERROR;
+      return HttpStatusEnum::ERROR;
     }
   }
 
-  public function login(string $email, string $password): HTTP_Status|array
+  public function login(string $email, string $password): HttpStatusEnum|array
   {
     try {
 
       $user = User::where('email', $email)->first();
 
       if (is_null($user) || !Hash::check($password, $user->password)) {
-        return HTTP_Status::UNAUTHORIZED;
+        return HttpStatusEnum::UNAUTHORIZED;
       }
 
       Token::where('user_id', $user->id)->update([
@@ -57,19 +57,19 @@ class AuthService
       ];
     } catch (\Exception $e) {
       Log::error($e->getMessage());
-      return HTTP_Status::ERROR;
+      return HttpStatusEnum::ERROR;
     }
   }
 
-  public function logout(): HTTP_Status
+  public function logout(): HttpStatusEnum
   {
     try {
       Auth::user()->token()->revoke();
 
-      return HTTP_Status::OK;
+      return HttpStatusEnum::OK;
     } catch (\Exception $e) {
       Log::error($e->getMessage());
-      return HTTP_Status::ERROR;
+      return HttpStatusEnum::ERROR;
     }
   }
 }

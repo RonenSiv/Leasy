@@ -237,6 +237,16 @@
                         }
                     },
                     {
+                        "name": "only_favorites",
+                        "in": "query",
+                        "description": "Filter only favorite lectures (true or false).",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
                         "name": "search_by_title",
                         "in": "query",
                         "description": "Search lectures by title prefix (e.g., 'Intro' matches 'Introduction to Physics').",
@@ -361,6 +371,63 @@
                     },
                     "404": {
                         "description": "Lecture not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/lecture/favorite/{uuid}": {
+            "put": {
+                "tags": [
+                    "Lectures"
+                ],
+                "description": "Add a lecture to the user's favorites.",
+                "operationId": "addLectureToFavorites",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the lecture to add to favorites.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Payload containing the favorite status.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "favorite"
+                                ],
+                                "properties": {
+                                    "favorite": {
+                                        "description": "Set to true to add to favorites, false to remove.",
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lecture has been successfully added to favorites"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "description": "Lecture Not Found"
                     },
                     "500": {
                         "description": "An error occurred"

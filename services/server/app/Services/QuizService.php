@@ -8,8 +8,9 @@ use App\Models\Quiz;
 
 use App\Http\Resources\QuestionResource;
 
-use App\Enums\HTTP_Status;
 use App\Enums\WhisperFailedEnum;
+use App\Enums\HttpStatusEnum;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -52,7 +53,7 @@ class QuizService
         $this->gptService = new GptService();
     }
 
-    public function storeQuiz(string $lectureTitle, string $summary)
+    public function storeQuiz(string $lectureTitle, string $summary): Quiz|HttpStatusEnum
     {
         try {
             DB::beginTransaction();
@@ -80,7 +81,7 @@ class QuizService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -91,17 +92,17 @@ class QuizService
                 ->where('uuid', $uuid)->first();
 
             if (is_null($quiz)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             return QuestionResource::collection($quiz->questions);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function answerQuiz(string $uuid, array $answers): array|HTTP_Status
+    public function answerQuiz(string $uuid, array $answers): array|HttpStatusEnum
     {
         try {
             DB::beginTransaction();
@@ -111,27 +112,32 @@ class QuizService
                 ->first();
 
             if (is_null($quiz)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             $score = 0;
             $numOfQuestions = $quiz->questions->count();
             $scorePerQuestion = (int)(100 / $numOfQuestions);
             if ($numOfQuestions <= 0) {
-                return HTTP_Status::BAD_REQUEST;
+                return HttpStatusEnum::BAD_REQUEST;
             }
 
+            $questionsData = [];
             foreach ($answers as $answer) {
-                $question = $quiz->questions->firstWhere('uuid', $answer['question_uuid']);
+                $question = $quiz->questions->where('uuid', $answer['question_uuid'])->first();
                 if (is_null($question)) {
-                    return HTTP_Status::NOT_FOUND;
+                    return HttpStatusEnum::NOT_FOUND;
                 }
-                $correctAnswers = $question->questionOptions->Where('is_correct', true);
-                $isCorrect = $correctAnswers->contains('option_index', $answer['answer']);
+                $correctAnswer = $question->questionOptions->where('is_correct', true)->first();
 
-                if ($isCorrect) {
+                if ($correctAnswer->option_index == $answer['answer']) {
                     $score = $score + $scorePerQuestion;
                 }
+
+                $questionsData[] = [
+                    'selected_option' => (int)$answer['answer'],
+                    'correct_option' => $correctAnswer->option_index,
+                ];
             }
 
             $quiz->update([
@@ -140,16 +146,19 @@ class QuizService
 
             DB::commit();
 
-            return ['score' => $score];
+            return [
+                'score' => $score,
+                'questions_data' => $questionsData,
+            ];
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
     // ----------------------- Private Functions -----------------------
-    private function storeQuizQuestions(Quiz $quiz, array $quizQuestions)
+    private function storeQuizQuestions(Quiz $quiz, array $quizQuestions): HttpStatusEnum
     {
         try {
             DB::beginTransaction();
@@ -175,10 +184,12 @@ class QuizService
                 }
             }
             DB::commit();
+
+            return HttpStatusEnum::OK;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 }

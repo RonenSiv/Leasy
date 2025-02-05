@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\VideoService;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Http\Requests\UpdateLastWatchedTimeRequest;
 
@@ -66,15 +66,15 @@ class VideoController extends Controller
 
     public function updateLastWatchedTime(string $uuid, UpdateLastWatchedTimeRequest $request): JsonResponse
     {
-        $result = $this->videoService->updateLastWatchedTime(
+        $status = $this->videoService->updateLastWatchedTime(
             uuid: $uuid,
             lastWatchedTime: $request->last_watched_time,
         );
 
-        return match ($result) {
-            HTTP_Status::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HTTP_Status::OK => response()->json(['message' => 'last watched time update successfully'], Response::HTTP_OK),
+        return match ($status) {
+            HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::OK => response()->json(['message' => 'last watched time update successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
     }
@@ -113,17 +113,15 @@ class VideoController extends Controller
 
     public function fixAudio(string $uuid): JsonResponse
     {
-        $result = $this->videoService->fixAudio(
+        $status = $this->videoService->fixAudio(
             uuid: $uuid,
         );
 
-        if ($result instanceof HTTP_Status) {
-            return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Video Not Found'], Response::HTTP_NOT_FOUND),
-                HTTP_Status::OK => response()->json(['message' => 'Audio fixed successfully'], Response::HTTP_OK),
-                default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
-            };
-        }
+        return match ($status) {
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Video Not Found'], Response::HTTP_NOT_FOUND),
+            HttpStatusEnum::OK => response()->json(['message' => 'Audio fixed successfully'], Response::HTTP_OK),
+            default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+        };
     }
 }

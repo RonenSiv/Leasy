@@ -4,7 +4,7 @@ namespace App\Services;
 
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Models\VideoUserProgress;
 use App\Models\Video;
@@ -12,14 +12,18 @@ use App\Models\Video;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class VideoService
 {
-    public function storeVideo($video)
+    public function storeVideo($video): Video|HttpStatusEnum
     {
         $newVideo = null;
         try {
+
+            DB::beginTransaction();
+
             $videoExtension = $video->getClientOriginalExtension();
             $videoName = uniqid() . '_' . Str::random(10) . '.' . $videoExtension;
             $videoPath = config('filesystems.storage_path') . "/" . $videoName;
@@ -78,17 +82,20 @@ class VideoService
                 'video_id' => $newVideo->id,
             ]);
 
+            DB::commit();
+
             return $newVideo;
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e->getMessage());
             if (Storage::disk(config('filesystems.storage_service'))->exists($videoName)) {
                 Storage::disk(config('filesystems.storage_service'))->delete($videoName);
             }
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function updateLastWatchedTime(string $uuid, int $lastWatchedTime)
+    public function updateLastWatchedTime(string $uuid, int $lastWatchedTime): HttpStatusEnum
     {
         try {
             $video = Video::with('videoUserProgresses')
@@ -96,7 +103,7 @@ class VideoService
                 ->first();
 
             if (is_null($video)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             $progress = (int)round(($video->videoUserProgresses->first()->last_watched_time / $video->video_duration) * 100);
@@ -108,20 +115,20 @@ class VideoService
                     'progress' => $progress,
                 ]);
 
-            return HTTP_Status::OK;
+            return HttpStatusEnum::OK;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function fixAudio(string $uuid)
+    public function fixAudio(string $uuid): HttpStatusEnum
     {
         try {
             $video = Video::where('uuid', $uuid)->first();
 
             if (is_null($video)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
@@ -130,15 +137,15 @@ class VideoService
                 $output = shell_exec($command);
 
                 if ($output == "ok") {
-                    return HTTP_Status::OK;
+                    return HttpStatusEnum::OK;
                 }
             }
 
             Log::error('Error in Python script');
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 }

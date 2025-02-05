@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum HTTP_Status
+enum HttpStatusEnum
 {
     case OK;
     case GONE;
