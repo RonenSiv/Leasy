@@ -131,6 +131,10 @@ return [
     'openai_max_tokens' => (int)env("OPENAI_MAX_TOKENS"),
     'openai_temperature' => (float)env("OPENAI_TEMPERATURE"),
 
+    'gemini_base_uri' => env("GEMINI_BASE_URI"),
+    'gemini_api_key' => env("GEMINI_API_KEY"),
+    'gemini_model' => env("GEMINI_MODEL"),
+
     'fix_audio_python_script' => env("FIX_AUDIO_PYTHON_SCRIPT"),
     'transcription_from_whisper_python_script' => env("TRANSCRIPTION_FROM_WHISPER_PYTHON_SCRIPT"),
 ];
