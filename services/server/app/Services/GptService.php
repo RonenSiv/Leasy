@@ -228,7 +228,7 @@ class GptService
 
     public function getMindMapJson(string $summary)
     {
-        return self::DEMO_MIND_MAP;
+        return json_encode(self::DEMO_MIND_MAP);
         $response = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary);
         return json_decode($response);
     }
