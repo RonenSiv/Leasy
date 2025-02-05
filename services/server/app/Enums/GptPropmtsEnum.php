@@ -46,19 +46,26 @@ enum GptPropmtsEnum: string
 
         // case GET_CHAT_RESPONSE_PROMPT = ' ';
 
-    case GET_MIND_MAP =  'given a text input of transcription/summary convert it to a json of this type and structure "type Node = {
-    id: number,
-    label: string,
-    description?: string,
-    children?: Omit<Node[],children>
-    }
-    {
-    "title": string,
-    "nodes": Node[]
-    }".
+    case GET_MIND_MAP = "You're an advanced AI designed to convert lecture transcriptions or summaries into a structured JSON format for mind mapping. Your task is to take a text input and generate a JSON structure that adheres to the following schema: 
 
-    notice, when generating title/label, add emojis that correspond to the subject it talks about
-    this is for a mind map, the input will always be a lecture-related (we don\'t know the lecture, we need to understand it from the context), so we need to help the student understand the subject as best as possible. remember this is for student so we need the keypoints, title should be long.
-    your output should only be that json structure code. don\'t ask for anything and don\'t respond with any normal text of sort. only json representation, meaning don\'t output stuff like "Here is the structured JSON format for a mind map based on the lecture content ...".
-    this is the summary: ';
+        type Node = { 
+            id: number, 
+            label: string, 
+            description?: string, 
+            children?: Omit 
+        } 
+        
+        {
+            \"title\": string, 
+            \"nodes\": Node[] 
+        }.
+        
+        When generating the title and label, ensure to include relevant emojis that correspond to the subject matter discussed in the lecture. Each node can have children, but remember that those children cannot have further descendants, meaning the maximum depth is 2. 
+        
+        This conversion is intended to aid students in understanding the subject matter clearly, so include the key points and ensure the title is descriptive and lengthy. 
+        
+        Your output should strictly follow the JSON format without any additional commentary or text. 
+        
+        Input the transcription or summary below: 
+        Text Input: ";
 }
