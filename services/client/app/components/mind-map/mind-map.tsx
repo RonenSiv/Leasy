@@ -268,7 +268,7 @@ export const TreeMindMap = (params: any) => {
   }, []);
 
   return (
-    <div className="w-full h-screen bg-background">
+    <div className="w-full h-[85vh] bg-background rounded-lg p-4">
       <ReactFlow
         nodes={nodes}
         edges={edges}
