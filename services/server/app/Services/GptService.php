@@ -314,6 +314,10 @@ class GptService
         // return json_encode(self::DEMO_MIND_MAP);
         $mindMap = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary);
         Log::alert('MIND MAP: ');
+        if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
+            $jsonMindMap = $matches[1];
+            return json_encode($jsonMindMap, true);
+        }
         return json_encode($mindMap);
     }
 
@@ -342,13 +346,13 @@ class GptService
                 'content' => $prompt,
             ];
 
-            $response = $client->post(config('app.gemini_base_uri') . 'chat/completions', [
+            $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . config('app.gemini_api_key'),
+                    'Authorization' => 'Bearer ' . config('app.openrouter_api_key'),
                     'Content-Type' => 'application/json'
                 ],
                 'json' => [
-                    "model" => config('app.gemini_model'),
+                    "model" => config('app.deepseek_model'),
                     'messages' => $messages,
                     // 'max_tokens' => config('app.openai_max_tokens'),
                     // 'temperature' => config('app.openai_temperature'),
