@@ -7,16 +7,15 @@ import { Quizlet } from "@/app/components/quizlet/quizlet";
 import { LectureResource } from "@/types";
 import useSWR from "swr";
 import { Spinner } from "@/app/components/spinner";
+import { TreeMindMap } from "@/app/components/mind-map/mind-map";
+import { DATA } from "@/mocks/constants";
 
-// Custom hook to fetch quiz questions by quiz uuid
 function useQuizQuestions(quizUuid: string) {
-  // Basic fetcher function
   const fetcher = (url: string) =>
     fetch(url).then((res) => {
       if (!res.ok) throw new Error("Failed to fetch quiz questions");
       return res.json();
     });
-  // Using SWR to fetch data from your endpoint
   const { data, error, isLoading } = useSWR(
     `/api/quiz/questions/${quizUuid}`,
     fetcher,
@@ -59,9 +58,10 @@ export function VideoInfoTabs({ videoData, height }: VideoInfoTabsProps) {
     <Card style={containerStyle} className="h-full">
       <CardContent style={containerStyle} className="p-0 h-full">
         <Tabs defaultValue="transcription" className="w-full h-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="transcription">Transcription</TabsTrigger>
             <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value={"mind-map"}>Mind Map</TabsTrigger>
             <TabsTrigger value="quizlets">Quizlets</TabsTrigger>
           </TabsList>
           <TabsContent value="transcription" className="h-full pb-5">
@@ -76,6 +76,11 @@ export function VideoInfoTabs({ videoData, height }: VideoInfoTabsProps) {
               <div className="p-4 text-sm">
                 {videoData?.summary || "Summary not available yet."}
               </div>
+            </ScrollArea>
+          </TabsContent>
+          <TabsContent value={"mind-map"} className="h-full pb-5">
+            <ScrollArea className="h-full">
+              <TreeMindMap data={DATA} />
             </ScrollArea>
           </TabsContent>
           <TabsContent value="quizlets" className="h-full pb-20">
