@@ -106,7 +106,7 @@ class VideoService
                 return HttpStatusEnum::NOT_FOUND;
             }
 
-            $progress = (int)round(($video->videoUserProgresses->first()->last_watched_time / $video->video_duration) * 100);
+            $progress = (int)round(($lastWatchedTime / $video->video_duration) * 100);
 
             VideoUserProgress::where('video_id', $video->id)
                 ->where('user_id', Auth::id())
