@@ -44,7 +44,7 @@ enum GptPropmtsEnum: string
     Output: The API should return only the summary without any opening sentence or additional remarks.
     Transcription: \n ";
 
-    case GET_CHAT_RESPONSE_PROMPT = ' ';
+    // case GET_CHAT_RESPONSE_PROMPT = ' ';
 
     case GET_MIND_MAP = "You are an advanced data transformation specialist adept at converting text inputs into structured JSON formats.
     Your expertise lies in creating clear and informative mind maps that help students grasp complex lecture content through concise key points and organized structures.

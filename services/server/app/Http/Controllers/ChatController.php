@@ -21,29 +21,26 @@ class ChatController extends Controller
     public function __construct()
     {
         $this->chatService = new ChatService();
-        // TEST - DELETE before prod
-        $this->client = new Client([
-            'base_uri' => config('app.openai_base_uri'),
-        ]);
     }
 
     // TEST - DELETE before prod
     public function testGPT()
     {
         try {
-            $message = 'write to me Ofir in Hebrew';
-            $response = $this->client->post('chat/completions', [
+            $client = new Client();
+            $response = $client->post(config('app.gemini_base_uri') . 'chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . config('app.openai_api_key')
+                    'Authorization' => 'Bearer ' . config('app.gemini_api_key'),
+                    'Content-Type' => 'application/json'
                 ],
                 'json' => [
-                    'model' => config('app.openai_model'),
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-                        ['role' => 'user', 'content' => $message],
-                    ],
-                    'max_tokens' => config('app.openai_max_tokens'),
-                    'temperature' => config('app.openai_temperature'),
+                    "model" => config('app.gemini_model'),
+                    "messages" => [
+                        [
+                            "role" => "user",
+                            "content" => "tell me a 5 lines story about some prince"
+                        ]
+                    ]
                 ],
                 'verify' => false,
             ]);
