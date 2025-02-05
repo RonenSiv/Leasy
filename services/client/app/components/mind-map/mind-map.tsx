@@ -284,6 +284,9 @@ export const TreeMindMap = (params: any) => {
         minZoom={0.2}
         maxZoom={1.5}
         className="bg-background"
+        proOptions={{
+          hideAttribution: true,
+        }}
       >
         <Controls className="bg-background border-border" />
       </ReactFlow>
