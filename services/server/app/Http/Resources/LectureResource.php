@@ -24,7 +24,7 @@ class LectureResource extends JsonResource
             'summary' => $this->summary,
             'quiz' => new QuizResource($this->quiz),
             'chat' => new ChatResource($this->chat),
-            'mind_map' => $this->mind_map
+            'mind_map' => json_decode($this->mind_map),
         ];
     }
 }

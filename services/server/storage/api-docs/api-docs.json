@@ -421,7 +421,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Lecture has been successfully added to favorites"
+                        "description": "Lecture has been successfully added to or removed from favorites"
                     },
                     "204": {
                         "description": "No content"
