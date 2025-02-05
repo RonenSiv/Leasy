@@ -8,7 +8,6 @@ import { LectureResource } from "@/types";
 import useSWR from "swr";
 import { Spinner } from "@/app/components/spinner";
 import { TreeMindMap } from "@/app/components/mind-map/mind-map";
-import { DATA } from "@/mocks/constants";
 
 function useQuizQuestions(quizUuid: string) {
   const fetcher = (url: string) =>
@@ -80,7 +79,7 @@ export function VideoInfoTabs({ videoData, height }: VideoInfoTabsProps) {
           </TabsContent>
           <TabsContent value={"mind-map"} className="h-full pb-5">
             <ScrollArea className="h-full">
-              <TreeMindMap data={DATA} />
+              <TreeMindMap data={videoData.mind_map} />
             </ScrollArea>
           </TabsContent>
           <TabsContent value="quizlets" className="h-full pb-20">

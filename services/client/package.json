@@ -51,6 +51,7 @@
     "next-themes": "^0.3.0",
     "next-unused": "^0.0.6",
     "nprogress": "^0.2.0",
+    "openai": "^4.83.0",
     "rc-drawer": "^7.1.0",
     "react": "^18",
     "react-dom": "^18",

@@ -150,7 +150,7 @@ function VideoGrid({
     { suspense: true },
   );
 
-  const { dashboard, videos } = data || {};
+  const { dashboard, lectures } = data || {};
   const totalPages = dashboard?.num_of_pages || 1;
 
   // Update parent's totalPages
@@ -160,7 +160,7 @@ function VideoGrid({
 
   if (!data) return null;
 
-  if (videos?.length === 0) {
+  if (lectures?.length === 0) {
     return <EmptyState />;
   }
 
@@ -171,14 +171,14 @@ function VideoGrid({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {videos?.map((video: any) => (
+      {lectures?.map((feature: any) => (
         <VideoCard
-          key={video.uuid}
-          lectureId={video.uuid}
-          title={video.title}
-          description={video.description}
-          video={video.video}
-          computedProgress={video.video.progress_percentages}
+          key={feature.uuid}
+          lectureId={feature.uuid}
+          title={feature.title}
+          description={feature.description}
+          video={feature.video}
+          computedProgress={feature.video.progress_percentages}
         />
       ))}
     </motion.div>

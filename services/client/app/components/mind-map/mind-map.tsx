@@ -243,11 +243,13 @@ const calculateLayout = (data: any, theme: string | undefined) => {
 export const TreeMindMap = (params: any) => {
   const { theme, systemTheme } = useTheme();
   const data = params.data || DATA;
+  const parsedData = JSON.parse(data);
+  console.log(parsedData);
   const currentTheme = theme === "system" ? systemTheme : theme;
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => calculateLayout(data, currentTheme),
-    [data, currentTheme],
+    () => calculateLayout(parsedData, currentTheme),
+    [parsedData, currentTheme],
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -256,12 +258,12 @@ export const TreeMindMap = (params: any) => {
   // Update nodes and edges when theme changes
   useEffect(() => {
     const { nodes: newNodes, edges: newEdges } = calculateLayout(
-      data,
+      parsedData,
       currentTheme,
     );
     setNodes(newNodes);
     setEdges(newEdges);
-  }, [currentTheme, data, setNodes, setEdges]);
+  }, [currentTheme, setNodes, setEdges]);
 
   const onInit = useCallback((reactFlowInstance: any) => {
     reactFlowInstance.fitView({ padding: 0.2 });

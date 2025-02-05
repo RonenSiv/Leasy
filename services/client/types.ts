@@ -33,6 +33,13 @@ interface QuestionResource {
   }[];
 }
 
+type Node = {
+  id: number;
+  label: string;
+  description?: string;
+  children?: Node[];
+};
+
 export interface LectureResource {
   uuid: string;
   title: string;
@@ -43,17 +50,22 @@ export interface LectureResource {
   summary: string;
   quiz: QuizResource;
   chat: ChatResource;
+  mind_map: {
+    title: string;
+    nodes: Node[];
+  };
 }
 
 export interface LecturesPreviewResource {
   dashboard: DashboardResource;
-  videos: VideoPreviewResource[];
+  lectures: VideoPreviewResource[];
 }
 
 export interface DashboardResource {
-  total_videos: number;
+  total_lectures: number;
   overall_progress: number;
-  completed_videos: number;
+  completed_lectures: number;
+  incomplete_lectures: number;
   num_of_pages: number;
 }
 
@@ -61,6 +73,7 @@ export interface VideoPreviewResource {
   uuid: string;
   title: string;
   description: string;
+  is_favorite: boolean;
   video: {
     uuid: string;
     preview_image_url: string;

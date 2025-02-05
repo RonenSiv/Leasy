@@ -25,11 +25,11 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ serverData }: DashboardContentProps) {
-  console.log(serverData);
-  const { dashboard, videos } = serverData;
+  const { dashboard, lectures } = serverData;
   const { user } = useUser();
-  const { total_videos, completed_videos, overall_progress } = dashboard;
-  const recentVideos = videos.slice(0, RECENT_VIDEOS_COUNT);
+  const { total_lectures, completed_lectures, overall_progress } = dashboard;
+  console.log(dashboard);
+  const recentVideos = lectures.slice(0, RECENT_VIDEOS_COUNT);
 
   // We might greet the user by name if we have a separate user hook
   const userName = user?.full_name?.split(" ")[0] || "there";
@@ -60,12 +60,12 @@ export function DashboardContent({ serverData }: DashboardContentProps) {
         <StatCard
           icon={<Clock className="h-6 w-6" />}
           title="Total Videos"
-          value={`${total_videos} videos`}
+          value={`${total_lectures} videos`}
         />
         <StatCard
           icon={<Users className="h-6 w-6" />}
           title="Completed Videos"
-          value={completed_videos.toString()}
+          value={completed_lectures.toString()}
         />
         <StatCard
           icon={<Eye className="h-6 w-6" />}
