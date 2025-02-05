@@ -102,6 +102,12 @@ class GptService
         }
     }
 
+    public function getMindMapJson(string $summary)
+    {
+        $response = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary);
+        return json_decode($response, true); // Decode JSON string into an associative array
+    }
+
     // ------------------- private Functions -------------------
 
     private function getGptResponse(string $prompt, array $chatHistory = [])

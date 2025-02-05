@@ -20,6 +20,7 @@ class Lecture extends Model
         'transcription',
         'summary',
         'is_favorite',
+        'mind_map',
     ];
     protected $hidden = [
         'created_at',

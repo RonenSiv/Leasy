@@ -46,6 +46,8 @@ class LectureService
 
             $summary = $this->gptService->getSummary($transcription);
 
+            $mindMap = $this->gptService->getMindMapJson($summary);
+
             $newChat = $this->chatService->storeChat($title);
 
             $newQuiz = $this->quizService->storeQuiz($title, $summary);
@@ -60,6 +62,7 @@ class LectureService
                 'quiz_id' => $newQuiz->id,
                 'transcription' => $transcription,
                 'summary' => $summary,
+                'mind_map' => $mindMap,
             ]);
 
             DB::commit();
