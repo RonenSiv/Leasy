@@ -240,7 +240,7 @@ const calculateLayout = (data: any, theme: string | undefined) => {
   return { nodes, edges };
 };
 
-export const TreeMindMap = (params: any) => {
+export default function TreeMindMap(params: any) {
   const { theme, systemTheme } = useTheme();
   const data = params.data || DATA;
   const currentTheme = theme === "system" ? systemTheme : theme;
@@ -289,4 +289,4 @@ export const TreeMindMap = (params: any) => {
       </ReactFlow>
     </div>
   );
-};
+}

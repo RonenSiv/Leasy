@@ -1,121 +1,194 @@
 export const DATA = {
-  title: "Machine Learning Overview",
+  title: "🧠 Machine Learning Algorithms: A 17-Minute Guide",
   nodes: [
     {
       id: 1,
-      label: "Definition",
+      label: "📌 Introduction",
       description:
-        "Machine learning enables computers to learn from data rather than explicit instructions.",
-    },
-    {
-      id: 2,
-      label: "History",
-      description:
-        "The term was coined by Arthur Samuel in 1959 during his work at IBM on AI for checkers.",
-    },
-    {
-      id: 3,
-      label: "Applications",
-      description:
-        "Used in everyday products for classifying data and predicting outcomes, like stock prices or video recommendations.",
+        "Overview of machine learning algorithms to help choose the right one.",
       children: [
         {
-          id: 31,
-          label: "Classification",
+          id: 2,
+          label: "👨‍🏫 About the Speaker",
           description:
-            "Assigning data into categories, such as spam detection in emails.",
+            "Tim, a data scientist with 10+ years of experience in teaching ML.",
         },
         {
-          id: 32,
-          label: "Prediction",
+          id: 3,
+          label: "🎯 Goal",
           description:
-            "Forecasting future data points, like predicting stock prices.",
+            "Provide an intuitive understanding of major ML algorithms.",
+        },
+        {
+          id: 4,
+          label: "📖 Definition of ML",
+          description:
+            "Field of AI that uses statistical models to learn from data.",
         },
       ],
-    },
-    {
-      id: 4,
-      label: "Data Importance",
-      description:
-        "Quality data is crucial; 'garbage in, garbage out' emphasizes the need for clean, representative data.",
     },
     {
       id: 5,
-      label: "Feature Engineering",
-      description:
-        "Data scientists transform raw data into features for better algorithm performance.",
-    },
-    {
-      id: 6,
-      label: "Algorithm Selection",
-      description:
-        "Various algorithms exist, from simple models to complex neural networks for tasks like image recognition.",
-    },
-    {
-      id: 7,
-      label: "Model Deployment",
-      description:
-        "The final model predicts outcomes and can be deployed on devices or in the cloud for real-world applications.",
+      label: "📂 Machine Learning Categories",
+      description: "ML is broadly divided into two main types.",
       children: [
         {
-          id: 71,
-          label: "TEST 1",
-          description:
-            "Machine learning mimics organic learning, allowing systems to adapt and improve through experience rather than fixed programming.",
+          id: 6,
+          label: "📊 Supervised Learning",
+          description: "Learning from labeled data.",
+          children: [
+            {
+              id: 7,
+              label: "🏡 Regression",
+              description: "Predicting continuous values (e.g., house prices).",
+            },
+            {
+              id: 8,
+              label: "📩 Classification",
+              description:
+                "Predicting discrete categories (e.g., spam detection).",
+            },
+          ],
         },
         {
-          id: 72,
-          label: "TEST2",
-          description:
-            "Arthur Samuel's foundational work laid the groundwork for modern AI, illustrating how long-standing research has evolved into everyday technologies.",
+          id: 9,
+          label: "🔍 Unsupervised Learning",
+          description: "Finding patterns in unlabeled data.",
+          children: [
+            {
+              id: 10,
+              label: "📬 Clustering",
+              description: "Grouping similar data points together.",
+            },
+            {
+              id: 11,
+              label: "🔽 Dimensionality Reduction",
+              description:
+                "Reducing data complexity while retaining information.",
+            },
+          ],
         },
       ],
     },
     {
-      id: 8,
-      label: "Key Insights",
+      id: 12,
+      label: "🛠️ Machine Learning Algorithms",
+      description: "Overview of key ML algorithms.",
       children: [
         {
-          id: 81,
-          label: "Learning from Data",
-          description:
-            "Machine learning mimics organic learning, allowing systems to adapt and improve through experience rather than fixed programming.",
+          id: 13,
+          label: "📈 Linear Regression",
+          description: "Models a linear relationship between input and output.",
         },
         {
-          id: 82,
-          label: "Historical Context",
-          description:
-            "Arthur Samuel's foundational work laid the groundwork for modern AI, illustrating how long-standing research has evolved into everyday technologies.",
+          id: 14,
+          label: "📊 Logistic Regression",
+          description: "Classification algorithm using the sigmoid function.",
         },
         {
-          id: 83,
-          label: "Classification and Prediction",
-          description:
-            "Understanding the two main functions of machine learning—classification and prediction—highlights its utility in decision-making across industries.",
+          id: 15,
+          label: "🤝 K-Nearest Neighbors (KNN)",
+          description: "Predicts output based on the closest K data points.",
         },
         {
-          id: 84,
-          label: "Data Quality",
-          description:
-            "The emphasis on data quality underscores the critical role of data preparation, reminding us that insights are only as good as the data we feed into algorithms.",
+          id: 16,
+          label: "📏 Support Vector Machines (SVM)",
+          description: "Finds optimal decision boundary between classes.",
         },
         {
-          id: 85,
-          label: "Role of Feature Engineering",
+          id: 17,
+          label: "📧 Naïve Bayes",
           description:
-            "Feature engineering is essential for transforming raw data into valuable inputs for algorithms, showcasing the importance of data scientists in the machine learning pipeline.",
+            "Uses probability theory for classification (e.g., spam filtering).",
         },
         {
-          id: 86,
-          label: "Algorithm Complexity",
-          description:
-            "The range of algorithms available allows for tailored solutions to specific problems, from simple linear models to advanced neural networks, catering to varying data complexities.",
+          id: 18,
+          label: "🌳 Decision Trees",
+          description: "Uses a tree-like model for decision-making.",
+          children: [
+            {
+              id: 19,
+              label: "🌲 Random Forest",
+              description:
+                "Combines multiple decision trees for better predictions.",
+            },
+            {
+              id: 20,
+              label: "🚀 Boosting",
+              description:
+                "Sequentially improves weak models (e.g., AdaBoost, XGBoost).",
+            },
+          ],
         },
         {
-          id: 87,
-          label: "Real-World Applications",
+          id: 21,
+          label: "🧠 Neural Networks",
           description:
-            "Deploying machine learning models in practical settings demonstrates its transformative potential across industries, emphasizing the shift from theory to tangible benefits for society.",
+            "Mimics human brain structure to learn complex patterns.",
+          children: [
+            {
+              id: 22,
+              label: "🔗 Deep Learning",
+              description:
+                "Uses multiple hidden layers to learn hierarchical features.",
+            },
+          ],
+        },
+        {
+          id: 23,
+          label: "🌀 Clustering Algorithms",
+          description: "Groups similar data points together.",
+          children: [
+            {
+              id: 24,
+              label: "🔹 K-Means Clustering",
+              description: "Divides data into K groups based on similarity.",
+            },
+            {
+              id: 25,
+              label: "📏 Hierarchical Clustering",
+              description: "Creates a hierarchy of clusters.",
+            },
+            {
+              id: 26,
+              label: "🌍 DBSCAN",
+              description:
+                "Detects clusters of arbitrary shape without predefined K.",
+            },
+          ],
+        },
+        {
+          id: 27,
+          label: "📉 Dimensionality Reduction",
+          description:
+            "Reduces number of features while preserving information.",
+          children: [
+            {
+              id: 28,
+              label: "🔍 Principal Component Analysis (PCA)",
+              description: "Finds the most informative directions in data.",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 29,
+      label: "📋 Summary",
+      description:
+        "Machine learning algorithms are diverse, and choosing the right one depends on the problem.",
+      children: [
+        {
+          id: 30,
+          label: "🗺️ Cheat Sheet",
+          description:
+            "Scikit-learn provides a useful guide for algorithm selection.",
+        },
+        {
+          id: 31,
+          label: "📚 Learning Roadmap",
+          description:
+            "Further resources available in the speaker’s other videos.",
         },
       ],
     },
