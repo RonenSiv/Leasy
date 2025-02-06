@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { marked } from "marked";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import ReactMarkdown from "react-markdown";
 
 const docSections = [
   {
@@ -255,11 +257,13 @@ export default function DocumentationPage() {
           <div className="max-w-3xl mx-auto px-8 py-12">
             <div className="prose dark:prose-invert max-w-none">
               {currentSubsection && (
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: marked(currentSubsection.content),
-                  }}
-                />
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                  className={"markdown"}
+                >
+                  {currentSubsection.content}
+                </ReactMarkdown>
               )}
             </div>
           </div>

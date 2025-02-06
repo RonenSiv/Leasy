@@ -8,6 +8,7 @@ import { LectureResource } from "@/types";
 import useSWR from "swr";
 import { Spinner } from "@/app/components/spinner";
 import { TreeMindMap } from "@/app/components/mind-map/mind-map";
+import { MarkDownViewer } from "@/app/components/mark-down-viewer";
 
 function useQuizQuestions(quizUuid: string) {
   const fetcher = (url: string) =>
@@ -65,15 +66,20 @@ export function VideoInfoTabs({ videoData, height }: VideoInfoTabsProps) {
           </TabsList>
           <TabsContent value="transcription" className="h-full pb-5">
             <ScrollArea className="h-full">
-              <div className="p-4 text-sm">
-                {videoData?.transcription || "Transcription not available yet."}
+              <div className="p-4 text-sm max-w-full">
+                <MarkDownViewer>
+                  {videoData?.transcription ||
+                    "Transcription not available yet."}
+                </MarkDownViewer>
               </div>
             </ScrollArea>
           </TabsContent>
           <TabsContent value="summary" className="h-full pb-5">
             <ScrollArea className="h-full">
               <div className="p-4 text-sm">
-                {videoData?.summary || "Summary not available yet."}
+                <MarkDownViewer>
+                  {videoData?.summary || "Summary not available yet."}
+                </MarkDownViewer>
               </div>
             </ScrollArea>
           </TabsContent>

@@ -2,7 +2,7 @@ import { getChatMessages, getLecture } from "./server-actions";
 
 export async function getFullLectureData(id: string) {
   const lectureResponse = await getLecture(id);
-  const lectureData = lectureResponse.data;
+  const lectureData = lectureResponse?.data;
 
   // Fetch all pages of chat messages (adjust as needed)
   let page = 1;

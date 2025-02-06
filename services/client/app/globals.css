@@ -56,3 +56,17 @@ body {
     animation: none !important;
 }
 
+.markdown > * {
+    all: revert;
+}
+
+.markdown {
+    max-width: 50rem;
+}
+
+.markdown pre,
+.markdown code,
+.markdown p {
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
