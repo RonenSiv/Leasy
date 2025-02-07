@@ -653,6 +653,92 @@
                     }
                 }
             }
+        },
+        "/api/video/stream/{uuid}": {
+            "get": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Stream a video file",
+                "description": "Streams a video file stored on the server. Supports range requests for efficient playback.",
+                "operationId": "streamVideo",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to stream",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Full video stream",
+                        "headers": {
+                            "Content-Type": {
+                                "description": "MIME type of the video",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Accept-Ranges": {
+                                "description": "Indicates byte-range support",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Content-Length": {
+                                "description": "Total file size",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "Content-Range": {
+                                "description": "Byte range for partial content",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "video/mp4": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "206": {
+                        "description": "Partial video stream (for range requests)",
+                        "headers": {
+                            "Content-Range": {
+                                "description": "Byte range served",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "video/mp4": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
         }
     }
 }
