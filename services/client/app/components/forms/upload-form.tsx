@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-import { useUser } from "@/hooks/use-user"; // optional if you have a user hook
+import Image from "next/image";
+import { useLectures } from "@/hooks/use-lectures";
+import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { UploadProgress as UploadProgressType } from "@/types";
 import { DragDropFile } from "../drag-drop-file";
 import { UploadProgress } from "../upload/upload-progress";
-import Image from "next/image";
 
-/** Optional skeleton for loading states */
 function UploadFormSkeleton() {
   return (
     <div className="p-4 border border-dashed rounded-md space-y-2">
@@ -25,45 +24,50 @@ function UploadFormSkeleton() {
   );
 }
 
-export function UploadForm() {
-  // If you have a user hook that ensures they're logged in:
-  const { user, isLoading, isError } = useUser();
+export function VideoUpload() {
   const router = useRouter();
+  const { mutate } = useLectures({});
 
   const [file, setFile] = useState<File | null>(null);
   const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgressType>({
+    loaded: 0,
+    total: 0,
+    percentage: 0,
+  });
+  // New state for status text below the percentage
+  const [uploadStatus, setUploadStatus] = useState("Uploading video");
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Ref to store the slow increment interval
+  const slowIncrementIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Avoid hydration mismatch
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // 1) If user is still loading or not mounted => skeleton
-  if (!mounted || isLoading) {
+  if (!mounted) {
     return <UploadFormSkeleton />;
   }
 
-  // 2) If user fetching error or no user => redirect
-  if (isError || !user) {
-    toast.error("You must be logged in to upload");
-    router.push("/login");
-    return null;
-  }
-
-  // Called when file is dropped or selected
   const handleFileSelect = (selectedFile: File) => {
+    if (selectedFile.type !== "video/mp4") {
+      toast.error("Please select a valid .mp4 file");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+
     setFile(selectedFile);
     setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
     setDescription(
       `This is a video about ${selectedFile.name.replace(/\.[^/.]+$/, "")}.`,
     );
 
-    // Optionally generate a thumbnail
     const reader = new FileReader();
     reader.onload = (e) => {
       const video = document.createElement("video");
@@ -83,56 +87,103 @@ export function UploadForm() {
     reader.readAsDataURL(selectedFile);
   };
 
-  // Handle the actual upload
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!file) {
-      toast.error("No file selected");
+    if (!file || !title || !description) {
+      toast.error("Please fill in all fields and select a video file");
       return;
     }
 
     setUploading(true);
-    setUploadProgress(0);
+    setUploadProgress({ loaded: 0, total: 0, percentage: 0 });
+    setUploadStatus("Uploading video");
     abortControllerRef.current = new AbortController();
 
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("video", file);
+
+    if (thumbnail) {
+      const thumbBlob = await fetch(thumbnail).then((r) => r.blob());
+      formData.append("thumbnail", thumbBlob, "thumbnail.jpg");
+    }
+
     try {
-      // Build FormData
-      const formData = new FormData();
-      formData.append("video", file);
-      formData.append("title", title);
-      formData.append("description", description);
-
-      if (thumbnail) {
-        const thumbBlob = await fetch(thumbnail).then((r) => r.blob());
-        formData.append("thumbnail", thumbBlob, "thumbnail.jpg");
-      }
-
-      // Send to our Next.js route, which proxies to the real backend
-      // reading the HttpOnly cookie server-side.
-      const res = await axios.post("/api/upload", formData, {
+      const response = await api.post("/lecture", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         onUploadProgress: (progressEvent) => {
-          // Because Next buffers, this may only update once near 100%
-          if (progressEvent.total) {
-            const percent = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total,
-            );
-            setUploadProgress(percent);
+          const total = progressEvent.total || 0;
+          const loaded = progressEvent.loaded || 0;
+          let computedPercentage = Math.round((loaded * 100) / total);
+
+          // If not fully uploaded yet, update normally
+          if (computedPercentage < 100) {
+            // Clear any existing slow increment interval if new progress comes in
+            if (slowIncrementIntervalRef.current) {
+              clearInterval(slowIncrementIntervalRef.current);
+              slowIncrementIntervalRef.current = null;
+            }
+            setUploadStatus("Uploading video");
+            setUploadProgress({
+              loaded,
+              total,
+              percentage: computedPercentage,
+            });
+          } else {
+            // When upload is done client-side, switch to "Processing video"
+            setUploadStatus("Processing video");
+            // Start a slow increment if not already started
+            if (!slowIncrementIntervalRef.current) {
+              slowIncrementIntervalRef.current = setInterval(() => {
+                setUploadProgress((prev) => {
+                  let newPerc = prev.percentage + 1;
+                  if (newPerc >= 98) {
+                    newPerc = 98;
+                    if (slowIncrementIntervalRef.current) {
+                      clearInterval(slowIncrementIntervalRef.current);
+                      slowIncrementIntervalRef.current = null;
+                    }
+                  }
+                  return { ...prev, percentage: newPerc };
+                });
+              }, 500);
+            }
           }
         },
         signal: abortControllerRef.current.signal,
       });
 
-      // Suppose the backend returns { uuid: ... }
-      toast.success("Uploaded successfully");
-      console.log(res.data);
-      router.push(`/video/${res.data.data.uuid}`);
-    } catch (err) {
-      console.error("Upload error:", err);
-      toast.error("Upload failed");
+      // Clear slow increment (if still running) and force progress to 100%
+      if (slowIncrementIntervalRef.current) {
+        clearInterval(slowIncrementIntervalRef.current);
+        slowIncrementIntervalRef.current = null;
+      }
+      setUploadProgress((prev) => ({ ...prev, percentage: 100 }));
+      // Update status text to indicate processing is done
+      setUploadStatus("Processing video");
+
+      // Reset form fields
+      setTitle("");
+      setDescription("");
+      setFile(null);
+      setThumbnail(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      await mutate();
+      toast.success(response.data.message);
+      router.push(`/video/${response.data.data.uuid}`);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      toast.error("Failed to upload video. Please try again.");
     } finally {
       setUploading(false);
-      setUploadProgress(0);
+      setUploadProgress({ loaded: 0, total: 0, percentage: 0 });
+      setUploadStatus("Uploading video");
     }
   };
 
@@ -155,7 +206,7 @@ export function UploadForm() {
             {thumbnail ? (
               <div className="relative w-full h-40">
                 <Image
-                  src={thumbnail}
+                  src={thumbnail || "/placeholder.svg"}
                   alt="Video thumbnail"
                   fill
                   style={{ objectFit: "cover" }}
@@ -169,6 +220,9 @@ export function UploadForm() {
                   onClick={() => {
                     setFile(null);
                     setThumbnail(null);
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = "";
+                    }
                   }}
                 >
                   Change
@@ -214,9 +268,11 @@ export function UploadForm() {
         </form>
       </motion.div>
 
+      {/* Pass both the progress percentage and status text to your UploadProgress component */}
       <UploadProgress
         open={uploading}
-        progress={uploadProgress}
+        progress={uploadProgress.percentage}
+        status={uploadStatus}
         onCancel={handleCancelUpload}
       />
     </>

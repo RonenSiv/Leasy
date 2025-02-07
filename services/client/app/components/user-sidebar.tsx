@@ -33,11 +33,11 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
-import { useUser } from "@/hooks/use-user";
+import { useAuth } from "@/lib/auth";
 import { Spinner } from "@/app/components/spinner";
 
 export function UserSidebar() {
-  const { user, isLoading, handleLogout: userLogout } = useUser();
+  const { user, isLoading, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const router = useRouter();
@@ -60,10 +60,8 @@ export function UserSidebar() {
     setShowLogoutDialog(false);
     setIsOpen(false);
     try {
-      const result = await userLogout();
-      if (result?.success) {
-        router.push("/login");
-      }
+      await logout();
+      router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     }

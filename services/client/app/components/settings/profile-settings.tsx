@@ -4,15 +4,16 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUser } from "@/hooks/use-user";
+import { useAuth } from "@/lib/auth";
 
 export function ProfileSettings() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [name, setName] = useState(user?.full_name || "");
   const [email, setEmail] = useState(user?.email || "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Implement profile update logic here
     console.log("Profile updated", { name, email });
   };
 

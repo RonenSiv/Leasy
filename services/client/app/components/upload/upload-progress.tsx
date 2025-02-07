@@ -16,12 +16,14 @@ import { Button } from "@/components/ui/button";
 interface UploadProgressProps {
   open: boolean;
   progress: number;
+  status: string;
   onCancel: () => void;
 }
 
 export function UploadProgress({
   open,
   progress,
+  status,
   onCancel,
 }: UploadProgressProps) {
   const { reduceMotion } = useSettings();
@@ -55,9 +57,12 @@ export function UploadProgress({
       <Dialog open={open} onOpenChange={() => setShowWarning(true)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Processing</DialogTitle>
+            <DialogTitle>
+              {status === "Processing video" ? "Processing" : "Uploading"}
+            </DialogTitle>
             <DialogDescription>
-              Please wait while we process your file
+              Please wait while we{" "}
+              {status === "Processing video" ? "process" : "upload"} your file
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
@@ -70,6 +75,9 @@ export function UploadProgress({
               <Progress value={progress} className="h-2" />
               <p className="text-sm text-center text-muted-foreground">
                 {Math.round(progress)}% complete
+              </p>
+              <p className="text-sm text-center text-muted-foreground">
+                {status}
               </p>
             </motion.div>
             <p className="text-sm text-center text-muted-foreground">

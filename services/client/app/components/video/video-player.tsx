@@ -1,119 +1,66 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Spinner } from "@/app/components/spinner";
-import { updateWatchTime } from "@/app/actions/server-actions";
+import { useEffect, useRef } from "react";
+import { Video } from "@/types/api-types";
+import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
 
 interface VideoPlayerProps {
-  videoUrl: string;
-  videoId: string;
-  startTime?: number; // last watched time in seconds
+  video: Video;
+  onTimeUpdate?: (time: number) => void;
 }
 
-export function VideoPlayer({
-  videoUrl,
-  videoId,
-  startTime = 0,
-}: VideoPlayerProps) {
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
+
+export function VideoPlayer({ video, onTimeUpdate }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [currentTime, setCurrentTime] = useState(startTime);
-  const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const hasSetStartTimeRef = useRef(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // Store the last time that we updated the weekly progress (in seconds)
+  const lastUpdateTimeRef = useRef<number>(video.last_watched_time || 0);
+  // Use this ref to throttle the callback (in seconds)
+  const lastThrottleCallRef = useRef<number>(0);
+  // Throttle interval (in seconds)
+  const THROTTLE_INTERVAL = 5;
+
+  useEffect(() => {
+    if (videoRef.current && video.last_watched_time > 0) {
+      videoRef.current.currentTime = video.last_watched_time;
+      lastUpdateTimeRef.current = video.last_watched_time;
+      lastThrottleCallRef.current = video.last_watched_time;
+    }
+  }, [video.last_watched_time]);
 
   const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const time = Math.floor(videoRef.current.currentTime);
-      if (time - currentTime > 5) {
-        updateLastWatchedTime(time);
-        setCurrentTime(time);
+    if (!videoRef.current) return;
+    const currentTime = videoRef.current.currentTime;
+    onTimeUpdate?.(Math.floor(currentTime));
+
+    // Throttle: only update if THROTTLE_INTERVAL seconds have passed since last throttle call
+    if (currentTime - lastThrottleCallRef.current >= THROTTLE_INTERVAL) {
+      const delta = currentTime - lastUpdateTimeRef.current;
+      console.log("Delta computed:", delta);
+      // Only update if there's at least a 0.5-second increase
+      if (delta >= 0.5) {
+        // Round the delta to the nearest whole number
+        updateWeeklyProgress({
+          videoId: video.uuid,
+          timeSpent: Math.round(delta),
+        });
+        lastUpdateTimeRef.current = currentTime;
       }
-      if (videoRef.current.currentTime >= videoRef.current.duration - 1) {
-        updateLastWatchedTime(videoRef.current.duration);
-        setCurrentTime(videoRef.current.duration);
-      }
+      lastThrottleCallRef.current = currentTime;
     }
   };
 
-  const updateLastWatchedTime = (time: number = currentTime) => {
-    updateWatchTime(videoId, time).catch((err) => console.error(err));
-  };
-
-  useEffect(() => {
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
-    let blobUrl: string | null = null;
-    let isMounted = true;
-
-    const fetchVideo = async () => {
-      if (!videoUrl) return;
-      try {
-        setLoading(true);
-        const videoEndpoint = videoUrl.split("/").pop();
-        const response = await fetch(`/api/video/${videoEndpoint}`, {
-          signal,
-          cache: "no-store",
-        });
-        if (!response.ok) throw new Error("Failed to fetch video");
-        const blob = await response.blob();
-        blobUrl = URL.createObjectURL(blob);
-        if (isMounted) {
-          setVideoSrc(blobUrl);
-          setLoading(false);
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("API call failed:", error);
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchVideo().then(() => {
-      if (isMounted && videoRef.current) {
-        videoRef.current.currentTime = startTime;
-        hasSetStartTimeRef.current = true;
-      }
-    });
-
-    return () => {
-      isMounted = false;
-      abortControllerRef.current?.abort();
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
-    };
-  }, [videoUrl]);
-
+  const videoUrl = `/video/stream/${video.uuid}`;
   return (
-    <div className="aspect-video bg-black flex-1 relative">
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <Spinner />
-        </div>
-      )}
+    <div className="w-full aspect-video relative">
       <video
         ref={videoRef}
-        src={videoSrc || undefined}
+        className="w-full h-full rounded-lg"
         controls
-        preload="auto"
-        onCanPlay={() => {
-          if (
-            videoRef.current &&
-            videoRef.current.currentTime < 1 &&
-            !hasSetStartTimeRef.current
-          ) {
-            videoRef.current.currentTime = startTime;
-            hasSetStartTimeRef.current = true;
-          }
-        }}
+        poster={video.preview_image_url}
         onTimeUpdate={handleTimeUpdate}
-        onLoadedData={() => setLoading(false)}
-        onSeekedCapture={() => {
-          handleTimeUpdate();
-          setCurrentTime(Math.floor(videoRef.current?.currentTime || 0));
-        }}
-        className="w-full h-full"
       >
+        <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
     </div>

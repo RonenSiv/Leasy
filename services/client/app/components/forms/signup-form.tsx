@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import toast from "react-hot-toast";
-import { useUser } from "@/hooks/use-user";
+import { useAuth } from "@/lib/auth";
 
 const signupSchema = z
   .object({
@@ -41,7 +41,8 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { handleRegister } = useUser();
+  // Directly use the register function from useAuth
+  const { register: handleRegister } = useAuth();
 
   const {
     register,
@@ -55,8 +56,9 @@ export function SignupForm() {
     setIsLoading(true);
     setError(null);
     try {
+      // Map fullName to full_name as expected by the API
       await handleRegister({
-        fullName: data.fullName,
+        full_name: data.fullName,
         email: data.email,
         password: data.password,
       });

@@ -49,7 +49,7 @@ export function DragDropFile({ onFileSelect }: DragDropFileProps) {
       <p className="text-lg font-medium mb-2">Drag and drop your video here</p>
       <p className="text-sm text-muted-foreground">or click to select a file</p>
       <p className="text-xs text-muted-foreground mt-2">
-        Supported formats: MP4, MOV, AVI, MKV
+        Supported format: MP4
       </p>
     </div>
   );

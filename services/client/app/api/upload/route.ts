@@ -1,44 +1,50 @@
-import { NextResponse } from "next/server";
+// pages/api/video/[uuid].ts
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function POST(req: Request) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { uuid: string } },
+) {
   const token = cookies().get("LeasyToken")?.value;
   if (!token) {
-    return NextResponse.json({ error: "No token found" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const videoUuid = params.uuid;
+  const range = req.headers.get("range");
+
   try {
-    const formData = await req.formData();
+    // Forward the request to your Laravel backend
+    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/video/${videoUuid}`;
+    const headers: HeadersInit = {
+      Authorization: `Bearer ${token}`,
+    };
 
-    const newFormData = new FormData();
-    // @ts-ignore
-    for (const [key, value] of formData.entries()) {
-      newFormData.append(key, value);
+    // If range header exists, forward it
+    if (range) {
+      headers["Range"] = range;
     }
 
-    const backendRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/lecture`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: newFormData,
-      },
+    const response = await fetch(backendUrl, {
+      headers,
+    });
+
+    // Forward the response headers and status
+    const newHeaders = new Headers();
+    response.headers.forEach((value, key) => {
+      newHeaders.set(key, value);
+    });
+
+    return new NextResponse(response.body, {
+      status: response.status,
+      headers: newHeaders,
+    });
+  } catch (error) {
+    console.error("Error streaming video:", error);
+    return NextResponse.json(
+      { error: "Error streaming video" },
+      { status: 500 },
     );
-
-    if (!backendRes.ok) {
-      return NextResponse.json(
-        { error: "Upload failed" },
-        { status: backendRes.status },
-      );
-    }
-
-    const data = await backendRes.json();
-    console.log(data);
-    return NextResponse.json(data);
-  } catch (err) {
-    console.error("Server error in /api/upload route:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

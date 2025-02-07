@@ -8,6 +8,7 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } },
 ) {
+  console.log(`API URL: ${baseUrl}/storage/${params.id}`);
   try {
     const response = await fetch(`${baseUrl}/storage/${params.id}`, {
       credentials: "include",

@@ -173,3 +173,15 @@ export interface CreateLectureResponse {
     uuid: string;
   };
 }
+
+export interface UploadVideoPayload {
+  title: string;
+  description: string;
+  video: File;
+}
+
+export interface UploadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
+}

@@ -3,11 +3,11 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserSidebar } from "../user-sidebar";
-import { useUser } from "@/hooks/use-user";
+import { useAuth } from "@/lib/auth";
 import { Spinner } from "@/app/components/spinner";
 
 export function HeaderContent() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (

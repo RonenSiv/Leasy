@@ -1,67 +1,47 @@
-"use client";
-
-import { useState } from "react";
-import { Play, Upload, VideoOff } from "lucide-react";
+import type React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { Search } from "lucide-react";
 
-export function EmptyState() {
-  const [isHovered, setIsHovered] = useState(false);
+interface Action {
+  label: string;
+  href: string;
+}
 
+interface EmptyStateProps {
+  title: string;
+  description: string;
+  primaryAction: Action;
+  secondaryAction?: Action;
+  icon?: React.ReactNode;
+}
+
+export function EmptyState({
+  title,
+  description,
+  primaryAction,
+  secondaryAction,
+  icon = <Search className="w-10 h-10 text-primary" />,
+}: EmptyStateProps) {
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardContent>
-        <motion.div
-          className="flex flex-col items-center justify-center py-20 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            className="relative mb-8 w-24 h-24"
-            animate={{ rotate: isHovered ? 360 : 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.div
-              initial={{ opacity: 1 }}
-              animate={{ opacity: isHovered ? 0 : 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <VideoOff className="w-24 h-24 text-muted-foreground absolute top-0 left-0" />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Upload className="w-24 h-24 text-primary absolute top-0 left-0" />
-            </motion.div>
-          </motion.div>
-          <h3 className="text-3xl font-bold mb-4">No Videos Found</h3>
-          <p className="text-xl text-muted-foreground mb-8 max-w-md">
-            You haven&apos;t uploaded any videos yet. Get started by uploading
-            your first video and transform your learning experience.
-          </p>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              asChild
-              size="lg"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <Link href="/upload" className="flex items-center">
-                {isHovered ? (
-                  <Play className="mr-2 h-5 w-5" />
-                ) : (
-                  <Upload className="mr-2 h-5 w-5" />
-                )}
-                Upload Your First Video
-              </Link>
+    <Card className="w-full max-w-md mx-auto">
+      <CardContent className="pt-6 pb-8 px-8 flex flex-col items-center text-center">
+        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+          {icon}
+        </div>
+        <h2 className="text-2xl font-semibold mb-2">{title}</h2>
+        <p className="text-muted-foreground mb-6">{description}</p>
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <Button asChild className="w-full">
+            <Link href={primaryAction.href}>{primaryAction.label}</Link>
+          </Button>
+          {secondaryAction && (
+            <Button asChild variant="outline" className="w-full">
+              <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
             </Button>
-          </motion.div>
-        </motion.div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -14,21 +14,14 @@ import { Pagination } from "./pagination";
 import { VideoCardSkeleton } from "@/app/components/browse/video-card-skeleton";
 import { useLectures } from "@/hooks/use-lectures";
 import { EmptyState } from "../empty-state";
+import type { Lecture } from "@/types/api-types";
 import { VideoCard } from "@/app/components/video-card";
 
-/**
- * Main VideosContent component:
- * - Search bar on top (with debounce)
- * - Suspense in the middle for the grid
- * - Pagination at the bottom
- */
 export function VideosContent() {
-  // local states for search, page, etc.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
   const [searchTerm, setSearchTerm] = useState("");
-  // Debounced search term updated only after a delay.
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<"date" | "name" | "progress">(
@@ -37,7 +30,7 @@ export function VideosContent() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [totalPages, setTotalPages] = useState(1);
 
-  // Debounce effect: update debouncedSearchTerm after 300ms
+  // Debounce the search term: update after 300ms delay
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -50,7 +43,7 @@ export function VideosContent() {
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-6">Browse Videos</h1>
 
-      {/* Search + Sort controls (always visible) */}
+      {/* Search + sort controls */}
       <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-6">
         <Input
           type="text"
@@ -95,7 +88,7 @@ export function VideosContent() {
         </div>
       </div>
 
-      {/* The grid is behind Suspense, so it might show a skeleton if loading. */}
+      {/* Videos grid wrapped in Suspense */}
       <Suspense
         fallback={
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
@@ -116,7 +109,7 @@ export function VideosContent() {
         )}
       </Suspense>
 
-      {/* Pagination below the grid (always visible). */}
+      {/* Pagination controls */}
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
@@ -128,39 +121,35 @@ export function VideosContent() {
   );
 }
 
-/**
- * The sub-component that actually fetches data with SWR in suspense mode.
- */
+interface VideoGridProps {
+  page: number;
+  search: string;
+  sortField: "date" | "name" | "progress";
+  sortOrder: "asc" | "desc";
+  onUpdateTotalPages: (tp: number) => void;
+}
+
 function VideoGrid({
   page,
   search,
   sortField,
   sortOrder,
   onUpdateTotalPages,
-}: {
-  page: number;
-  search: string;
-  sortField: "date" | "name" | "progress";
-  sortOrder: "asc" | "desc";
-  onUpdateTotalPages: (tp: number) => void;
-}) {
-  // Call useLectures with the debounced search value.
-  const { data } = useLectures(
-    { page, search, sortField, sortOrder },
-    { suspense: true },
-  );
+}: VideoGridProps) {
+  const { lectures, dashboard } = useLectures({
+    page,
+    onlyFavorites: false,
+    searchByTitle: search,
+    sortBy: sortField,
+    sortDirection: sortOrder,
+  });
 
-  const { dashboard, lectures } = data || {};
   const totalPages = dashboard?.num_of_pages || 1;
-
-  // Update parent's totalPages
   useEffect(() => {
     onUpdateTotalPages(totalPages);
   }, [totalPages, onUpdateTotalPages]);
 
-  if (!data) return null;
-
-  if (lectures?.length === 0) {
+  if (lectures.length === 0) {
     return <EmptyState />;
   }
 
@@ -171,14 +160,14 @@ function VideoGrid({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {lectures?.map((feature: any) => (
+      {lectures.map((lecture: Lecture) => (
         <VideoCard
-          key={feature.uuid}
-          lectureId={feature.uuid}
-          title={feature.title}
-          description={feature.description}
-          video={feature.video}
-          computedProgress={feature.video.progress_percentages}
+          key={lecture.uuid}
+          lectureId={lecture.uuid}
+          title={lecture.title}
+          description={lecture.description}
+          video={lecture.video}
+          computedProgress={lecture.video.progress_percentages}
         />
       ))}
     </motion.div>
