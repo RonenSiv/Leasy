@@ -148,4 +148,22 @@ class VideoService
             return HttpStatusEnum::ERROR;
         }
     }
+
+    public function streamVideo(string $uuid)
+    {
+        try {
+            $videoName = Video::where('uuid', $uuid)->value('video_name');
+
+            if (is_null($videoName)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
+            $storagePath = storage_path(config('filesystems.storage_path') . '/' . $videoName);
+
+            return $storagePath;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HttpStatusEnum::ERROR;
+        }
+    }
 }

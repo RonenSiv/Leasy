@@ -9,7 +9,7 @@ use App\Enums\HttpStatusEnum;
 use App\Http\Requests\UpdateLastWatchedTimeRequest;
 
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class VideoController extends Controller
@@ -123,5 +123,102 @@ class VideoController extends Controller
             HttpStatusEnum::OK => response()->json(['message' => 'Audio fixed successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/video/stream/{uuid}",
+     *     summary="Stream a video file",
+     *     description="Streams a video file stored on the server. Supports range requests for efficient playback.",
+     *     operationId="streamVideo",
+     *     tags={"Videos"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="The UUID of the video to stream",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Full video stream",
+     *         @OA\Header(header="Content-Type", description="MIME type of the video", @OA\Schema(type="string")),
+     *         @OA\Header(header="Accept-Ranges", description="Indicates byte-range support", @OA\Schema(type="string")),
+     *         @OA\Header(header="Content-Length", description="Total file size", @OA\Schema(type="integer")),
+     *         @OA\Header(header="Content-Range", description="Byte range for partial content", @OA\Schema(type="string")),
+     *         @OA\MediaType(
+     *             mediaType="video/mp4",
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=206,
+     *         description="Partial video stream (for range requests)",
+     *         @OA\Header(header="Content-Range", description="Byte range served", @OA\Schema(type="string")),
+     *         @OA\MediaType(
+     *             mediaType="video/mp4",
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Video not found",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *     ),
+     * )
+     */
+
+    public function streamVideo(Request $request, string $uuid)
+    {
+        $storagePath = $this->videoService->streamVideo(
+            uuid: $uuid,
+        );
+
+        if ($storagePath instanceof HttpStatusEnum) {
+            return match ($storagePath) {
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_NOT_FOUND),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        $fileSize = filesize($storagePath);
+
+        $mimeType = mime_content_type($storagePath);
+
+        $headers = [
+            'Content-Type' => $mimeType,
+            'Accept-Ranges' => 'bytes',
+        ];
+
+        // Handle Range Requests
+        if ($request->header('Range')) {
+            list(, $range) = explode('=', $request->header('Range'), 2);
+            list($start, $end) = explode('-', $range);
+
+            $start = (int)$start;
+            $end = ($end !== '') ? (int)$end : ($fileSize - 1);
+            $length = $end - $start + 1;
+
+            $headers += [
+                'Content-Length' => $length,
+                'Content-Range' => "bytes $start-$end/$fileSize",
+            ];
+
+            return response()->stream(function () use ($storagePath, $start, $length) {
+                $handle = fopen($storagePath, 'rb');
+                fseek($handle, $start);
+                echo fread($handle, $length);
+                fclose($handle);
+            }, Response::HTTP_PARTIAL_CONTENT, $headers);
+        }
+
+        // Return Full Video if No Range Request
+        return response()->stream(function () use ($storagePath) {
+            readfile($storagePath);
+        }, Response::HTTP_OK, $headers + ['Content-Length' => $fileSize]);
     }
 }

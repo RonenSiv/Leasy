@@ -27,6 +27,7 @@ Route::controller(VideoController::class)
   ->prefix('video')
   ->middleware(['auth:api'])
   ->group(function () {
+    Route::get('/stream/{uuid}', 'streamVideo');
     Route::put('/last-watched-time/{uuid}', 'updateLastWatchedTime');
     Route::put('/fix-audio/{uuid}',  'fixAudio');
   });
