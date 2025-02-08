@@ -167,4 +167,9 @@ class QuizController extends Controller
 
         return response()->json(['data' => $result], Response::HTTP_OK);
     }
+
+    public function generateNewQuiz()
+    {
+        //
+    }
 }
