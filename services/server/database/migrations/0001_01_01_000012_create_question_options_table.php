@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('option_index');
             $table->text('option_text');
             $table->boolean('is_correct')->default(false);
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
         });
     }

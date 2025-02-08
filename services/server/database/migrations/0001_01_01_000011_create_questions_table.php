@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid();
             $table->foreignId('quiz_id')->constrained('quizzes')->onDelete('cascade');
             $table->text('question_text');
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
         });
     }

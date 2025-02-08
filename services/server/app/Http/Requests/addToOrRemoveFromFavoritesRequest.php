@@ -22,7 +22,10 @@ class addToOrRemoveFromFavoritesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'favorite' => 'required|boolean',
+            'favorite' => [
+                'required',
+                'boolean'
+            ]
         ];
     }
 

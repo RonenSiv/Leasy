@@ -59,8 +59,9 @@ class QuizService
     public function getQuizQuestions(string $uuid)
     {
         try {
-            $quiz = Quiz::with('questions')
-                ->where('uuid', $uuid)->first();
+            $quiz = Quiz::with(['questions' => function ($query) {
+                $query->where('is_deleted', false);
+            }])->where('uuid', $uuid)->first();
 
             if (is_null($quiz)) {
                 return HttpStatusEnum::NOT_FOUND;
@@ -78,8 +79,14 @@ class QuizService
         try {
             DB::beginTransaction();
 
-            $quiz = Quiz::with('questions.questionOptions')
-                ->where('uuid', $uuid)
+            $quiz = Quiz::with([
+                'questions' => function ($query) {
+                    $query->where('is_deleted', false)
+                        ->with(['questionOptions' => function ($subQuery) {
+                            $subQuery->where('is_deleted', false);
+                        }]);
+                }
+            ])->where('uuid', $uuid)
                 ->first();
 
             if (is_null($quiz)) {
@@ -129,9 +136,40 @@ class QuizService
         }
     }
 
-    public function generateNewQuiz()
+    public function generateNewQuiz(string $oldQuizUuid, string $summary)
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            $oldQuiz = Quiz::where('uuid', $oldQuizUuid)->first();
+
+            if (is_null($oldQuiz)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
+            $oldQuiz->questions()->where('is_deleted', false)->update(['is_deleted' => true]);
+
+            QuestionOption::whereHas('question', function ($query) use ($oldQuiz) {
+                $query->where('quiz_id', $oldQuiz->id);
+            })->where('is_deleted', false)->update(['is_deleted' => true]);
+
+            $quizQuestions = $this->gptService->generateQuiz($summary);
+
+            if ($quizQuestions == WhisperFailedEnum::QUIZ_FAILED->value) {
+                $quizQuestions = [];
+            }
+
+            LOG::alert($quizQuestions);
+            $this->storeQuizQuestions($oldQuiz, $quizQuestions);
+
+            DB::commit();
+
+            return $this->getQuizQuestions($oldQuiz->uuid);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return HttpStatusEnum::ERROR;
+        }
     }
 
     // ----------------------- Private Functions -----------------------
@@ -140,7 +178,9 @@ class QuizService
         try {
             DB::beginTransaction();
 
+            $questionCounter = 0;
             foreach ($quizQuestions as $questionData) {
+                $questionCounter++;
                 $questionText = $questionData['question'];
                 $questionOptions = $questionData['options'];
 
@@ -158,6 +198,10 @@ class QuizService
                         'option_text' => $questionOptionText,
                         'is_correct' => $questionOptionIndex == $questionData['correct_answer'],
                     ]);
+                }
+
+                if ($questionCounter >= 10) {
+                    break;
                 }
             }
             DB::commit();

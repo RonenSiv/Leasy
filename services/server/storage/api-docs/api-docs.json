@@ -589,6 +589,73 @@
                 }
             }
         },
+        "/api/quiz/generate": {
+            "put": {
+                "tags": [
+                    "Quizzes"
+                ],
+                "summary": "Generate a new quiz from an old quiz",
+                "description": "Generates a new quiz based on an old quiz UUID and a summary",
+                "operationId": "8c9020107766d76a3f588c965dddf786",
+                "requestBody": {
+                    "description": "The details required to generate a new quiz",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "old_quiz_uuid",
+                                    "summary"
+                                ],
+                                "properties": {
+                                    "old_quiz_uuid": {
+                                        "description": "The UUID of the old quiz to base the new quiz on",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "summary": {
+                                        "description": "Summary for the new quiz",
+                                        "type": "string",
+                                        "example": "This quiz will test basic knowledge of programming languages including Python, Java, and C++."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Quiz generated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Generated quiz details",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data"
+                    },
+                    "404": {
+                        "description": "Quiz not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
         "/api/test/ai": {
             "post": {
                 "tags": [

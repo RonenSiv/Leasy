@@ -22,7 +22,11 @@ class UpdateLastWatchedTimeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'last_watched_time' => 'required|integer|min:0',
+            'last_watched_time' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
         ];
     }
 

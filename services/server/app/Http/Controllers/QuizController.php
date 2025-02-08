@@ -8,7 +8,7 @@ use App\Enums\WhisperFailedEnum;
 use App\Enums\HttpStatusEnum;
 
 use App\Http\Requests\AnswerQuestionRequest;
-
+use App\Http\Requests\GenerateNewQuizRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class QuizController extends Controller
@@ -168,8 +168,82 @@ class QuizController extends Controller
         return response()->json(['data' => $result], Response::HTTP_OK);
     }
 
-    public function generateNewQuiz()
+    /**
+     * @OA\Put(
+     *     path="/api/quiz/generate",
+     *     summary="Generate a new quiz from an old quiz",
+     *     description="Generates a new quiz based on an old quiz UUID and a summary",
+     *     tags={"Quizzes"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="The details required to generate a new quiz",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"old_quiz_uuid", "summary"},
+     *             @OA\Property(
+     *                 property="old_quiz_uuid",
+     *                 type="string",
+     *                 format="uuid",
+     *                 description="The UUID of the old quiz to base the new quiz on"
+     *             ),
+     *             @OA\Property(
+     *                 property="summary",
+     *                 type="string",
+     *                 description="Summary for the new quiz",
+     *                 example="This quiz will test basic knowledge of programming languages including Python, Java, and C++."
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Quiz generated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 description="Generated quiz details"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid request data"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Quiz not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="An error occurred"
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="No content"
+     *     )
+     * )
+     */
+
+    public function generateNewQuiz(GenerateNewQuizRequest $request)
     {
-        //
+        $result = $this->quizService->generateNewQuiz(
+            oldQuizUuid: $request->old_quiz_uuid,
+            summary: $request->summary,
+        );
+
+        if ($result instanceof HttpStatusEnum) {
+            return match ($result) {
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Quiz not found'], Response::HTTP_NOT_FOUND),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        if ($result->isEmpty()) {
+            return response()->json(['message' => WhisperFailedEnum::QUIZ_FAILED->value], Response::HTTP_OK);
+        }
+
+        return response()->json(['data' => $result], Response::HTTP_OK);
     }
 }
