@@ -54,7 +54,8 @@ enum JsonSchemesEnum
                                     "label" => ["type" => "string"],
                                     "description" => ["type" => "string"]
                                 ],
-                                "required" => ["id", "label", "description"]
+                                "required" => ["id", "label", "description"],
+                                'additionalProperties' => false
                             ]
                         ]
                     ],

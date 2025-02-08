@@ -10,6 +10,7 @@ use App\Http\Resources\QuestionResource;
 
 use App\Enums\WhisperFailedEnum;
 use App\Enums\HttpStatusEnum;
+use App\Enums\DemoDataEnum;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -17,39 +18,6 @@ use Illuminate\Support\Str;
 
 class QuizService
 {
-    const DEMO_QUIZ = [
-        [
-            'question' => 'why?',
-            'options' => [
-                1 => 'option 1',
-                2 => 'option 2',
-                3 => 'option 3',
-                4 => 'option 4',
-            ],
-            'correct_answer' => 3,
-        ],
-        [
-            'question' => 'how?',
-            'options' => [
-                1 => 'option 1',
-                2 => 'option 2',
-                3 => 'option 3',
-                4 => 'option 4',
-            ],
-            'correct_answer' => 1,
-        ],
-        [
-            'question' => 'where?',
-            'options' => [
-                1 => 'option 1',
-                2 => 'option 2',
-                3 => 'option 3',
-                4 => 'option 4',
-            ],
-            'correct_answer' => 4,
-        ],
-    ];
-
     private GptService $gptService;
     public function __construct()
     {
@@ -73,7 +41,7 @@ class QuizService
             }
 
             // DELETE: before prod
-            // $quizQuestions = self::DEMO_QUIZ;
+            // $quizQuestions = DemoDataEnum::DEMO_QUIZ;
 
             LOG::alert($quizQuestions);
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
@@ -159,6 +127,11 @@ class QuizService
             Log::error($e->getMessage());
             return HttpStatusEnum::ERROR;
         }
+    }
+
+    public function generateNewQuiz()
+    {
+        //
     }
 
     // ----------------------- Private Functions -----------------------
