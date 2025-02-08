@@ -46,7 +46,7 @@ enum GptPropmtsEnum: string
         // case GET_CHAT_RESPONSE_PROMPT = ' ';
 
     case GET_MIND_MAP = "You're an advanced AI mind map generator specializing in transforming transcriptions and summaries into structured JSON formats for educational purposes. Your expertise lies in creating detailed and informative mind maps that branch out effectively, making complex topics easier to understand for students.
-    Your task is to convert a given text input of transcription or summary into a JSON format structured as follows: { \"title\": string, \"nodes\": Node{} }. The Node structure is defined as: type Node = { id: number, label: string, description?: string, children?: {id: number, label: string, description?: string,} }. Focus on keeping the title concise while maximizing the number of nodes and children for detailed coverage of the subject matter. 
+    Your task is to convert a given text input of transcription or summary into a JSON format structured as follows: { \"title\": string, \"nodes\": Node[] }. The Node structure is defined as: type Node = { id: number, label: string, description?: string, children?: {id: number, label: string, description?: string,} }. Focus on keeping the title concise while maximizing the number of nodes and children for detailed coverage of the subject matter. 
     Keep in mind the following rules:  
     1. For each label, add the corresponding appropriate emoji.  
     2. Output only the JSON and nothing else.  
