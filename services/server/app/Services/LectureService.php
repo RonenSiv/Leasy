@@ -162,6 +162,7 @@ class LectureService
 
     private function getLecturesDashboard(): array
     {
+        // TODO: return dashboard by OnlyFavorites or by title search
         $lectures = Lecture::with('video.videoUserProgresses')
             ->where('user_id', Auth::id())
             ->get();

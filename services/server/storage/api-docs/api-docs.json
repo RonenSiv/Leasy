@@ -545,6 +545,46 @@
                 }
             }
         },
+        "/api/test/ai": {
+            "post": {
+                "tags": [
+                    "AI"
+                ],
+                "summary": "Test AI API",
+                "description": "Send a prompt to the AI API and receive a response.",
+                "operationId": "testAI",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "prompt"
+                                ],
+                                "properties": {
+                                    "prompt": {
+                                        "description": "The prompt to send to GPT API.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/api/user": {
             "get": {
                 "tags": [
@@ -724,6 +764,55 @@
                         },
                         "content": {
                             "video/mp4": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/video/preview/{uuid}": {
+            "get": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Get the preview image for a video",
+                "description": "Retrieves the preview image associated with a given video UUID.",
+                "operationId": "getPreviewImage",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to retrieve the preview image for",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with the preview image",
+                        "headers": {
+                            "Content-Type": {
+                                "description": "Image MIME type",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "image/jpeg": {
                                 "schema": {
                                     "type": "string",
                                     "format": "binary"

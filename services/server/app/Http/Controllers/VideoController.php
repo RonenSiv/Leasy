@@ -171,7 +171,7 @@ class VideoController extends Controller
      * )
      */
 
-    public function streamVideo(Request $request, string $uuid)
+    public function streamVideo(string $uuid, Request $request)
     {
         $storagePath = $this->videoService->streamVideo(
             uuid: $uuid,
@@ -220,5 +220,58 @@ class VideoController extends Controller
         return response()->stream(function () use ($storagePath) {
             readfile($storagePath);
         }, Response::HTTP_OK, $headers + ['Content-Length' => $fileSize]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/video/preview/{uuid}",
+     *     summary="Get the preview image for a video",
+     *     description="Retrieves the preview image associated with a given video UUID.",
+     *     operationId="getPreviewImage",
+     *     tags={"Videos"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="The UUID of the video to retrieve the preview image for",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with the preview image",
+     *         @OA\Header(header="Content-Type", description="Image MIME type", @OA\Schema(type="string")),
+     *         @OA\MediaType(
+     *             mediaType="image/jpeg",
+     *             @OA\Schema(type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Video not found",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *     )
+     * )
+     */
+
+    public function getPreviewImage(string $uuid)
+    {
+        $storagePath = $this->videoService->getPreviewImage(
+            uuid: $uuid,
+        );
+
+        if ($storagePath instanceof HttpStatusEnum) {
+            return match ($storagePath) {
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Video not found'], Response::HTTP_NOT_FOUND),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        $mimeType = mime_content_type($storagePath);
+
+        return response()->file($storagePath, ['Content-Type' => $mimeType]);
     }
 }
