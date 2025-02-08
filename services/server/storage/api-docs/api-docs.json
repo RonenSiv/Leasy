@@ -589,14 +589,26 @@
                 }
             }
         },
-        "/api/quiz/generate": {
+        "/api/quiz/generate-new-questions/{uuid}": {
             "put": {
                 "tags": [
                     "Quizzes"
                 ],
-                "summary": "Generate a new quiz from an old quiz",
-                "description": "Generates a new quiz based on an old quiz UUID and a summary",
-                "operationId": "8c9020107766d76a3f588c965dddf786",
+                "summary": "Generate a new questions to the quiz",
+                "description": "Generates new questions to the quiz based on a summary",
+                "operationId": "05694b34345e345a5a7e668e3652e32e",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the quiz to generate new questions",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "description": "The details required to generate a new quiz",
                     "required": true,
@@ -604,17 +616,11 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "old_quiz_uuid",
                                     "summary"
                                 ],
                                 "properties": {
-                                    "old_quiz_uuid": {
-                                        "description": "The UUID of the old quiz to base the new quiz on",
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
                                     "summary": {
-                                        "description": "Summary for the new quiz",
+                                        "description": "Summary for the new questions",
                                         "type": "string",
                                         "example": "This quiz will test basic knowledge of programming languages including Python, Java, and C++."
                                     }
@@ -626,20 +632,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Quiz generated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "description": "Generated quiz details",
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Quiz generated successfully"
                     },
                     "400": {
                         "description": "Invalid request data"

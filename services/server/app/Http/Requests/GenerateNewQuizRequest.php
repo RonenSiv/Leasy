@@ -22,11 +22,6 @@ class GenerateNewQuizRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'old_quiz_uuid' => [
-                'required',
-                'uuid',
-                'exists:quizzes,uuid'
-            ],
             'summary' => [
                 'required',
                 'string'
@@ -42,9 +37,6 @@ class GenerateNewQuizRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'old_quiz_uuid.required' => 'The old quiz UUID is required.',
-            'old_quiz_uuid.uuid' => 'The old quiz UUID must be a valid UUID.',
-            'old_quiz_uuid.exists' => 'The old quiz UUID must exist in the quizzes table.',
             'summary.required' => 'The summary is required.',
             'summary.string' => 'The summary must be a string.',
         ];

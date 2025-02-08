@@ -136,21 +136,21 @@ class QuizService
         }
     }
 
-    public function generateNewQuiz(string $oldQuizUuid, string $summary)
+    public function generateNewQuiz(string $uuid, string $summary)
     {
         try {
             DB::beginTransaction();
 
-            $oldQuiz = Quiz::where('uuid', $oldQuizUuid)->first();
+            $quiz = Quiz::where('uuid', $uuid)->first();
 
-            if (is_null($oldQuiz)) {
+            if (is_null($quiz)) {
                 return HttpStatusEnum::NOT_FOUND;
             }
 
-            $oldQuiz->questions()->where('is_deleted', false)->update(['is_deleted' => true]);
+            $quiz->questions()->where('is_deleted', false)->update(['is_deleted' => true]);
 
-            QuestionOption::whereHas('question', function ($query) use ($oldQuiz) {
-                $query->where('quiz_id', $oldQuiz->id);
+            QuestionOption::whereHas('question', function ($query) use ($quiz) {
+                $query->where('quiz_id', $quiz->id);
             })->where('is_deleted', false)->update(['is_deleted' => true]);
 
             $quizQuestions = $this->gptService->generateQuiz($summary);
@@ -160,11 +160,11 @@ class QuizService
             }
 
             LOG::alert($quizQuestions);
-            $this->storeQuizQuestions($oldQuiz, $quizQuestions);
+            $this->storeQuizQuestions($quiz, $quizQuestions);
 
             DB::commit();
 
-            return $this->getQuizQuestions($oldQuiz->uuid);
+            return $this->getQuizQuestions($quiz->uuid);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());

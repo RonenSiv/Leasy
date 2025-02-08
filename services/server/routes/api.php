@@ -48,7 +48,7 @@ Route::controller(QuizController::class)
   ->group(function () {
     Route::get('/questions/{uuid}', 'getQuizQuestions');
     Route::put('/answer/{uuid}', 'answerQuiz'); // TODO: fix score 99 to 100
-    Route::put('generate', 'generateNewQuiz');
+    Route::put('generate-new-questions/{uuid}', 'generateNewQuiz');
   });
 
 // TEST

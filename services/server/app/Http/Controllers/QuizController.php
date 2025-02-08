@@ -170,26 +170,27 @@ class QuizController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/quiz/generate",
-     *     summary="Generate a new quiz from an old quiz",
-     *     description="Generates a new quiz based on an old quiz UUID and a summary",
+     *     path="/api/quiz/generate-new-questions/{uuid}",
+     *     summary="Generate a new questions to the quiz",
+     *     description="Generates new questions to the quiz based on a summary",
      *     tags={"Quizzes"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         description="The UUID of the quiz to generate new questions",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         description="The details required to generate a new quiz",
      *         @OA\JsonContent(
      *             type="object",
-     *             required={"old_quiz_uuid", "summary"},
-     *             @OA\Property(
-     *                 property="old_quiz_uuid",
-     *                 type="string",
-     *                 format="uuid",
-     *                 description="The UUID of the old quiz to base the new quiz on"
-     *             ),
+     *             required={"summary"},
      *             @OA\Property(
      *                 property="summary",
      *                 type="string",
-     *                 description="Summary for the new quiz",
+     *                 description="Summary for the new questions",
      *                 example="This quiz will test basic knowledge of programming languages including Python, Java, and C++."
      *             )
      *         )
@@ -197,14 +198,6 @@ class QuizController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Quiz generated successfully",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 description="Generated quiz details"
-     *             )
-     *         )
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -225,10 +218,10 @@ class QuizController extends Controller
      * )
      */
 
-    public function generateNewQuiz(GenerateNewQuizRequest $request)
+    public function generateNewQuiz(string $uuid, GenerateNewQuizRequest $request)
     {
         $result = $this->quizService->generateNewQuiz(
-            oldQuizUuid: $request->old_quiz_uuid,
+            uuid: $uuid,
             summary: $request->summary,
         );
 
