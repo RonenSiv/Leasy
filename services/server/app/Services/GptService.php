@@ -14,131 +14,6 @@ use GuzzleHttp\Client;
 
 class GptService
 {
-    const DEMO_MIND_MAP = [
-        "title" => "🧠 Machine Learning Algorithms: A 17-Minute Guide",
-        "nodes" => [
-            [
-                "id" => 1,
-                "label" => "📌 Introduction",
-                "description" => "Overview of machine learning algorithms to help choose the right one.",
-                "children" => [
-                    [
-                        "id" => 2,
-                        "label" => "👨‍🏫 About the Speaker",
-                        "description" => "Tim, a data scientist with 10+ years of experience in teaching ML."
-                    ],
-                    [
-                        "id" => 3,
-                        "label" => "🎯 Goal",
-                        "description" => "Provide an intuitive understanding of major ML algorithms."
-                    ],
-                    [
-                        "id" => 4,
-                        "label" => "📖 Definition of ML",
-                        "description" => "Field of AI that uses statistical models to learn from data."
-                    ],
-                ]
-            ],
-            [
-                "id" => 5,
-                "label" => "📂 Machine Learning Categories",
-                "description" => "ML is broadly divided into two main types.",
-                "children" => [
-                    [
-                        "id" => 6,
-                        "label" => "📊 Supervised Learning",
-                        "description" => "Learning from labeled data.",
-                        "children" => [
-                            [
-                                "id" => 7,
-                                "label" => "🏡 Regression",
-                                "description" => "Predicting continuous values (e.g., house prices)."
-                            ],
-                            [
-                                "id" => 8,
-                                "label" => "📩 Classification",
-                                "description" => "Predicting discrete categories (e.g., spam detection)."
-                            ],
-                        ]
-                    ],
-                    [
-                        "id" => 9,
-                        "label" => "🔍 Unsupervised Learning",
-                        "description" => "Finding patterns in unlabeled data.",
-                        "children" => [
-                            [
-                                "id" => 10,
-                                "label" => "📬 Clustering",
-                                "description" => "Grouping similar data points together."
-                            ],
-                            [
-                                "id" => 11,
-                                "label" => "🔽 Dimensionality Reduction",
-                                "description" => "Reducing data complexity while retaining information."
-                            ],
-                        ]
-                    ],
-                ]
-            ],
-            [
-                "id" => 12,
-                "label" => "🛠️ Machine Learning Algorithms",
-                "description" => "Overview of key ML algorithms.",
-                "children" => [
-                    ["id" => 13, "label" => "📈 Linear Regression", "description" => "Models a linear relationship between input and output."],
-                    ["id" => 14, "label" => "📊 Logistic Regression", "description" => "Classification algorithm using the sigmoid function."],
-                    ["id" => 15, "label" => "🤝 K-Nearest Neighbors (KNN)", "description" => "Predicts output based on the closest K data points."],
-                    ["id" => 16, "label" => "📏 Support Vector Machines (SVM)", "description" => "Finds optimal decision boundary between classes."],
-                    ["id" => 17, "label" => "📧 Naïve Bayes", "description" => "Uses probability theory for classification (e.g., spam filtering)."],
-                    [
-                        "id" => 18,
-                        "label" => "🌳 Decision Trees",
-                        "description" => "Uses a tree-like model for decision-making.",
-                        "children" => [
-                            ["id" => 19, "label" => "🌲 Random Forest", "description" => "Combines multiple decision trees for better predictions."],
-                            ["id" => 20, "label" => "🚀 Boosting", "description" => "Sequentially improves weak models (e.g., AdaBoost, XGBoost)."]
-                        ]
-                    ],
-                    [
-                        "id" => 21,
-                        "label" => "🧠 Neural Networks",
-                        "description" => "Mimics human brain structure to learn complex patterns.",
-                        "children" => [
-                            ["id" => 22, "label" => "🔗 Deep Learning", "description" => "Uses multiple hidden layers to learn hierarchical features."]
-                        ]
-                    ],
-                    [
-                        "id" => 23,
-                        "label" => "🌀 Clustering Algorithms",
-                        "description" => "Groups similar data points together.",
-                        "children" => [
-                            ["id" => 24, "label" => "🔹 K-Means Clustering", "description" => "Divides data into K groups based on similarity."],
-                            ["id" => 25, "label" => "📏 Hierarchical Clustering", "description" => "Creates a hierarchy of clusters."],
-                            ["id" => 26, "label" => "🌍 DBSCAN", "description" => "Detects clusters of arbitrary shape without predefined K."]
-                        ]
-                    ],
-                    [
-                        "id" => 27,
-                        "label" => "📉 Dimensionality Reduction",
-                        "description" => "Reduces number of features while preserving information.",
-                        "children" => [
-                            ["id" => 28, "label" => "🔍 Principal Component Analysis (PCA)", "description" => "Finds the most informative directions in data."]
-                        ]
-                    ]
-                ]
-            ],
-            [
-                "id" => 29,
-                "label" => "📋 Summary",
-                "description" => "Machine learning algorithms are diverse, and choosing the right one depends on the problem.",
-                "children" => [
-                    ["id" => 30, "label" => "🗺️ Cheat Sheet", "description" => "Scikit-learn provides a useful guide for algorithm selection."],
-                    ["id" => 31, "label" => "📚 Learning Roadmap", "description" => "Further resources available in the speaker’s other videos."]
-                ]
-            ]
-        ]
-    ];
-
     const TRANSCRIPTION = "
           in the next 17 minutes I will give you an overview of the most important machine learning algorithms to help you decide which one is right for your problem my name is Tim and I have been a data scientist for over 10 years and taught all of these algorithms to hundreds of students in real life machine learning boot camps there is a simple strategy for picking the right algorithm for your problem in 17 minutes you will know how to pick the right one for any problem and get a basic intuition of each algorithm and how they
           
@@ -220,13 +95,6 @@ class GptService
           
           algorithm you need here is a great cheat sheet by syit learn that will help you decide which algorithm is right for which type of problem if you want a road map on how to learn machine learning check out my video on that
           ";
-    // protected $client;
-    // public function __construct()
-    // {
-    //     $this->client = new Client([
-    //         'base_uri' => config('app.openai_base_uri'),
-    //     ]);
-    // }
 
     public function getTranscription(Video $video): mixed
     {
@@ -282,14 +150,57 @@ class GptService
     {
         try {
             // return 'quiz';
+            $jsonSchema = [
+                'type' => 'json_schema',
+                'json_schema' => [
+                    'name' => 'quiz',
+                    'strict' => true,
+                    'schema' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'question' => ['type' => 'string'],
+                                'options' => [
+                                    'type' => 'object',
+                                    'patternProperties' => [
+                                        '^[1-9][0-9]*$' => ['type' => 'string']
+                                    ],
+                                    'additionalProperties' => false
+                                ],
+                                'correct_answer' => ['type' => 'integer']
+                            ],
+                            'required' => ['question', 'options', 'correct_answer']
+                        ]
+                    ]
+                ]
+            ];
 
             if ($summary == WhisperFailedEnum::SUMMARY_FAILED->value) {
                 return WhisperFailedEnum::QUIZ_FAILED->value;
             }
-            $prompt = GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary;
-            $quiz = $this->getGptResponse($prompt);
+
+            $quiz = $this->getGptResponse(GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary, [], $jsonSchema);
             Log::alert('QUIZ ' . $quiz);
-            return $quiz;
+
+            $quiz = trim($quiz);
+            $quiz = preg_replace('/^```php\s*/', '', $quiz); // Remove the opening '```php'
+            $quiz = preg_replace('/\s*```$/', '', $quiz); // Remove the closing '```'
+
+            // Step 2: Escape single quotes inside string values to prevent breaking
+            $quizString = preg_replace_callback("/'([^']+)'/", function ($matches) {
+                // Escape any single quotes within the string
+                return "'" . str_replace("'", "\'", $matches[1]) . "'";
+            }, $quiz);
+
+            // Step 3: Replace single quotes around values (but not keys) with double quotes
+            $quizString = preg_replace("/'(\w+)'(\s*=>\s*)'([^']+)'/", '"$1"$2"$3"', $quizString);
+
+            // Step 4: Use eval() to parse the string into an actual PHP array
+            $quizArray = null;
+            eval('$quizArray = ' . $quizString . ';');
+
+            return $quizArray;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return HttpStatusEnum::ERROR;
@@ -313,17 +224,17 @@ class GptService
     {
         // return json_encode(self::DEMO_MIND_MAP);
         $mindMap = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary);
-        Log::alert('MIND MAP: ');
+        Log::alert('MIND MAP: ' . $mindMap);
         if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
             $jsonMindMap = $matches[1];
-            return json_encode($jsonMindMap, true);
+            return json_encode($jsonMindMap);
         }
         return json_encode($mindMap);
     }
 
     // ------------------- private Functions -------------------
 
-    private function getGptResponse(string $prompt, array $chatHistory = [])
+    private function getGptResponse(string $prompt, array $chatHistory = [], array $jsonSchema = [])
     {
         try {
             $client = new Client();
@@ -346,7 +257,7 @@ class GptService
                 'content' => $prompt,
             ];
 
-            $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', [
+            $bodyRequest = [
                 'headers' => [
                     'Authorization' => 'Bearer ' . config('app.openrouter_api_key'),
                     'Content-Type' => 'application/json'
@@ -357,12 +268,20 @@ class GptService
                     // 'max_tokens' => config('app.openai_max_tokens'),
                     // 'temperature' => config('app.openai_temperature'),
                 ],
+                // TODO: add response format 
                 'verify' => false,
                 'timeout' => 3000,
-            ]);
+            ];
 
-            $respnseData = json_decode($response->getBody(), true);
-            $answer = $respnseData['choices'][0]['message']['content'];
+            if (!empty($jsonSchema)) {
+                $bodyRequest['json']['response_format'] = ['type' => 'json_schema', 'json_schema' => $jsonSchema];
+            }
+
+            $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', $bodyRequest);
+
+            $responseData = json_decode($response->getBody(), true);
+            Log::alert($responseData);
+            $answer = $responseData['choices'][0]['message']['content'];
 
             return $answer;
         } catch (\Exception $e) {

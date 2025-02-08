@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\TestGptController;
+use App\Http\Controllers\LectureController;
+use App\Http\Controllers\VideoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\LectureController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 Route::post("/login", [AuthController::class, 'login']);
@@ -18,7 +19,7 @@ Route::controller(LectureController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::post('/', 'store');
-    Route::get('/', 'index'); // TODO: fix progress 99& to 100%
+    Route::get('/', 'index'); // TODO: fix progress 99% to 100%
     Route::get('/{uuid}', 'show');
     Route::put('favorite/{uuid}', 'addToOrRemoveFromFavorites');
   });
@@ -28,6 +29,7 @@ Route::controller(VideoController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::get('/stream/{uuid}', 'streamVideo');
+    Route::get('/preview/{uuid}', 'getPreviewImage');
     Route::put('/last-watched-time/{uuid}', 'updateLastWatchedTime');
     Route::put('/fix-audio/{uuid}',  'fixAudio');
   });
@@ -48,10 +50,10 @@ Route::controller(QuizController::class)
     Route::put('/answer/{uuid}', 'answerQuiz'); // TODO: fix score 99 to 100
   });
 
-// DELETE before prod
-Route::controller(ChatController::class)
+// TEST
+Route::controller(TestGptController::class)
   ->prefix('test')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::get('/', 'testGPT');
+    Route::post('/ai', 'testAi');
   });

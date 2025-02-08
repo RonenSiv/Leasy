@@ -23,27 +23,30 @@ class QuizService
             'options' => [
                 1 => 'option 1',
                 2 => 'option 2',
-                'correct' => 'option 3',
-                3 => 'option 4',
-            ]
+                3 => 'option 3',
+                4 => 'option 4',
+            ],
+            'correct_answer' => 3,
         ],
         [
             'question' => 'how?',
             'options' => [
-                'correct' => 'option 1',
+                1 => 'option 1',
                 2 => 'option 2',
                 3 => 'option 3',
                 4 => 'option 4',
-            ]
+            ],
+            'correct_answer' => 1,
         ],
         [
             'question' => 'where?',
             'options' => [
-                'correct' => 'option 1',
+                1 => 'option 1',
                 2 => 'option 2',
                 3 => 'option 3',
                 4 => 'option 4',
-            ]
+            ],
+            'correct_answer' => 4,
         ],
     ];
 
@@ -68,11 +71,11 @@ class QuizService
             if ($quizQuestions == WhisperFailedEnum::QUIZ_FAILED->value) {
                 $quizQuestions = [];
             }
-            // DELETE: before prod
-            // TODO: cast the quiz string to array
-            // $quizQuestions = [];
-            $quizQuestions = self::DEMO_QUIZ;
 
+            // DELETE: before prod
+            // $quizQuestions = self::DEMO_QUIZ;
+            
+            LOG::alert($quizQuestions);
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
 
             DB::commit();
@@ -173,13 +176,13 @@ class QuizService
                     'question_text' => $questionText,
                 ]);
                 $optionIndex = 0;
-                foreach ($questionOptions as $isCorrect => $questionOptionText) {
+                foreach ($questionOptions as $questionOptionIndex => $questionOptionText) {
                     $optionIndex++;
                     QuestionOption::create([
                         'question_id' => $newQuestion->id,
                         'option_index' => $optionIndex,
                         'option_text' => $questionOptionText,
-                        'is_correct' => $isCorrect === 'correct',
+                        'is_correct' => $questionOptionIndex == $questionData['correct_answer'],
                     ]);
                 }
             }

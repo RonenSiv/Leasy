@@ -160,6 +160,32 @@ class VideoService
 
             $storagePath = storage_path(config('filesystems.storage_path') . '/' . $videoName);
 
+            if (!file_exists($storagePath)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
+            return $storagePath;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HttpStatusEnum::ERROR;
+        }
+    }
+
+    public function getPreviewImage(string $uuid)
+    {
+        try {
+            $previewImageName = Video::where('uuid', $uuid)->value('preview_image_name');
+
+            if (is_null($previewImageName)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
+            $storagePath = storage_path(config('filesystems.storage_path') . '/' . $previewImageName);
+
+            if (!file_exists($storagePath)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
             return $storagePath;
         } catch (\Exception $e) {
             Log::error($e->getMessage());

@@ -16,4 +16,4 @@ require __DIR__ . '/../vendor/autoload.php';
 (require_once __DIR__ . '/../bootstrap/app.php')
     ->handleRequest(Request::capture());
 
-ini_set('max_execution_time', 300); // Set the max execution time to 300 seconds (5 minutes)
+ini_set('max_execution_time', 3000); // Set the max execution time to 300 seconds (5 minutes)

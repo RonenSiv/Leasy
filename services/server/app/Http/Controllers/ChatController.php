@@ -8,8 +8,6 @@ use App\Enums\HttpStatusEnum;
 
 use App\Http\Requests\SendMessageToChatRequest;
 
-use GuzzleHttp\Client;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,37 +19,6 @@ class ChatController extends Controller
     public function __construct()
     {
         $this->chatService = new ChatService();
-    }
-
-    // TEST - DELETE before prod
-    public function testGPT()
-    {
-        try {
-            $client = new Client();
-            $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . config('app.openrouter_api_key'),
-                    'Content-Type' => 'application/json'
-                ],
-                'json' => [
-                    "model" => config('app.deepseek_model'),
-                    "messages" => [
-                        [
-                            "role" => "user",
-                            "content" => "tell me a 5 lines story about some prince"
-                        ]
-                    ]
-                ],
-                'verify' => false,
-            ]);
-
-            $respnseData = json_decode($response->getBody(), true);
-            $answer = $respnseData['choices'][0]['message']['content'];
-
-            return $answer;
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
-        }
     }
 
     /**
