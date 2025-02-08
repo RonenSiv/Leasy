@@ -104,24 +104,7 @@ const features = [
     details:
       "Our AI-powered chatbot allows learners to ask questions and receive instant, contextually relevant answers about the video content.",
     icon: <MessageSquare className="w-6 h-6" />,
-    component: (
-      <VideoChat
-        videoData={
-          {
-            chat: { uuid: "sample-chat-uuid", title: "Sample Lecture" },
-            title: "Sample Lecture",
-          } as any
-        }
-        initialMessages={[
-          {
-            role: "assistant",
-            content:
-              "Hello! How can I help you with the lecture on machine learning fundamentals?",
-          },
-        ]}
-        isShowcase={true}
-      />
-    ),
+    component: <VideoChat chatUuid={"123"} showCase={true} />,
   },
   {
     id: "quizlet",

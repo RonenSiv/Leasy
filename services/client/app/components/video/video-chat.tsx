@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react"; // Added import for React
+import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Spinner } from "@/app/components/spinner";
 import api from "@/lib/api";
 import type { ChatMessage } from "@/types/api-types";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 
 interface VideoChatProps {
   chatUuid: string;
@@ -28,6 +29,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
   const [allMessages, setAllMessages] = useState<ChatMessageWithPending[]>([]);
   const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [showCaseComplete, setShowCaseComplete] = useState(false);
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -67,7 +69,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
         {
           uuid: "1",
           sender: "assistant",
-          message: "Hello! How can I help you today?",
+          message: "Hi there! 👋 I'm Leasy's assistant. How can I help you? 😊",
         },
       ]);
       setIsChatHistoryLoading(false);
@@ -120,11 +122,25 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
         {
           uuid: (Date.now() + 1).toString(),
           sender: "assistant",
-          message:
-            "I'm sorry, I'm just a demo bot. I can't help you with that.",
+          message: "",
+          pending: true,
         },
       ]);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setAllMessages((prev) =>
+        prev.map((msg) =>
+          msg.pending
+            ? {
+                ...msg,
+                message:
+                  "I'm sorry, I'm just a demo bot 😔. I can't help you with that. If you'd like to experience the full functionality, please sign up! 👇",
+                pending: false,
+              }
+            : msg,
+        ),
+      );
       setMessage("");
+      setShowCaseComplete(true);
       return;
     }
 
@@ -211,6 +227,20 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
                       </div>
                     </div>
                   ))}
+                  {showCase && showCaseComplete && (
+                    <div className="flex justify-start">
+                      <Button
+                        asChild
+                        variant="default"
+                        size="lg"
+                        className="mt-2"
+                      >
+                        <Link href={"/signup"}>
+                          Sign Up to Continue Chatting
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -245,12 +275,20 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Ask a question about the video..."
-              disabled={isSending || isChatHistoryLoading}
+              disabled={
+                isSending ||
+                isChatHistoryLoading ||
+                (showCase && showCaseComplete)
+              }
             />
             <Button
               type="submit"
               size="icon"
-              disabled={isSending || isChatHistoryLoading}
+              disabled={
+                isSending ||
+                isChatHistoryLoading ||
+                (showCase && showCaseComplete)
+              }
             >
               <Send className="h-4 w-4" />
             </Button>
