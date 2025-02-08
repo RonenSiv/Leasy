@@ -6,6 +6,7 @@ use App\Models\Video;
 
 use App\Enums\GptPropmtsEnum;
 use App\Enums\HttpStatusEnum;
+use App\Enums\JsonSchemesEnum;
 use App\Enums\WhisperFailedEnum;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -150,39 +151,11 @@ class GptService
     {
         try {
             // return 'quiz';
-            $jsonSchema = [
-                'type' => 'json_schema',
-                'json_schema' => [
-                    'name' => 'quiz',
-                    'strict' => true,
-                    'schema' => [
-                        'type' => 'array',
-                        "minItems" => 10,
-                        "maxItems" => 10,
-                        'items' => [
-                            'type' => 'object',
-                            'properties' => [
-                                'question' => ['type' => 'string'],
-                                'options' => [
-                                    'type' => 'object',
-                                    'patternProperties' => [
-                                        '^[1-9][0-9]*$' => ['type' => 'string']
-                                    ],
-                                    'additionalProperties' => false
-                                ],
-                                'correct_answer' => ['type' => 'integer']
-                            ],
-                            'required' => ['question', 'options', 'correct_answer']
-                        ]
-                    ]
-                ]
-            ];
-
             if ($summary == WhisperFailedEnum::SUMMARY_FAILED->value) {
                 return WhisperFailedEnum::QUIZ_FAILED->value;
             }
 
-            $quiz = $this->getGptResponse(GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary, [], $jsonSchema);
+            $quiz = $this->getGptResponse(GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary, [], JsonSchemesEnum::QUIZ_JSON_SCHEMA);
             Log::alert('QUIZ ' . $quiz);
 
             $quiz = trim($quiz);
@@ -214,7 +187,6 @@ class GptService
         try {
             // return 'chat response';
 
-            // return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE_PROMPT->value . $message, $chatHistory);
             return $this->getGptResponse($message, $chatHistory);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -225,7 +197,8 @@ class GptService
     public function getMindMapJson(string $summary)
     {
         // return json_encode(self::DEMO_MIND_MAP);
-        $mindMap = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary);
+
+        $mindMap = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary, [], JsonSchemesEnum::MIND_MAP_SCHEMA);
         Log::alert('MIND MAP: ' . $mindMap);
         if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
             $jsonMindMap = $matches[1];

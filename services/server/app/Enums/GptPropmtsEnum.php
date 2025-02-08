@@ -18,7 +18,7 @@ enum GptPropmtsEnum: string
             ],
             \"correct_answer\" => 1/2/3/4,
         ],
-        // Continue for 10 questions
+        // Continue for 9 more questions - total 10 questions
     ]
 
     Rules to follow:
