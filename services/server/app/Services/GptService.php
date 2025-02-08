@@ -157,6 +157,8 @@ class GptService
                     'strict' => true,
                     'schema' => [
                         'type' => 'array',
+                        "minItems" => 10,
+                        "maxItems" => 10,
                         'items' => [
                             'type' => 'object',
                             'properties' => [
@@ -268,7 +270,6 @@ class GptService
                     // 'max_tokens' => config('app.openai_max_tokens'),
                     // 'temperature' => config('app.openai_temperature'),
                 ],
-                // TODO: add response format 
                 'verify' => false,
                 'timeout' => 3000,
             ];
