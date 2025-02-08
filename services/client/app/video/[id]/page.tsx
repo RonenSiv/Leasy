@@ -30,7 +30,7 @@ export default function VideoPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">{data.title}</h1>
       <div className="flex flex-col lg:flex-row gap-6 h-[90vh] overflow-y-hidden">
-        <div className="flex flex-col lg:w-1/2 gap-2">
+        <div className="flex h-full flex-col lg:w-1/2 gap-2">
           <VideoPlayer video={data.video} onTimeUpdate={onTimeUpdate} />
           <VideoChat chatUuid={data.chat.uuid} />
         </div>

@@ -52,7 +52,7 @@ export function VideoPlayer({ video, onTimeUpdate }: VideoPlayerProps) {
 
   const videoUrl = `/video/stream/${video.uuid}`;
   return (
-    <div className="w-full aspect-video relative">
+    <div className="w-full h-full  relative">
       <video
         ref={videoRef}
         className="w-full h-full rounded-lg"

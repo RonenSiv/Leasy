@@ -52,3 +52,19 @@ export interface QuizQuestion {
     option_text: string;
   }[];
 }
+
+export interface QuizResponse {
+  quiz_uuid: string;
+  questions: QuizQuestion[];
+}
+
+export interface QuizAnswer {
+  question_uuid: string;
+  selected_option_index: number;
+}
+
+export interface ChatMessage {
+  uuid: string;
+  sender: "user" | "assistant";
+  message: string;
+}
