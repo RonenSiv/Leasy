@@ -22,9 +22,18 @@ class AnswerQuestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'answers' => 'required|array',
-            'answers.*.question_uuid' => 'required|uuid|exists:questions,uuid',
-            'answers.*.answer' => 'required',
+            'answers' => [
+                'required',
+                'array',
+            ],
+            'answers.*.question_uuid' => [
+                'required',
+                'uuid',
+                'exists:questions,uuid',
+            ],
+            'answers.*.answer' => [
+                'required',
+            ],
         ];
     }
 

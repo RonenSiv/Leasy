@@ -46,9 +46,9 @@ Route::controller(QuizController::class)
   ->prefix('quiz')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::post('new-quiz', 'generateNewQuiz'); // TODO: add this endpoint
     Route::get('/questions/{uuid}', 'getQuizQuestions');
     Route::put('/answer/{uuid}', 'answerQuiz'); // TODO: fix score 99 to 100
+    Route::put('generate-new-questions/{uuid}', 'generateNewQuiz');
   });
 
 // TEST

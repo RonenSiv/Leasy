@@ -14,6 +14,7 @@ class QuestionOption extends Model
         'option_index',
         'option_text',
         'is_correct',
+        'is_deleted',
     ];
     protected $hidden = [
         'created_at',

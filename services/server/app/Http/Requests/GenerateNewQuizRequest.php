@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SendMessageToChatRequest extends FormRequest
+class GenerateNewQuizRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,9 @@ class SendMessageToChatRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => [
+            'summary' => [
                 'required',
-                'string',
+                'string'
             ],
         ];
     }
@@ -37,8 +37,8 @@ class SendMessageToChatRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'required' => 'The message field is required.',
-            'string' => 'The message field must be a valid string.',
+            'summary.required' => 'The summary is required.',
+            'summary.string' => 'The summary must be a string.',
         ];
     }
 }

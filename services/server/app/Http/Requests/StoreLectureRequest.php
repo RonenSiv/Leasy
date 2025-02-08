@@ -22,9 +22,22 @@ class StoreLectureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video' => 'required|file|mimes:mp4|max:512000',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:5000',
+            'video' => [
+                'required',
+                'file',
+                'mimes:mp4',
+                'max:512000',
+            ],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'max:5000',
+            ],
         ];
     }
 
