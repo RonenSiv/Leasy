@@ -74,7 +74,7 @@ class QuizService
 
             // DELETE: before prod
             // $quizQuestions = self::DEMO_QUIZ;
-            
+
             LOG::alert($quizQuestions);
             $this->storeQuizQuestions($newQuiz, $quizQuestions);
 
@@ -138,6 +138,7 @@ class QuizService
                 }
 
                 $questionsData[] = [
+                    'question_uuid' => $question->uuid,
                     'selected_option' => (int)$answer['answer'],
                     'correct_option' => $correctAnswer->option_index,
                 ];
