@@ -199,11 +199,11 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
   return (
     <Card>
       <CardContent className="p-0 flex-1">
-        <div className="flex flex-col h-[400px] relative">
+        <div className="flex flex-col h-96 relative">
           <ScrollArea ref={scrollAreaRef} className="flex-1 h-full">
             <div className="p-4">
               {isChatHistoryLoading ? (
-                <div className="flex items-center justify-center h-[400px]">
+                <div className="flex items-center justify-center h-96">
                   <Spinner />
                 </div>
               ) : (
