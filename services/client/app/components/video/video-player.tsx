@@ -31,10 +31,10 @@ export function VideoPlayer({ video, onTimeUpdate }: VideoPlayerProps) {
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const currentTime = videoRef.current.currentTime;
-    onTimeUpdate?.(Math.floor(currentTime));
 
     // Throttle: only update if THROTTLE_INTERVAL seconds have passed since last throttle call
     if (currentTime - lastThrottleCallRef.current >= THROTTLE_INTERVAL) {
+      onTimeUpdate?.(Math.floor(currentTime));
       const delta = currentTime - lastUpdateTimeRef.current;
       console.log("Delta computed:", delta);
       // Only update if there's at least a 0.5-second increase
