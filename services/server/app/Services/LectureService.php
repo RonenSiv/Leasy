@@ -125,11 +125,13 @@ class LectureService
                     ->leftJoin('video_user_progress', 'videos.id', '=', 'video_user_progress.video_id');
             }
 
+            $dashboard = $this->getLecturesDashboard($lecturesQuery);
+
             $lectures = $lecturesQuery->orderBy($sortColumn, $sortDirection)
                 ->paginate(PaginationEnum::VIDEOS_PER_PAGE->value);
 
             return [
-                'dashboard' => $this->getLecturesDashboard(),
+                'dashboard' => $dashboard,
                 'lectures' => LecturesPreviewResource::collection($lectures)
             ];
         } catch (\Exception $e) {
@@ -160,14 +162,13 @@ class LectureService
 
     // ------------------- private Functions -------------------
 
-    private function getLecturesDashboard(): array
+    private function getLecturesDashboard($lecturesQuery): array
     {
-        // TODO: return dashboard by OnlyFavorites or by title search
-        $lectures = Lecture::with('video.videoUserProgresses')
-            ->where('user_id', Auth::id())
-            ->get();
+        $lectures = $lecturesQuery->get();
 
         $totalVideos = $lectures->count();
+
+        $totalFavoriteLectures = Lecture::where('user_id', Auth::id())->where('is_favorite', true)->count();
 
         $sumProgress = 0;
         $numOfCompletedVideos = 0;
@@ -179,8 +180,12 @@ class LectureService
         $overallProgress = $totalVideos == 0 ? 0 : (int)round($sumProgress / $totalVideos);
 
         $numOfPages = floor($totalVideos / PaginationEnum::VIDEOS_PER_PAGE->value);
+
+
+        // TODO: add num of favorites videos
         return [
             'total_lectures' => $totalVideos,
+            'total_favorite_lectures' => $totalFavoriteLectures,
             'overall_progress' => $overallProgress,
             'completed_lectures' => $numOfCompletedVideos,
             'incomplete_lectures' => $totalVideos - $numOfCompletedVideos,
