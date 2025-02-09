@@ -168,6 +168,8 @@ class LectureService
 
         $totalVideos = $lectures->count();
 
+        $totalFavoriteLectures = Lecture::where('user_id', Auth::id())->where('is_favorite', true)->count();
+
         $sumProgress = 0;
         $numOfCompletedVideos = 0;
         foreach ($lectures as $lecture) {
@@ -178,9 +180,12 @@ class LectureService
         $overallProgress = $totalVideos == 0 ? 0 : (int)round($sumProgress / $totalVideos);
 
         $numOfPages = floor($totalVideos / PaginationEnum::VIDEOS_PER_PAGE->value);
-        
+
+
+        // TODO: add num of favorites videos
         return [
             'total_lectures' => $totalVideos,
+            'total_favorite_lectures' => $totalFavoriteLectures,
             'overall_progress' => $overallProgress,
             'completed_lectures' => $numOfCompletedVideos,
             'incomplete_lectures' => $totalVideos - $numOfCompletedVideos,

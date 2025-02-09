@@ -19,7 +19,7 @@ Route::controller(LectureController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::post('/', 'store');
-    Route::get('/', 'index'); 
+    Route::get('/', 'index');
     Route::get('/{uuid}', 'show');
     Route::put('favorite/{uuid}', 'addToOrRemoveFromFavorites');
   });
@@ -47,9 +47,11 @@ Route::controller(QuizController::class)
   ->middleware(['auth:api'])
   ->group(function () {
     Route::get('/questions/{uuid}', 'getQuizQuestions');
-    Route::put('/answer/{uuid}', 'answerQuiz'); 
+    Route::put('/answer/{uuid}', 'answerQuiz');
     Route::put('generate-new-questions/{uuid}', 'generateNewQuiz');
   });
+
+// TODO: add mail 
 
 // TEST
 Route::controller(TestGptController::class)
