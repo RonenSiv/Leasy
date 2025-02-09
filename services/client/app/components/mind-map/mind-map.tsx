@@ -244,7 +244,6 @@ export const TreeMindMap = (params: any) => {
   const { theme, systemTheme } = useTheme();
   const data = params.data || DATA;
   const parsedData = JSON.parse(data);
-  console.log(parsedData);
   const currentTheme = theme === "system" ? systemTheme : theme;
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(

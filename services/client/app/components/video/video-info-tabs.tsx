@@ -5,24 +5,29 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Quizlet } from "@/app/components/quizlet/quizlet";
 import { TreeMindMap } from "@/app/components/mind-map/mind-map";
 import { MarkDownViewer } from "@/app/components/mark-down-viewer";
-import useSWR from "swr";
 import { Spinner } from "@/app/components/spinner";
-import api from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
-
-const fetcher = (url: string) => api.get(url).then((res) => res.data);
+import { useQuizQuestions } from "@/hooks/use-quiz";
+import { useState } from "react";
 
 export function VideoInfoTabs({ videoData }: { videoData: any }) {
-  const {
-    data: quizData,
-    error,
-    isLoading,
-  } = useSWR(`/quiz/${videoData.quiz.uuid}`, fetcher);
+  const { questions, isError, isLoading, mutate } = useQuizQuestions(
+    videoData.quiz.uuid,
+  );
+  const [activeTab, setActiveTab] = useState("transcription");
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
 
   return (
     <Card className="h-full">
       <CardContent className="p-0 h-full">
-        <Tabs defaultValue="transcription" className="w-full h-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full h-full"
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="transcription">Transcription</TabsTrigger>
             <TabsTrigger value="summary">Summary</TabsTrigger>
@@ -52,10 +57,15 @@ export function VideoInfoTabs({ videoData }: { videoData: any }) {
             <ScrollArea className="h-full p-4">
               {isLoading ? (
                 <Spinner />
-              ) : error ? (
+              ) : isError ? (
                 "Error loading quiz"
               ) : (
-                <Quizlet questions={quizData?.questions || []} />
+                <Quizlet
+                  quizId={videoData.quiz.uuid}
+                  questions={questions || []}
+                  summary={videoData.summary}
+                  onNewQuestions={mutate}
+                />
               )}
             </ScrollArea>
           </TabsContent>

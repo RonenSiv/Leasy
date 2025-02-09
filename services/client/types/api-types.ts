@@ -58,9 +58,17 @@ export interface QuizResponse {
   questions: QuizQuestion[];
 }
 
-export interface QuizAnswer {
-  question_uuid: string;
-  selected_option_index: number;
+export interface QuizAnswerResponse {
+  data: {
+    score: number;
+    questions_data: [
+      {
+        selected_option: number;
+        correct_option: number;
+        question_uuid: string;
+      },
+    ];
+  };
 }
 
 export interface ChatMessage {

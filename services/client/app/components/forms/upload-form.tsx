@@ -137,8 +137,10 @@ export function VideoUpload() {
             // When upload is done client-side, switch to "Processing video"
             setUploadStatus("Processing video");
             // Start a slow increment if not already started
+            let timeout = 500;
             if (!slowIncrementIntervalRef.current) {
               slowIncrementIntervalRef.current = setInterval(() => {
+                timeout += 50;
                 setUploadProgress((prev) => {
                   let newPerc = prev.percentage + 1;
                   if (newPerc >= 98) {
@@ -150,7 +152,7 @@ export function VideoUpload() {
                   }
                   return { ...prev, percentage: newPerc };
                 });
-              }, 500);
+              }, timeout);
             }
           }
         },
