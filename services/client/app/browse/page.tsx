@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState } from "react";
-import Link from "next/link";
 import { useLectures } from "@/hooks/use-lectures";
 import { LectureCard } from "@/app/components/lectures/lecture-card";
 import { LectureCardSkeleton } from "@/app/components/lectures/lecture-card-skeleton";
@@ -25,22 +24,6 @@ import {
 } from "@/components/ui/pagination";
 import { EmptyState } from "@/app/components/empty-state";
 import { Upload } from "lucide-react";
-
-function EmptyStateComponent() {
-  return (
-    <div className="text-center py-12">
-      <h2 className="text-2xl font-semibold mb-4">No videos found</h2>
-      <p className="text-gray-600 mb-6">
-        There are no videos matching your search criteria.
-      </p>
-      <div className="space-x-4">
-        <Button asChild>
-          <Link href="/upload">Upload a Video</Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 export default function BrowsePage() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Clock, Eye, Users } from "lucide-react";
+import { Clock, Eye, Upload, Users } from "lucide-react";
 import { EmptyState } from "../empty-state";
 import { VideoCard } from "@/app/components/video-card";
 import { VideoProgress } from "../video-progress";
-import { useUser } from "@/hooks/use-user";
 import { LecturesPreviewResource } from "@/types";
 import React from "react";
+import { useAuth } from "@/lib/auth";
 
 const RECENT_VIDEOS_COUNT = 3;
 
@@ -26,7 +26,7 @@ interface DashboardContentProps {
 
 export function DashboardContent({ serverData }: DashboardContentProps) {
   const { dashboard, lectures } = serverData;
-  const { user } = useUser();
+  const { user } = useAuth();
   const { total_lectures, completed_lectures, overall_progress } = dashboard;
   console.log(dashboard);
   const recentVideos = lectures.slice(0, RECENT_VIDEOS_COUNT);
@@ -112,7 +112,21 @@ export function DashboardContent({ serverData }: DashboardContentProps) {
           </div>
         ) : (
           <div className="flex items-center justify-center py-20">
-            <EmptyState />
+            <EmptyState
+              title={"No videos found"}
+              description={
+                "Looks like you haven't uploaded any videos yet. Get started by uploading a new video."
+              }
+              primaryAction={{
+                label: "Upload Video",
+                href: "/upload",
+              }}
+              secondaryAction={{
+                label: "Browse All Videos",
+                href: "/browse",
+              }}
+              icon={<Upload className="w-10 h-10 text-primary" />}
+            />
           </div>
         )}
       </div>

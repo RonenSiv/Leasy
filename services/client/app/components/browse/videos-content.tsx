@@ -16,6 +16,7 @@ import { useLectures } from "@/hooks/use-lectures";
 import { EmptyState } from "../empty-state";
 import type { Lecture } from "@/types/api-types";
 import { VideoCard } from "@/app/components/video-card";
+import { Upload } from "lucide-react";
 
 export function VideosContent() {
   const [mounted, setMounted] = useState(false);
@@ -149,8 +150,30 @@ function VideoGrid({
     onUpdateTotalPages(totalPages);
   }, [totalPages, onUpdateTotalPages]);
 
-  if (lectures.length === 0) {
-    return <EmptyState />;
+  if (lectures?.length) {
+    return (
+      <EmptyState
+        title={search ? "No videos found" : "No videos available"}
+        description={
+          search
+            ? "Try adjusting your search or upload a new video."
+            : "You can upload a video to get started."
+        }
+        primaryAction={{
+          label: search ? "Clear Search" : "Upload a Video",
+          href: search ? "/browse" : "/upload",
+        }}
+        secondaryAction={
+          search
+            ? {
+                label: "Upload a Video",
+                href: "/upload",
+              }
+            : undefined
+        }
+        icon={<Upload className="w-10 h-10 text-primary" />}
+      />
+    );
   }
 
   return (
@@ -160,7 +183,7 @@ function VideoGrid({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {lectures.map((lecture: Lecture) => (
+      {lectures!.map((lecture: Lecture) => (
         <VideoCard
           key={lecture.uuid}
           lectureId={lecture.uuid}

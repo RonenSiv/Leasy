@@ -42,5 +42,4 @@ export const useAuth = create<AuthState>((set) => ({
   },
 }));
 
-// Initialize auth check when store is created
 useAuth.getState().checkAuth();

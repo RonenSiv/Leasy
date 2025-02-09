@@ -1,6 +1,6 @@
+import axios from "axios";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getUser } from "@/app/actions/server-actions";
 
 const protectedRoutes = [
   "/dashboard",
@@ -9,24 +9,32 @@ const protectedRoutes = [
   "/settings",
   "/lecture",
 ];
-
 const authRoutes = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get("LeasyToken")?.value;
+  let isLoggedIn = false;
+
+  if (token) {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
+        headers: { Authorization: `Bearer ${token}`, withCredentials: true },
+      });
+      isLoggedIn = res.status === 200;
+    } catch (error) {
+      console.error("Error checking auth:", error);
+    }
+  }
 
   const isProtectedRoute = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
-
   const isAuthRoute = authRoutes.some((route) => pathname === route);
 
-  const isLoggedIn = await getUser();
   if (isProtectedRoute && !isLoggedIn) {
     const response = NextResponse.redirect(new URL("/login", request.url));
-    response.cookies.set({
-      name: "redirectTo",
-      value: pathname,
+    response.cookies.set("redirectTo", pathname, {
       maxAge: 60 * 60,
       path: "/",
     });
