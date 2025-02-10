@@ -27,7 +27,7 @@
                                 "properties": {
                                     "email": {
                                         "type": "string",
-                                        "example": "ofirgoldofir@gmail.com"
+                                        "example": "leasy.helpdesk@gmail.com"
                                     },
                                     "full_name": {
                                         "type": "string",
@@ -76,7 +76,7 @@
                                 "properties": {
                                     "email": {
                                         "type": "string",
-                                        "example": "ofirgoldofir@gmail.com"
+                                        "example": "leasy.helpdesk@gmail.com"
                                     },
                                     "password": {
                                         "type": "string",
@@ -428,6 +428,56 @@
                     },
                     "404": {
                         "description": "Lecture Not Found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/mail/support": {
+            "post": {
+                "tags": [
+                    "Mails"
+                ],
+                "summary": "Send a support email",
+                "description": "Sends an email to the support team with the provided subject and content.",
+                "operationId": "551a32fef3105c86bb3e5eac7b0e2940",
+                "requestBody": {
+                    "description": "Details of the email to be sent",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mail_subject",
+                                    "mail_content"
+                                ],
+                                "properties": {
+                                    "mail_subject": {
+                                        "description": "The subject of the support email",
+                                        "type": "string",
+                                        "maxLength": 50,
+                                        "example": "Issue with account login"
+                                    },
+                                    "mail_content": {
+                                        "description": "The content of the support email",
+                                        "type": "string",
+                                        "maxLength": 200,
+                                        "example": "Hello, I'm unable to log in to my account. I tried resetting my password but still can't access it. Please assist."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The email was sent successfully"
+                    },
+                    "204": {
+                        "description": "No content"
                     },
                     "500": {
                         "description": "An error occurred"

@@ -5,6 +5,7 @@ use App\Http\Controllers\LectureController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MailController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,12 @@ Route::controller(QuizController::class)
   });
 
 // TODO: add mail 
+Route::controller(MailController::class)
+  ->prefix('mail')
+  ->middleware(['auth:api'])
+  ->group(function () {
+    Route::post('/support', 'sendSupportMail'); // TODO: complete this route
+  });
 
 // TEST
 Route::controller(TestGptController::class)
