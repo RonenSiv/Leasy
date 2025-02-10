@@ -12,7 +12,6 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import { MindMapNode } from "@/app/components/mind-map/mind-map-node";
 import { MindMapEdge } from "@/app/components/mind-map/mind-map-edge";
-import { DATA } from "@/mocks/constants";
 import { useTheme } from "next-themes";
 
 const nodeTypes = {
@@ -242,7 +241,7 @@ const calculateLayout = (data: any, theme: string | undefined) => {
 
 export const TreeMindMap = (params: any) => {
   const { theme, systemTheme } = useTheme();
-  const data = params.data || DATA;
+  const data = params.data;
   const parsedData = JSON.parse(data);
   const currentTheme = theme === "system" ? systemTheme : theme;
 

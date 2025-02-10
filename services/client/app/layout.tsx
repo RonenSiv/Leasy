@@ -3,7 +3,6 @@ import { Inter, Poppins } from "next/font/google";
 import { Header } from "./components/header/header";
 import { Toaster } from "react-hot-toast";
 import ScrollToTopButton from "./components/home/scroll-to-button";
-import { PageTransition } from "./components/page-transition";
 import Footer from "./components/footer";
 import { LayoutProvider } from "./providers/layout-provider";
 import React from "react";
@@ -33,7 +32,6 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground flex flex-col min-h-screen">
         <LayoutProvider>
-          <PageTransition />
           <Header />
           <main className="flex-grow">{children}</main>
           <Footer />

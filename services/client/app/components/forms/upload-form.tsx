@@ -10,7 +10,7 @@ import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { UploadProgress as UploadProgressType } from "@/types";
+import type { UploadProgress as UploadProgressType } from "@/types/components";
 import { DragDropFile } from "../drag-drop-file";
 import { UploadProgress } from "../upload/upload-progress";
 

@@ -17,11 +17,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, FileText, MessageSquare, Sparkles, Zap } from "lucide-react";
+import { Brain, FileText, MessageSquare, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VideoChat } from "@/app/components/video/video-chat";
-import { Quizlet } from "@/app/components/quizlet/quizlet";
 
 // For demo purposes, use a public sample video URL.
 const SAMPLE_VIDEO_URL = "https://www.w3schools.com/html/mov_bbb.mp4";
@@ -106,61 +104,62 @@ const features = [
     icon: <MessageSquare className="w-6 h-6" />,
     component: <VideoChat chatUuid={"123"} showCase={true} />,
   },
-  {
-    id: "quizlet",
-    title: "Smart Quizzes",
-    description: "Automatically generate quizzes from your video content.",
-    details:
-      "Our system automatically generates quizzes based on the video content, helping reinforce learning and assess understanding.",
-    icon: <Zap className="w-6 h-6" />,
-    component: (
-      <ScrollArea className="h-[400px] w-full border p-4">
-        <Quizlet
-          questions={[
-            {
-              id: "q1",
-              question:
-                "How does Leasy enhance the learning experience compared to traditional video platforms?",
-              options: [
-                "By providing longer videos",
-                "Through AI-powered features like transcription, summarization, and quizzes",
-                "By offering more video content",
-                "Through social media integration",
-              ],
-              correctAnswer:
-                "Through AI-powered features like transcription, summarization, and quizzes",
-            },
-            {
-              id: "q2",
-              question:
-                "What unique feature does Leasy offer to help users understand video content better?",
-              options: [
-                "Background music",
-                "Subtitles in multiple languages",
-                "An AI-powered chatbot for asking questions about the video",
-                "Virtual reality experiences",
-              ],
-              correctAnswer:
-                "An AI-powered chatbot for asking questions about the video",
-            },
-            {
-              id: "q3",
-              question:
-                "How does Leasy's summarization feature benefit learners?",
-              options: [
-                "It provides longer video content",
-                "It offers concise overviews of key points from the video",
-                "It translates the video into different languages",
-                "It adds background music to the video",
-              ],
-              correctAnswer:
-                "It offers concise overviews of key points from the video",
-            },
-          ]}
-        />
-      </ScrollArea>
-    ),
-  },
+  // TODO: fix later the quiz feature
+  // {
+  //   id: "quizlet",
+  //   title: "Smart Quizzes",
+  //   description: "Automatically generate quizzes from your video content.",
+  //   details:
+  //     "Our system automatically generates quizzes based on the video content, helping reinforce learning and assess understanding.",
+  //   icon: <Zap className="w-6 h-6" />,
+  //   component: (
+  //     <ScrollArea className="h-[400px] w-full border p-4">
+  //       <Quizlet
+  //         questions={[
+  //           {
+  //             id: "q1",
+  //             question:
+  //               "How does Leasy enhance the learning experience compared to traditional video platforms?",
+  //             options: [
+  //               "By providing longer videos",
+  //               "Through AI-powered features like transcription, summarization, and quizzes",
+  //               "By offering more video content",
+  //               "Through social media integration",
+  //             ],
+  //             correctAnswer:
+  //               "Through AI-powered features like transcription, summarization, and quizzes",
+  //           },
+  //           {
+  //             id: "q2",
+  //             question:
+  //               "What unique feature does Leasy offer to help users understand video content better?",
+  //             options: [
+  //               "Background music",
+  //               "Subtitles in multiple languages",
+  //               "An AI-powered chatbot for asking questions about the video",
+  //               "Virtual reality experiences",
+  //             ],
+  //             correctAnswer:
+  //               "An AI-powered chatbot for asking questions about the video",
+  //           },
+  //           {
+  //             id: "q3",
+  //             question:
+  //               "How does Leasy's summarization feature benefit learners?",
+  //             options: [
+  //               "It provides longer video content",
+  //               "It offers concise overviews of key points from the video",
+  //               "It translates the video into different languages",
+  //               "It adds background music to the video",
+  //             ],
+  //             correctAnswer:
+  //               "It offers concise overviews of key points from the video",
+  //           },
+  //         ]}
+  //       />
+  //     </ScrollArea>
+  //   ),
+  // },
 ];
 
 export default function FeatureShowcasePage() {

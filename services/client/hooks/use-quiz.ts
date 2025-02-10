@@ -1,13 +1,11 @@
 import useSWR from "swr";
-import api from "@/lib/api";
 import { QuizQuestion } from "@/types/api-types";
+import { fetcher } from "@/app/actions/fetcher";
 
-const fetcher = (url: string) => api.get(url).then((res) => res.data);
-
-export function useQuizQuestions(quizUuid: string) {
+export function useQuizQuestions(quizUuid?: string) {
   const { data, error, mutate } = useSWR<{ data: QuizQuestion[] }>(
     `/quiz/questions/${quizUuid}`,
-    fetcher,
+    fetcher.get,
   );
 
   return {
