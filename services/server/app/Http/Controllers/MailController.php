@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Enums\HttpStatusEnum;
-use App\Http\Requests\SendMailRequest;
+use App\Http\Requests\SendSupportMailRequest;
 use App\Services\MailService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class MailController extends Controller
@@ -21,14 +20,14 @@ class MailController extends Controller
      * @OA\Post(
      *     path="/api/mail/support",
      *     summary="Send a support email",
-     *     description="Sends an email to the support team with the provided subject and content.",
+     *     description="Sends an email to the support team with the provided details.",
      *     tags={"Mails"},
      *     @OA\RequestBody(
      *         required=true,
      *         description="Details of the email to be sent",
      *         @OA\JsonContent(
      *             type="object",
-     *             required={"mail_subject", "mail_content"},
+     *             required={"mail_subject", "mail_content", "sender_mail_address", "sender_full_name"},
      *             @OA\Property(
      *                 property="mail_subject",
      *                 type="string",
@@ -42,6 +41,20 @@ class MailController extends Controller
      *                 maxLength=200,
      *                 description="The content of the support email",
      *                 example="Hello, I'm unable to log in to my account. I tried resetting my password but still can't access it. Please assist."
+     *             ),
+     *             @OA\Property(
+     *                 property="sender_mail_address",
+     *                 type="string",
+     *                 format="email",
+     *                 description="The email address of the sender",
+     *                 example="omer.groman123@gmail.com"
+     *             ),
+     *             @OA\Property(
+     *                 property="sender_full_name",
+     *                 type="string",
+     *                 maxLength=100,
+     *                 description="The full name of the sender",
+     *                 example="Omer Groman"
      *             )
      *         )
      *     ),
@@ -51,20 +64,23 @@ class MailController extends Controller
      *     ),
      *     @OA\Response(
      *         response=204,
-     *         description="No content"
+     *         description="No content",
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="An error occurred"
+     *         description="An error occurred",
      *     )
      * )
      */
 
-    public function sendSupportMail(SendMailRequest $request): JsonResponse
+
+    public function sendSupportMail(SendSupportMailRequest $request): JsonResponse
     {
         $result = $this->mailService->sendSupportMail(
             mailSubject: $request->mail_subject,
             mailContent: $request->mail_content,
+            senderMailAddress: $request->sender_mail_address,
+            senderFullName: $request->sender_full_name,
         );
 
         return match ($result) {

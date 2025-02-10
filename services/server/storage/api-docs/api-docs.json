@@ -441,7 +441,7 @@
                     "Mails"
                 ],
                 "summary": "Send a support email",
-                "description": "Sends an email to the support team with the provided subject and content.",
+                "description": "Sends an email to the support team with the provided details.",
                 "operationId": "551a32fef3105c86bb3e5eac7b0e2940",
                 "requestBody": {
                     "description": "Details of the email to be sent",
@@ -451,7 +451,9 @@
                             "schema": {
                                 "required": [
                                     "mail_subject",
-                                    "mail_content"
+                                    "mail_content",
+                                    "sender_mail_address",
+                                    "sender_full_name"
                                 ],
                                 "properties": {
                                     "mail_subject": {
@@ -465,6 +467,18 @@
                                         "type": "string",
                                         "maxLength": 200,
                                         "example": "Hello, I'm unable to log in to my account. I tried resetting my password but still can't access it. Please assist."
+                                    },
+                                    "sender_mail_address": {
+                                        "description": "The email address of the sender",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "omer.groman123@gmail.com"
+                                    },
+                                    "sender_full_name": {
+                                        "description": "The full name of the sender",
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "Omer Groman"
                                     }
                                 },
                                 "type": "object"

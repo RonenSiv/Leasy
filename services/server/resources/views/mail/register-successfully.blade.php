@@ -13,4 +13,8 @@
 
   Thanks,
   *Leasy - Lectures Made Easy*
+
+  <div style="text-align: center; display: flex;">
+    <img src="{{ $message->embed(public_path('/images/LeasyLogo.png')) }}" alt="Leassy-logo" style="height: auto; width: 100px; display: block; margin: 0 auto;">
+  </div>
 </x-mail::message>

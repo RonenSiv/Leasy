@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SendMailRequest extends FormRequest
+class SendSupportMailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +24,8 @@ class SendMailRequest extends FormRequest
         return [
             'mail_subject'   => 'required|string|max:50',
             'mail_content'   => 'required|string|max:200',
+            'sender_mail_address' => 'required',
+            'sender_full_name'  => 'required|string|max:25',
         ];
     }
 
@@ -42,6 +44,13 @@ class SendMailRequest extends FormRequest
             'mail_content.required' => 'The email content is required.',
             'mail_content.string' => 'The email content must be a valid string.',
             'mail_content.max' => 'The email content cannot exceed 200 characters.',
+
+            'sender_mail_address.required' => 'The sender email address is required.',
+            'sender_mail_address.email'    => 'The sender email address must be a valid email.',
+
+            'sender_full_name.required' => 'The sender full name is required.',
+            'sender_full_name.string'   => 'The sender full name must be a valid string.',
+            'sender_full_name.max'      => 'The sender full name cannot exceed 25 characters.',
         ];
     }
 }

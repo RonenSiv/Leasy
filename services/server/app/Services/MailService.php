@@ -13,14 +13,14 @@ use Illuminate\Support\Facades\Log;
 
 class MailService
 {
-    public function sendSupportMail(string $mailSubject, string $mailContent)
+    public function sendSupportMail(string $mailSubject, string $mailContent, string $senderMailAddress, string $senderFullName)
     {
         try {
             $userDetails = [
-                'full_name' => Auth::user()->full_name,
-                'email' => Auth::user()->email,
+                'full_name' => $senderFullName,
+                'email' => $senderMailAddress,
             ];
-
+            
             Mail::to($userDetails['email'])->send(new MessageReceivedMail($userDetails));
 
             Mail::to(config('mail.support_mail'))->send(new SupportMail(
