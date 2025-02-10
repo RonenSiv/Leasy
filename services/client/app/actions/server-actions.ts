@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { LectureResource, User, Video } from "@/types";
+import { revalidate } from "@/app/actions/mutations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
@@ -34,7 +35,6 @@ async function serverFetch(endpoint: string, options: RequestInit = {}) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
     });
   }
 
@@ -54,6 +54,7 @@ export async function loginUser({
     body: JSON.stringify({ email, password }),
   });
   revalidateTag("user");
+  revalidate("/user");
   return res;
 }
 
@@ -76,6 +77,7 @@ export async function registerUser({
     }),
   });
   redirect("/login");
+  revalidate("/user");
 }
 
 export async function logoutUser() {
@@ -117,6 +119,8 @@ export async function getLectures(
   if (params.sortField) searchParams.set("sort_by", params.sortField);
   if (params.sortOrder) searchParams.set("sort_direction", params.sortOrder);
 
+  revalidate("/lecture");
+
   return serverFetch(`/lecture?${searchParams.toString()}`, {
     next: { tags: ["lectures"] },
   });
@@ -125,6 +129,7 @@ export async function getLectures(
 export async function getLecture(uuid: string): Promise<{
   data: LectureResource;
 }> {
+  revalidate("/lecture");
   return serverFetch(`/lecture/${uuid}`, {
     next: { tags: [`lecture-${uuid}`] },
   });
@@ -135,6 +140,7 @@ export async function updateWatchTime(uuid: string, time: number) {
     method: "PUT",
     body: JSON.stringify({ last_watched_time: time }),
   });
+  revalidate("/lecture");
   revalidateTag(`lecture-${uuid}`);
   revalidateTag("lectures");
 }
@@ -145,7 +151,8 @@ export async function sendChatMessage(chatUuid: string, message: string) {
     method: "POST",
     body: JSON.stringify({ message }),
   });
-
+  revalidate("/lecture");
+  revalidate("/chat");
   revalidateTag(`lecture-chat-${chatUuid}`);
   return res;
 }
@@ -162,6 +169,8 @@ export async function getQuizQuestions(quizUuid: string): Promise<any[]> {
 }
 
 export async function submitQuizAnswer(quizUuid: string, answers: any[]) {
+  revalidate("/lecture");
+  revalidate("/quiz");
   return serverFetch(`/quiz/answer/${quizUuid}`, {
     method: "PUT",
     body: JSON.stringify({ answers }),

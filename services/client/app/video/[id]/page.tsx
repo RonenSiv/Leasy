@@ -1,17 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { VideoPlayer } from "@/app/components/video/video-player";
 import { VideoChat } from "@/app/components/video/video-chat";
 import { VideoInfoTabs } from "@/app/components/video/video-info-tabs";
-import api from "@/lib/api";
 import { VideoSkeleton } from "@/app/components/video/video-skeleton";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const fetcher = (url: string) => api.get(url).then((res) => res.data);
+import { fetcher } from "@/app/actions/fetcher";
 
 export default function VideoPage() {
   const params = useParams();
@@ -20,7 +18,7 @@ export default function VideoPage() {
     data: cachedData,
     error,
     isLoading,
-  } = useSWR(`/lecture/${params.id}`, fetcher);
+  } = useSWR(`/lecture/${params.id}`, fetcher.get);
 
   // We'll use a ref to measure the chat element's rendered height.
   const chatRef = useRef(null);
@@ -29,10 +27,16 @@ export default function VideoPage() {
   if (error) return <div>Failed to load lecture</div>;
   const { data } = cachedData;
 
-  const onTimeUpdate = (time: number) => {
-    api.put(`/video/last-watched-time/${data.video.uuid}`, {
-      last_watched_time: time,
-    });
+  const onTimeUpdate = async (time: number) => {
+    try {
+      // If you worry about the unload, you can use navigator.sendBeacon here
+      await fetcher.put(`/video/last-watched-time/${data.video.uuid}`, {
+        last_watched_time: time,
+      });
+      console.log("Updated last watched time", time);
+    } catch (error) {
+      console.error("Failed to update last watched time", error);
+    }
   };
 
   return (
@@ -48,11 +52,13 @@ export default function VideoPage() {
         <motion.div
           className={cn("col-span-1 row-span-1", isTheaterMode && "col-span-2")}
         >
-          <VideoPlayer
-            video={data.video}
-            onTimeUpdate={onTimeUpdate}
-            onTheaterModeChange={setIsTheaterMode}
-          />
+          <Suspense fallback={<VideoSkeleton />}>
+            <VideoPlayer
+              video={data.video}
+              onTimeUpdate={onTimeUpdate}
+              onTheaterModeChange={setIsTheaterMode}
+            />
+          </Suspense>
         </motion.div>
         {/* Cell "2": Chat */}
         <motion.div layout ref={chatRef} className="col-start-1 row-start-2">

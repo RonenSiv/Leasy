@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import api from "@/lib/api";
 import { LectureResponse } from "@/types/api-types";
+import { revalidateLecture } from "@/app/actions/mutations";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -20,7 +21,7 @@ export function useLectures({
   limit?: number;
 }) {
   const query = `/lecture?page=${page}&only_favorites=${onlyFavorites}&search_by_title=${searchByTitle}&sort_by=${sortBy}&sort_direction=${sortDirection}`;
-  const { data, error, mutate } = useSWR<LectureResponse>(query, fetcher);
+  const { data, error } = useSWR<LectureResponse>(query, fetcher);
 
   return {
     lectures: !limit
@@ -29,6 +30,6 @@ export function useLectures({
     dashboard: data?.data.dashboard,
     isLoading: !error && !data,
     isError: error,
-    mutate,
+    mutate: revalidateLecture,
   };
 }

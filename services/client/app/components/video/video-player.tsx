@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,31 +72,9 @@ export function VideoPlayer({
   } | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
-
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(videoElement.currentTime);
-      const currentTime = videoElement.currentTime;
-
-      // Throttle: only update if THROTTLE_INTERVAL seconds have passed since last throttle call
-      if (currentTime - lastThrottleCallRef.current >= THROTTLE_INTERVAL) {
-        onTimeUpdate?.(Math.floor(currentTime));
-        const delta = currentTime - lastUpdateTimeRef.current;
-        // Only update if there's at least a 0.5-second increase
-        if (delta >= 0.5) {
-          // Round the delta to the nearest whole number
-          updateWeeklyProgress({
-            videoId: video.uuid,
-            timeSpent: Math.round(delta),
-          });
-          lastUpdateTimeRef.current = currentTime;
-        }
-        lastThrottleCallRef.current = currentTime;
-      }
-    };
 
     const handleLoadedMetadata = () => {
       setDuration(videoElement.duration);
@@ -111,7 +90,6 @@ export function VideoPlayer({
       setIsLoaded(true);
     };
 
-    videoElement.addEventListener("timeupdate", handleTimeUpdate);
     videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
     videoElement.addEventListener("loadeddata", handleLoadedData);
     videoElement.addEventListener("canplay", handleCanPlay);
@@ -126,7 +104,6 @@ export function VideoPlayer({
     handleLoadedData();
 
     return () => {
-      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
       videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
       videoElement.removeEventListener("loadeddata", handleLoadedData);
       videoElement.removeEventListener("canplay", handleCanPlay);
@@ -134,7 +111,7 @@ export function VideoPlayer({
       videoElement.removeEventListener("pause", handlePause);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
-  }, [video.uuid, onTimeUpdate]);
+  }, [video.uuid]);
 
   // Set initial video time
   useEffect(() => {
@@ -379,6 +356,48 @@ export function VideoPlayer({
     };
   }, [isDragging]);
 
+  const handleTimeUpdate = () => {
+    const time = videoRef.current?.currentTime || 0;
+    setCurrentTime(time);
+
+    // Throttle: only update if THROTTLE_INTERVAL seconds have passed since last throttle call
+    if (time - lastThrottleCallRef.current >= THROTTLE_INTERVAL) {
+      onTimeUpdate?.(Math.floor(currentTime));
+      const delta = currentTime - lastUpdateTimeRef.current;
+      // Only update if there's at least a 0.5-second increase
+      if (delta >= 0.5) {
+        // Round the delta to the nearest whole number
+        updateWeeklyProgress({
+          videoId: video.uuid,
+          timeSpent: Math.round(delta),
+        });
+      }
+      lastThrottleCallRef.current = currentTime;
+    }
+
+    if (
+      videoRef.current &&
+      videoRef.current.currentTime >= videoRef.current.duration
+    ) {
+      onTimeUpdate?.(Math.floor(time));
+      const delta = time - lastUpdateTimeRef.current;
+      if (delta >= 0.5) {
+        updateWeeklyProgress({
+          videoId: video.uuid,
+          timeSpent: Math.round(delta),
+        });
+      }
+    }
+  };
+
+  const handleSeeked = () => {
+    if (videoRef.current) {
+      const time = videoRef.current.currentTime || 0;
+      onTimeUpdate?.(Math.floor(time));
+      lastUpdateTimeRef.current = time;
+    }
+  };
+
   const VolumeIcon = volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
   const videoUrl = `/video/stream/${video.uuid}`;
 
@@ -397,6 +416,8 @@ export function VideoPlayer({
         poster={video.preview_image_url}
         preload="metadata"
         playsInline
+        onTimeUpdate={handleTimeUpdate}
+        onSeeked={handleSeeked}
       >
         <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
         Your browser does not support the video tag.
