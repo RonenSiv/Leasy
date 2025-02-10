@@ -85,7 +85,7 @@ class MailController extends Controller
 
         return match ($result) {
             HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
-            HttpStatusEnum::OK => response()->json(['message' => 'The email was sent successfully.'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::OK => response()->json(['message' => 'The email was sent successfully.'], Response::HTTP_OK),
             default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
         };
     }
