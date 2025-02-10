@@ -53,6 +53,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.3.5",
     "react-hot-toast": "^2.5.1",
+    "react-hotkeys-hook": "^4.6.1",
     "react-markdown": "^9.0.3",
     "react-scroll": "^1.9.0",
     "reactflow": "^11.11.4",

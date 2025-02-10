@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import {
   DropdownMenu,
@@ -31,8 +32,9 @@ import {
   VolumeX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Video } from "@/types/api-types";
+import type { Video } from "@/types/api-types";
 import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
+import { Spinner } from "@/app/components/spinner";
 
 interface VideoPlayerProps {
   video: Video;
@@ -72,6 +74,138 @@ export function VideoPlayer({
   } | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
+
+  const isVideoFocused = () => {
+    const activeElement = document.activeElement;
+    console.log(activeElement);
+    return (
+      activeElement === videoRef.current ||
+      activeElement === containerRef.current
+    );
+  };
+
+  useHotkeys(
+    "space",
+    (e) => {
+      if (isVideoFocused()) {
+        e.preventDefault();
+        togglePlay();
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [isPlaying, isVideoFocused],
+  );
+
+  useHotkeys(
+    "m",
+    () => {
+      if (isVideoFocused()) {
+        toggleMute();
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [volume, isVideoFocused],
+  );
+
+  useHotkeys(
+    "f",
+    () => {
+      if (isVideoFocused()) {
+        toggleFullscreen();
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [isFullscreen, isVideoFocused],
+  );
+
+  useHotkeys(
+    "left",
+    () => {
+      if (isVideoFocused()) {
+        seek(currentTime - 10);
+        showHudAction(<SkipBack className="h-8 w-8" />, "Rewind 10 seconds");
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [currentTime, isVideoFocused],
+  );
+
+  useHotkeys(
+    "right",
+    () => {
+      if (isVideoFocused()) {
+        seek(currentTime + 10);
+        showHudAction(
+          <SkipForward className="h-8 w-8" />,
+          "Forward 10 seconds",
+        );
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [currentTime, isVideoFocused],
+  );
+
+  useHotkeys(
+    "up",
+    (e) => {
+      if (isVideoFocused()) {
+        e.preventDefault();
+        handleVolumeChange([Math.min(volume + 0.1, 1)]);
+        showHudAction(<Volume2 className="h-8 w-8" />, "Volume Up");
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [volume, isVideoFocused],
+  );
+
+  useHotkeys(
+    "down",
+    (e) => {
+      if (isVideoFocused()) {
+        e.preventDefault();
+        handleVolumeChange([Math.max(volume - 0.1, 0)]);
+        showHudAction(<Volume1 className="h-8 w-8" />, "Volume Down");
+        setShowControls(true);
+      }
+    },
+    {
+      ignoreEventWhen: (e: KeyboardEvent) =>
+        !(containerRef.current?.contains(e.target as Node) ?? false),
+      enableOnFormTags: false,
+    },
+    [volume, isVideoFocused],
+  );
+
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
@@ -111,7 +245,7 @@ export function VideoPlayer({
       videoElement.removeEventListener("pause", handlePause);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
-  }, [video.uuid]);
+  }, []);
 
   // Set initial video time
   useEffect(() => {
@@ -158,55 +292,6 @@ export function VideoPlayer({
       }
     };
   }, [isPlaying]);
-
-  // Keyboard controls
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      switch (e.key.toLowerCase()) {
-        case " ":
-          e.preventDefault();
-          togglePlay();
-          break;
-        case "m":
-          toggleMute();
-          break;
-        case "f":
-          toggleFullscreen();
-          break;
-        case "arrowleft":
-          if (videoRef.current) {
-            seek(currentTime - 10);
-            showHudAction(
-              <SkipBack className="h-8 w-8" />,
-              "Rewind 10 seconds",
-            );
-          }
-          break;
-        case "arrowright":
-          if (videoRef.current) {
-            seek(currentTime + 10);
-            showHudAction(
-              <SkipForward className="h-8 w-8" />,
-              "Forward 10 seconds",
-            );
-          }
-          break;
-        case "arrowup":
-          e.preventDefault();
-          handleVolumeChange([Math.min(volume + 0.1, 1)]);
-          showHudAction(<Volume2 className="h-8 w-8" />, "Volume Up");
-          break;
-        case "arrowdown":
-          e.preventDefault();
-          handleVolumeChange([Math.max(volume - 0.1, 0)]);
-          showHudAction(<Volume1 className="h-8 w-8" />, "Volume Down");
-          break;
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [volume, currentTime]);
 
   // Playback speed
   useEffect(() => {
@@ -354,7 +439,7 @@ export function VideoPlayer({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging]);
+  }, [isDragging, currentTime, seek]);
 
   const handleTimeUpdate = () => {
     const time = videoRef.current?.currentTime || 0;
@@ -401,6 +486,16 @@ export function VideoPlayer({
   const VolumeIcon = volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
   const videoUrl = `/video/stream/${video.uuid}`;
 
+  useEffect(() => {
+    if (showControls) {
+      const timer = setTimeout(() => {
+        setShowControls(false);
+      }, 3000); // Hide controls after 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [showControls]);
+
   return (
     <div
       ref={containerRef}
@@ -409,19 +504,27 @@ export function VideoPlayer({
         isTheaterMode ? "h-[85vh]" : "h-auto",
       )}
       onClick={togglePlay}
+      tabIndex={-1} // Make the container focusable
     >
-      <video
-        ref={videoRef}
-        className="w-full h-full cursor-pointer"
-        poster={video.preview_image_url}
-        preload="metadata"
-        playsInline
-        onTimeUpdate={handleTimeUpdate}
-        onSeeked={handleSeeked}
-      >
-        <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      {!video ? (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Spinner className="h-12 w-12" />
+        </div>
+      ) : (
+        <video
+          ref={videoRef}
+          className="w-full h-full cursor-pointer"
+          poster={video.preview_image_url}
+          preload="metadata"
+          playsInline
+          onTimeUpdate={handleTimeUpdate}
+          onSeeked={handleSeeked}
+          tabIndex={0} // Add this line to make the video focusable
+        >
+          <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      )}
 
       {/* Video Controls */}
       <div
@@ -526,7 +629,9 @@ export function VideoPlayer({
             />
 
             <span className="text-sm text-white/90 min-w-[85px]">
-              {formatTime(currentTime)} / {formatTime(duration)}
+              {video
+                ? `${formatTime(currentTime)} / ${formatTime(duration)}`
+                : "Loading..."}
             </span>
           </div>
 
