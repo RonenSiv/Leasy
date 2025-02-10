@@ -52,12 +52,11 @@ Route::controller(QuizController::class)
     Route::put('generate-new-questions/{uuid}', 'generateNewQuiz');
   });
 
-// TODO: add mail 
 Route::controller(MailController::class)
   ->prefix('mail')
   ->middleware(['auth:api'])
   ->group(function () {
-    Route::post('/support', 'sendSupportMail'); // TODO: complete this route
+    Route::post('/support', 'sendSupportMail');
   });
 
 // TEST
