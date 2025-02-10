@@ -15,6 +15,13 @@ use App\Models\User;
 
 class AuthService
 {
+
+  private MailService $mailService;
+  public function __construct()
+  {
+    $this->mailService = new MailService();
+  }
+
   public function register(string $fullName, string $email, string $password): HttpStatusEnum
   {
     try {
@@ -23,6 +30,11 @@ class AuthService
         'email' => $email,
         'full_name' => $fullName,
         'password' => Hash::make($password),
+      ]);
+
+      $this->mailService->sendRegisterSuccessfullyMail([
+        'full_name' => $fullName,
+        'email' => $email,
       ]);
 
       return HttpStatusEnum::CREATED;

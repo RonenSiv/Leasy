@@ -181,8 +181,6 @@ class LectureService
 
         $numOfPages = floor($totalVideos / PaginationEnum::VIDEOS_PER_PAGE->value);
 
-
-        // TODO: add num of favorites videos
         return [
             'total_lectures' => $totalVideos,
             'total_favorite_lectures' => $totalFavoriteLectures,
