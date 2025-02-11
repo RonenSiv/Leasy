@@ -7,11 +7,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-use Laravel\Passport\Token;
-
 use App\Enums\HttpStatusEnum;
 
 use App\Models\User;
+
+use Laravel\Passport\Token;
+
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthService
 {
@@ -79,6 +81,48 @@ class AuthService
       Auth::user()->token()->revoke();
 
       return HttpStatusEnum::OK;
+    } catch (\Exception $e) {
+      Log::error($e->getMessage());
+      return HttpStatusEnum::ERROR;
+    }
+  }
+
+  public function googleAuthentication(): array|HttpStatusEnum
+  {
+    try {
+      $googleUser = Socialite::driver('google')->user();
+
+      $user = User::where('google_id', $googleUser->id)->first();
+
+      if (is_null($user)) {
+        $user = User::where('email', $googleUser->email)->first();
+
+        if (is_null($user)) {
+          $user = User::create([
+            'uuid' => Str::uuid(),
+            'full_name' => $googleUser->name,
+            'email' => $googleUser->email,
+            'password' => Hash::make(uniqid()),
+            'google_id' => $googleUser->id,
+          ]);
+        } else {
+          $user->update(['google_id' => $googleUser->id]);
+        }
+      }
+
+      Token::where('user_id', $user->id)->update([
+        'revoked' => true,
+      ]);
+
+      $tokenName = config('auth.access_token_name');
+      $token = $user->createToken($tokenName);
+
+      return [
+        "full_name" => $user->full_name,
+        "email" => $user->email,
+        "tokenName" => $tokenName,
+        "accessToken" => $token->accessToken,
+      ];
     } catch (\Exception $e) {
       Log::error($e->getMessage());
       return HttpStatusEnum::ERROR;

@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 
+use App\Http\Requests\RegisterRequest;
+
 use App\Enums\HttpStatusEnum;
 
-use App\Http\Requests\RegisterRequest;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
+
+use Laravel\Socialite\Facades\Socialite;
 
 use Illuminate\Support\Facades\Cookie;
 
@@ -118,7 +121,7 @@ class AuthController extends Controller
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
-        
+
         $filteredResult = [
             "email" => $result["email"],
             "full_name" => $result["full_name"],
@@ -159,5 +162,64 @@ class AuthController extends Controller
             HttpStatusEnum::OK => response()->json(['message' => 'User logged out successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
         };
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/auth/google",
+     *     summary="Redirect to Google OAuth",
+     *     description="Redirects the user to Google's OAuth authentication page.",
+     *     operationId="googleLogin",
+     *     tags={"Authentication"},
+     *     @OA\Response(
+     *         response=302,
+     *         description="Redirect to Google authentication page"
+     *     )
+     * )
+     */
+
+    public function googleLogin()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/auth/google-callback",
+     *     summary="Handle Google OAuth callback",
+     *     description="Retrieves the authenticated user information from Google after successful authentication.",
+     *     operationId="googleAuthentication",
+     *     tags={"Authentication"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful authentication, returns user data from Google"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized if authentication fails"
+     *     )
+     * )
+     */
+
+    public function googleAuthentication()
+    {
+        $result = $this->service->googleAuthentication();
+
+        if ($result instanceof HttpStatusEnum) {
+            return match ($result) {
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        $filteredResult = [
+            "email" => $result["email"],
+            "full_name" => $result["full_name"],
+        ];
+
+        return response()
+            ->json($filteredResult, Response::HTTP_OK)
+            ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
     }
 }
