@@ -77,7 +77,6 @@ export function VideoPlayer({
 
   const isVideoFocused = () => {
     const activeElement = document.activeElement;
-    console.log(activeElement);
     return (
       activeElement === videoRef.current ||
       activeElement === containerRef.current

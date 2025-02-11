@@ -6,8 +6,10 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<User>;
+  registerWithGoogle: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
@@ -40,6 +42,10 @@ export const useAuth = create<AuthState>((set) => ({
     set({ user: response.data, isLoading: false });
     return response.data;
   },
+
+  loginWithGoogle: async () => {},
+
+  registerWithGoogle: async () => {},
 }));
 
 useAuth.getState().checkAuth();
