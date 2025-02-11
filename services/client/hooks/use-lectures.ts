@@ -1,17 +1,15 @@
 import useSWR from "swr";
-import api from "@/lib/api";
-import { LectureResponse } from "@/types/api-types";
-import { revalidateLecture } from "@/app/actions/mutations";
-
-const fetcher = (url: string) => api.get(url).then((res) => res.data);
+import { fetcher } from "@/app/actions/fetcher";
+import type { LectureResponse } from "@/types/api-types";
 
 export function useLectures({
   page = 1,
   onlyFavorites = false,
   searchByTitle = "",
-  sortBy = "date",
+  sortBy = "created_at",
   sortDirection = "desc",
   limit,
+  fallbackData,
 }: {
   page?: number;
   onlyFavorites?: boolean;
@@ -19,17 +17,23 @@ export function useLectures({
   sortBy?: string;
   sortDirection?: string;
   limit?: number;
+  fallbackData?: LectureResponse;
 }) {
   const query = `/lecture?page=${page}&only_favorites=${onlyFavorites}&search_by_title=${searchByTitle}&sort_by=${sortBy}&sort_direction=${sortDirection}`;
-  const { data, error } = useSWR<LectureResponse>(query, fetcher);
+
+  const { data, error, mutate } = useSWR<LectureResponse>(query, fetcher.get, {
+    fallbackData,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+  });
 
   return {
     lectures: !limit
       ? data?.data.lectures
       : data?.data.lectures.slice(0, limit),
     dashboard: data?.data.dashboard,
-    isLoading: !error && !data,
+    isLoading: !error && !data && !fallbackData,
     isError: error,
-    mutate: revalidateLecture,
+    mutate,
   };
 }

@@ -4,13 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Heart, Play } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Lecture } from "@/types/api-types";
 import api from "@/lib/api";
 import { Spinner } from "@/app/components/spinner";
 import { useSWRConfig } from "swr";
-
-const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
 function formatDuration(seconds: any): string {
   const secs = Number(seconds);
@@ -19,6 +17,56 @@ function formatDuration(seconds: any): string {
   const secsRem = Math.floor(secs % 60);
   return `${mins}:${secsRem < 10 ? "0" : ""}${secsRem}`;
 }
+
+const ThumbnailImage = ({
+  videoUuid,
+  title,
+}: {
+  videoUuid: string;
+  title: string;
+}) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchThumbnail = async () => {
+      try {
+        const response = await api.get(`/video/preview/${videoUuid}`, {
+          responseType: "arraybuffer",
+        });
+
+        const blob = new Blob([response.data], { type: "image/jpeg" });
+        const url = URL.createObjectURL(blob);
+        setImageUrl(url);
+      } catch (error) {
+        console.error("Failed to fetch thumbnail:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchThumbnail();
+
+    // Cleanup function to revoke the blob URL
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [videoUuid]);
+
+  if (isLoading || !imageUrl) {
+    return (
+      <div className="w-full h-48 flex items-center justify-center">
+        <Spinner className="w-12 h-12" />
+      </div>
+    );
+  }
+
+  return (
+    <img src={imageUrl} alt={title} className="w-full h-48 object-cover" />
+  );
+};
 
 export function LectureCard({ lecture }: { lecture: Lecture }) {
   const { mutate } = useSWRConfig();
@@ -98,10 +146,9 @@ export function LectureCard({ lecture }: { lecture: Lecture }) {
         </div>
         <Link href={`/video/${lecture.uuid}`}>
           <div className="relative">
-            <img
-              src={`${baseUrl}/${lecture.video.preview_image_url}`}
-              alt={lecture.title}
-              className="w-full h-48 object-cover"
+            <ThumbnailImage
+              videoUuid={lecture.video.uuid}
+              title={lecture.title}
             />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <Play className="w-12 h-12 text-white" />

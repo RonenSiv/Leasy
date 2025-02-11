@@ -7,7 +7,7 @@ const protectedRoutes = [
   "/upload",
   "/browse",
   "/settings",
-  "/lecture",
+  "/video",
 ];
 const authRoutes = ["/login", "/signup"];
 
