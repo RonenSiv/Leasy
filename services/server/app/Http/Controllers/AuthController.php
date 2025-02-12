@@ -222,7 +222,7 @@ class AuthController extends Controller
         //     ->json($filteredResult, Response::HTTP_OK)
         //     ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
 
-        return redirect("http://localhost:3000/dashboard")
-            ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+        return redirect("http://localhost:3000/auth?token=" . $result['accessToken']);
+        // ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
     }
 }
