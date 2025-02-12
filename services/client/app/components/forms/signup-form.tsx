@@ -20,20 +20,12 @@ import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { toast } from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
+import zxcvbn from "zxcvbn";
 
 const signupSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^A-Za-z0-9]/,
-      "Password must contain at least one special character",
-    ),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -41,6 +33,7 @@ type SignupFormData = z.infer<typeof signupSchema>;
 export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // we'll now store the percentage strength (0–100)
   const [passwordStrength, setPasswordStrength] = useState(0);
   const router = useRouter();
   const { register, registerWithGoogle } = useAuth();
@@ -54,14 +47,11 @@ export function SignupForm() {
     },
   });
 
+  // Use zxcvbn to get a real strength score (0 to 4) and convert it to percentage
   const calculatePasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (password.match(/[A-Z]/)) strength += 25;
-    if (password.match(/[a-z]/)) strength += 25;
-    if (password.match(/[0-9]/)) strength += 25;
-    if (password.match(/[^A-Za-z0-9]/)) strength += 25;
-    return Math.min(strength, 100);
+    if (!password) return 0;
+    const result = zxcvbn(password);
+    return (result.score / 4) * 100;
   };
 
   const onSubmit = async (data: SignupFormData) => {
@@ -158,7 +148,7 @@ export function SignupForm() {
               </FormControl>
               <Progress value={passwordStrength} className="h-1 mt-2" />
               <p className="text-xs text-muted-foreground mt-1">
-                Password strength: {passwordStrength}%
+                Password strength: {Math.round(passwordStrength)}%
               </p>
               <FormMessage />
             </FormItem>

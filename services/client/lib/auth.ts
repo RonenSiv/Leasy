@@ -13,6 +13,9 @@ interface AuthState {
   checkAuth: () => Promise<void>;
 }
 
+const authURL =
+  process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000/auth";
+
 export const useAuth = create<AuthState>((set) => ({
   user: null,
   isLoading: true,
@@ -43,7 +46,9 @@ export const useAuth = create<AuthState>((set) => ({
     return response.data;
   },
 
-  loginWithGoogle: async () => {},
+  loginWithGoogle: async () => {
+    window.location.href = `${authURL}/google`;
+  },
 
   registerWithGoogle: async () => {},
 }));

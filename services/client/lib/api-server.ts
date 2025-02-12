@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL;
+const baseAPIURL = process.env.NEXT_PUBLIC_API_URL;
 
 async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const headersList = headers();
   const token = headersList.get("cookie")?.match(/LeasyToken=([^;]+)/)?.[1];
 
-  const response = await fetch(`${baseURL}${endpoint}`, {
+  const response = await fetch(`${baseAPIURL}${endpoint}`, {
     ...options,
     headers: {
       ...options.headers,
