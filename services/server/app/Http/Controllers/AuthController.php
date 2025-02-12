@@ -213,13 +213,16 @@ class AuthController extends Controller
             };
         }
 
-        $filteredResult = [
-            "email" => $result["email"],
-            "full_name" => $result["full_name"],
-        ];
+        // $filteredResult = [
+        //     "email" => $result["email"],
+        //     "full_name" => $result["full_name"],
+        // ];
 
-        return response()
-            ->json($filteredResult, Response::HTTP_OK)
+        // return response()
+        //     ->json($filteredResult, Response::HTTP_OK)
+        //     ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+
+        return redirect("http://localhost:3000/dashboard")
             ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
     }
 }
