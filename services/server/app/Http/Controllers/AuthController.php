@@ -8,7 +8,7 @@ use App\Http\Requests\RegisterRequest;
 
 use App\Enums\HttpStatusEnum;
 
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -221,8 +221,10 @@ class AuthController extends Controller
         // return response()
         //     ->json($filteredResult, Response::HTTP_OK)
         //     ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
-
-        return redirect("http://localhost:3000/dashboard")
-            ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+        Log::alert($result["accessToken"]);
+        return redirect("http://localhost:3000/auth?token=" . $result["accessToken"])
+            ->withCookie(
+                Cookie::make($result["tokenName"], $result["accessToken"])
+            );
     }
 }
