@@ -10,5 +10,4 @@ Route::get('/', function () {
 Route::controller(AuthController::class)
     ->group(function () {
         Route::get('/auth/google', 'googleLogin')->name('auth.google');
-        Route::get('/auth/google-callback', 'googleAuthentication')->name('auth.google-callback');
     });
