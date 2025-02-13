@@ -17,10 +17,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
-import { useAuth } from "@/lib/auth";
 import { toast } from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
 import zxcvbn from "zxcvbn";
+import { useAuth } from "@/context/auth-context";
 
 const signupSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -36,7 +36,7 @@ export function SignupForm() {
   // we'll now store the percentage strength (0–100)
   const [passwordStrength, setPasswordStrength] = useState(0);
   const router = useRouter();
-  const { register, registerWithGoogle } = useAuth();
+  const { register } = useAuth();
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -69,7 +69,7 @@ export function SignupForm() {
 
   const handleGoogleSignup = async () => {
     try {
-      await registerWithGoogle();
+      // await registerWithGoogle();
       toast.success("Account created successfully!");
       router.push("/dashboard");
     } catch (error) {

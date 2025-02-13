@@ -3,11 +3,14 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserSidebar } from "../user-sidebar";
-import { useAuth } from "@/lib/auth";
 import { Spinner } from "@/app/components/spinner";
+import useSWR from "swr";
+import { fetcher } from "@/app/actions/fetcher";
 
 export function HeaderContent() {
-  const { user, isLoading } = useAuth();
+  const { data: user, isLoading } = useSWR("/user", fetcher.get, {
+    revalidateOnFocus: true,
+  });
 
   if (isLoading) {
     return (

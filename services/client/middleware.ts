@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { mutate } from "swr";
 
 const protectedRoutes = [
   "/dashboard",
@@ -15,7 +16,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("LeasyToken")?.value;
   let isLoggedIn = false;
-
+  await mutate("/user");
   if (token) {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {

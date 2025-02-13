@@ -33,11 +33,11 @@ import {
   Video,
 } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "@/lib/auth";
 import { Spinner } from "@/app/components/spinner";
+import { useAuth } from "@/context/auth-context";
 
 export function UserSidebar() {
-  const { user, isLoading, logout } = useAuth();
+  const { logout, isLoading, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const router = useRouter();

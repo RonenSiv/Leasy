@@ -33,7 +33,6 @@ export default function VideoPage() {
       await fetcher.put(`/video/last-watched-time/${data.video.uuid}`, {
         last_watched_time: time,
       });
-      console.log("Updated last watched time", time);
     } catch (error) {
       console.error("Failed to update last watched time", error);
     }
