@@ -148,7 +148,7 @@ const features = [
     description: "Create engaging quizzes to test understanding.",
     icon: <FileQuestion className="h-6 w-6" />,
     component: <QuizComponent />,
-    src: "/think.png",
+    src: "/dab.png",
   },
 ];
 

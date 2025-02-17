@@ -1,6 +1,4 @@
-import { Suspense } from "react";
 import { DashboardClient } from "./dashboard-client";
-import { DashboardSkeleton } from "./skeleton";
 import { getLectures } from "@/lib/api-server";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +10,5 @@ export default async function DashboardPage() {
     sortDirection: "desc",
   });
 
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardClient initialData={initialData} />
-    </Suspense>
-  );
+  return <DashboardClient initialData={initialData} />;
 }

@@ -21,6 +21,7 @@ import { toast } from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
 import zxcvbn from "zxcvbn";
 import { useAuth } from "@/context/auth-context";
+import { useGoogleAuthPopup } from "@/hooks/use-google-auth-popup";
 
 const signupSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -30,6 +31,9 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+const authURL =
+  process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000/auth";
+
 export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -37,6 +41,7 @@ export function SignupForm() {
   const [passwordStrength, setPasswordStrength] = useState(0);
   const router = useRouter();
   const { register } = useAuth();
+  const { loading: googleAuthLoading, openGooglePopup } = useGoogleAuthPopup();
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -67,14 +72,8 @@ export function SignupForm() {
     }
   };
 
-  const handleGoogleSignup = async () => {
-    try {
-      // await registerWithGoogle();
-      toast.success("Account created successfully!");
-      router.push("/dashboard");
-    } catch (error) {
-      toast.error("An error occurred. Please try again.");
-    }
+  const handleGoogleLogin = () => {
+    openGooglePopup(`${authURL}/google`);
   };
 
   return (
@@ -179,24 +178,39 @@ export function SignupForm() {
         <Button
           variant="outline"
           className="w-full mt-6"
-          onClick={handleGoogleSignup}
+          onClick={handleGoogleLogin}
+          disabled={googleAuthLoading}
         >
-          <svg
-            className="mr-2 h-4 w-4"
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fab"
-            data-icon="google"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 488 512"
-          >
-            <path
-              fill="currentColor"
-              d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
-            ></path>
-          </svg>
-          Continue with Google
+          {googleAuthLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading...
+            </>
+          ) : (
+            <>
+              <svg
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+                focusable="false"
+                data-prefix="fab"
+                data-icon="google"
+                role="img"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 488 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M488 261.8C488 403.3 391.1 504 248 504
+                     110.8 504 0 393.2 0 256S110.8 8 248 8c66.8
+                     0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6
+                     94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7
+                     156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1
+                     c2.3 12.7 3.9 24.9 3.9 41.4z"
+                ></path>
+              </svg>
+              Continue with Google
+            </>
+          )}
         </Button>
       </div>
       <div className="mt-4 text-center">
