@@ -528,7 +528,7 @@ export function VideoPlayer({
       {/* Video Controls */}
       <div
         className={cn(
-          "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-4 transition-opacity duration-300 z-20",
+          "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-2 md:px-4 transition-opacity duration-300 z-20",
           showControls ? "opacity-100" : "opacity-0",
           "pointer-events-auto",
         )}
@@ -537,7 +537,7 @@ export function VideoPlayer({
         {/* Progress Bar */}
         <div
           ref={progressBarRef}
-          className="h-1.5 -mb-1 relative group/progress cursor-pointer"
+          className="h-1.5 mb-2 relative group/progress cursor-pointer"
           onMouseDown={handleProgressBarMouseDown}
         >
           <div
@@ -550,8 +550,9 @@ export function VideoPlayer({
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-2 text-white py-3">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
+          {/* Left section */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <Button
               variant="ghost"
               size="icon"
@@ -616,7 +617,7 @@ export function VideoPlayer({
               value={[volume]}
               max={1}
               step={0.01}
-              className="w-24"
+              className="w-16 sm:w-24"
               onValueChange={(value) => {
                 handleVolumeChange(value);
                 showHudAction(
@@ -627,14 +628,15 @@ export function VideoPlayer({
               onClick={(e) => e.stopPropagation()}
             />
 
-            <span className="text-sm text-white/90 min-w-[85px]">
+            <span className="text-xs sm:text-sm text-white/90 min-w-[50px] sm:min-w-[85px]">
               {video
                 ? `${formatTime(currentTime)} / ${formatTime(duration)}`
                 : "Loading..."}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 ml-auto">
+          {/* Right section */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -750,7 +752,7 @@ export function VideoPlayer({
       {/* Loading State */}
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white" />
+          <Spinner />
         </div>
       )}
 

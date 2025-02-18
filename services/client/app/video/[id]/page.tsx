@@ -43,13 +43,17 @@ export default function VideoPage() {
       <h1 className="text-3xl font-bold mb-6">{data.title}</h1>
       <motion.div
         className={cn(
-          "grid grid-cols-2 grid-rows-2 gap-4 transition-all duration-500",
-          !isTheaterMode && "max-h-screen",
+          "grid gap-4 transition-all duration-500",
+          "grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 max-xl:gap-8",
+          !isTheaterMode && "xl:max-h-screen",
         )}
       >
         {/* Cell "1": Video */}
         <motion.div
-          className={cn("col-span-1 row-span-1", isTheaterMode && "col-span-2")}
+          className={cn(
+            "row-span-1 col-span-1",
+            isTheaterMode && "xl:col-span-2",
+          )}
         >
           <Suspense fallback={<VideoSkeleton />}>
             <VideoPlayer
@@ -59,15 +63,17 @@ export default function VideoPage() {
             />
           </Suspense>
         </motion.div>
+
         {/* Cell "2": Chat */}
         <motion.div layout ref={chatRef} className="col-start-1 row-start-2">
           <VideoChat chatUuid={data.chat.uuid} summary={data.summary} />
         </motion.div>
-        {/* Cell "3": Info Tabs (spanning both rows) */}
+
+        {/* Cell "3": Info Tabs */}
         <motion.div
           layout
           className={cn(
-            "row-span-2 col-start-2 overflow-auto ",
+            "xl:col-span-1 xl:row-span-2 overflow-auto ",
             isTheaterMode ? "h-96" : "h-[820px]",
           )}
         >
