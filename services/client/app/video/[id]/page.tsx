@@ -61,7 +61,7 @@ export default function VideoPage() {
         </motion.div>
         {/* Cell "2": Chat */}
         <motion.div layout ref={chatRef} className="col-start-1 row-start-2">
-          <VideoChat chatUuid={data.chat.uuid} />
+          <VideoChat chatUuid={data.chat.uuid} summary={data.summary} />
         </motion.div>
         {/* Cell "3": Info Tabs (spanning both rows) */}
         <motion.div

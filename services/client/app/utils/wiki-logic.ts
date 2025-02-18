@@ -39,13 +39,11 @@ async function checkSubPhrase(sp: string): Promise<WikiSummary | null> {
   }
 }
 
-async function findBestWikiLinkParallel(
-  fullKeyword: string,
-): Promise<WikiLink | null> {
-  const cleanKeyword = fullKeyword.replace(/[^\w\s]+$/g, "").trim();
+async function findBestWikiLink(fullKeyword: string): Promise<WikiLink | null> {
+  const cleanKeyword = fullKeyword.replace(/[^\w\s]+$/g, "").trim(); // remove trailing punctuation
   if (!cleanKeyword) return null;
 
-  const words = cleanKeyword.split(/\s+/);
+  const words = cleanKeyword.split(/\s+/); // split by whitespace
   if (!words.length) return null;
 
   const subPhrases = [];
@@ -128,7 +126,7 @@ export async function enhanceContent(summary: string): Promise<string> {
   const rawKeywords = rake(summary);
   const filtered = rawKeywords.filter((kw: string) => kw.trim() !== "");
   const bestLinks = await Promise.all(
-    filtered.map((kw: string) => findBestWikiLinkParallel(kw)),
+    filtered.map((kw: string) => findBestWikiLink(kw)),
   );
   const uniqueResults: WikiLink[] = [];
   const seen = new Set<string>();

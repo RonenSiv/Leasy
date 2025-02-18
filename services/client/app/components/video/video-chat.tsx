@@ -16,13 +16,23 @@ import Link from "next/link";
 interface VideoChatProps {
   chatUuid: string;
   showCase?: boolean;
+  summary: string;
 }
 
 interface ChatMessageWithPending extends ChatMessage {
   pending?: boolean;
 }
 
-export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
+interface QuickActionCard {
+  title: string;
+  message: string;
+}
+
+export function VideoChat({
+  chatUuid,
+  showCase = false,
+  summary,
+}: VideoChatProps) {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -30,6 +40,34 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
   const [isChatHistoryLoading, setIsChatHistoryLoading] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [showCaseComplete, setShowCaseComplete] = useState(false);
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
+
+  const generateQuickActionCards = useCallback((): QuickActionCard[] => {
+    const cards: QuickActionCard[] = [
+      {
+        title: "Key Points 🔍",
+        message: "What are the key points of this lecture?",
+      },
+      {
+        title: "Clarify 🤔",
+        message: "Can you explain any complex concepts in this lecture?",
+      },
+      {
+        title: "Apply 🔗",
+        message: "How can I apply the concepts from this lecture to real life?",
+      },
+      {
+        title: "Explore 📚",
+        message:
+          "What are some additional resources to learn more about this lecture?",
+      },
+    ];
+    return cards;
+  }, []);
+
+  const [quickActionCards] = useState<QuickActionCard[]>(
+    generateQuickActionCards(),
+  );
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -89,7 +127,9 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
           page++;
         }
 
-        setAllMessages(allData.reverse());
+        const messages = allData.reverse();
+        setAllMessages(messages);
+        setHasUserSentMessage(messages.some((msg) => msg.sender === "user"));
       } catch (error) {
         console.error("Error fetching chat history:", error);
       } finally {
@@ -107,9 +147,14 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
     }
   }, [allMessages, scrollToBottom]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim() || isSending) return;
+  const handleSendMessage = async (e: React.FormEvent | string) => {
+    if (typeof e !== "string") {
+      e?.preventDefault();
+    }
+    const messageToSend = typeof e === "string" ? e : message;
+    if (!messageToSend.trim() || isSending) return;
+
+    setHasUserSentMessage(true);
 
     if (showCase) {
       setAllMessages((prev) => [
@@ -117,7 +162,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
         {
           uuid: Date.now().toString(),
           sender: "user",
-          message: message,
+          message: messageToSend,
         },
         {
           uuid: (Date.now() + 1).toString(),
@@ -147,7 +192,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
     const userMessage: ChatMessageWithPending = {
       uuid: Date.now().toString(),
       sender: "user",
-      message: message,
+      message: messageToSend,
     };
     const pendingMessage: ChatMessageWithPending = {
       uuid: (Date.now() + 1).toString(),
@@ -162,7 +207,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
 
     try {
       const response = await api.post(`/chat/send-message/${chatUuid}`, {
-        message,
+        message: messageToSend,
       });
 
       const assistantMessage = response.data?.data;
@@ -201,13 +246,13 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
       <CardContent className="p-0 flex-1">
         <div className="flex flex-col h-96 relative">
           <ScrollArea ref={scrollAreaRef} className="flex-1 h-full">
-            <div className="p-4">
+            <div className="p-4 space-y-4">
               {isChatHistoryLoading ? (
                 <div className="flex items-center justify-center h-96">
                   <Spinner />
                 </div>
               ) : (
-                <div className="space-y-4">
+                <>
                   {allMessages.map((msg) => (
                     <div
                       key={msg.uuid}
@@ -227,6 +272,26 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
                       </div>
                     </div>
                   ))}
+
+                  {/* Quick Action Cards - Only show if no user messages and after assistant's greeting */}
+                  {!hasUserSentMessage && allMessages.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 mt-4">
+                      {quickActionCards.map((card, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          className="h-auto p-4 text-left flex flex-col items-start gap-1 whitespace-normal"
+                          onClick={() => handleSendMessage(card.message)}
+                        >
+                          <div className="font-semibold">{card.title}</div>
+                          <div className="text-sm text-muted-foreground break-words">
+                            {card.message}
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
                   {showCase && showCaseComplete && (
                     <div className="flex justify-start">
                       <Button
@@ -241,7 +306,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
                       </Button>
                     </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </ScrollArea>
@@ -284,6 +349,7 @@ export function VideoChat({ chatUuid, showCase = false }: VideoChatProps) {
             <Button
               type="submit"
               size="icon"
+              className="bg-primary hover:bg-primary/90"
               disabled={
                 isSending ||
                 isChatHistoryLoading ||
