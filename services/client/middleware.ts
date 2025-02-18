@@ -23,9 +23,7 @@ export async function middleware(request: NextRequest) {
         headers: { Authorization: `Bearer ${token}`, withCredentials: true },
       });
       isLoggedIn = res.status === 200;
-    } catch (error) {
-      console.error("Error checking auth:", error);
-    }
+    } catch (error) {}
   }
 
   const isProtectedRoute = protectedRoutes.some(

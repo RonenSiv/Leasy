@@ -9,12 +9,30 @@ import { Spinner } from "@/app/components/spinner";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuizQuestions } from "@/hooks/use-quiz";
 import { useState } from "react";
+import { LinkifiedWikiContent } from "@/app/components/wiki/linkified-wiki-content";
 
-export function VideoInfoTabs({ videoData }: { videoData: any }) {
-  const { questions, isError, isLoading, mutate } = useQuizQuestions(
-    videoData.quiz.uuid,
-  );
-  const [activeTab, setActiveTab] = useState("transcription");
+interface VideoData {
+  uuid: string;
+  transcription: string;
+  summary: string;
+  mind_map: any; // Replace 'any' with the correct type for mind_map
+  quiz: {
+    uuid: string;
+  };
+}
+
+interface VideoInfoTabsProps {
+  videoData: VideoData;
+}
+
+export function VideoInfoTabs({ videoData }: VideoInfoTabsProps) {
+  const {
+    questions,
+    isError,
+    isLoading: isQuizLoading,
+    mutate,
+  } = useQuizQuestions(videoData.quiz.uuid);
+  const [activeTab, setActiveTab] = useState<string>("transcription");
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -42,8 +60,13 @@ export function VideoInfoTabs({ videoData }: { videoData: any }) {
           </TabsContent>
 
           <TabsContent value="summary" className="h-[calc(100%-3rem)]">
-            <ScrollArea className="h-full p-4">
-              <MarkDownViewer>{videoData.summary}</MarkDownViewer>
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <LinkifiedWikiContent
+                  summary={videoData.summary}
+                  lectureId={videoData.uuid}
+                />
+              </div>
             </ScrollArea>
           </TabsContent>
 
@@ -55,10 +78,12 @@ export function VideoInfoTabs({ videoData }: { videoData: any }) {
 
           <TabsContent value="quizlets" className="h-[calc(100%-3rem)]">
             <ScrollArea className="h-full p-4">
-              {isLoading ? (
+              {isQuizLoading ? (
                 <Spinner />
               ) : isError ? (
-                "Error loading quiz"
+                <p className="text-red-500 dark:text-red-400">
+                  Error loading quiz
+                </p>
               ) : (
                 <Quizlet
                   quizId={videoData.quiz.uuid}
