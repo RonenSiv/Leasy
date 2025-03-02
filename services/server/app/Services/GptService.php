@@ -20,11 +20,12 @@ class GptService
     public function getTranscription(Video $video): mixed
     {
         try {
-            return DemoDataEnum::DEMO_TRANSCRIPTION;
+            // return DemoDataEnum::DEMO_TRANSCRIPTION;
 
             if (is_null($video)) {
                 return HttpStatusEnum::NOT_FOUND;
             }
+
             $output = null;
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
                 $audioName = $video->audio_name;
@@ -71,6 +72,7 @@ class GptService
     {
         try {
             // return 'quiz';
+            return DemoDataEnum::DEMO_QUIZ;
             if ($summary == WhisperFailedEnum::SUMMARY_FAILED->value) {
                 return WhisperFailedEnum::QUIZ_FAILED->value;
             }
@@ -117,9 +119,9 @@ class GptService
     public function getMindMapJson(string $summary)
     {
         // return json_encode(self::DEMO_MIND_MAP);
-
+        
         $mindMap = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary, [], JsonSchemesEnum::MIND_MAP_SCHEMA);
-        Log::alert('MIND MAP: ' . $mindMap);
+        // Log::alert('MIND MAP: ' . $mindMap);
         if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
             $jsonMindMap = $matches[1];
             return json_encode($jsonMindMap);
@@ -174,7 +176,6 @@ class GptService
             $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', $bodyRequest);
 
             $responseData = json_decode($response->getBody(), true);
-            Log::alert($responseData);
             $answer = $responseData['choices'][0]['message']['content'];
 
             return $answer;

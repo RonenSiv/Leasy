@@ -27,6 +27,7 @@ enum GptPropmtsEnum: string
     - The output must be a valid php array without any additional formatting, syntax highlighting, or extra text.
     - Output only the quiz php array and nothing else.
     - Ensure the questions are relevant to the summary, the options are plausible, and the correct answers are accurate.
+    - Do not add any opening paragraph of your own introducing the examiner
 
     Here is the summary you will use to create the quiz: \n";
 
@@ -53,5 +54,5 @@ enum GptPropmtsEnum: string
     3. Ensure that only one JSON output is produced.  
     4. Ensure that the JSON is valid.  
 
-    Here is the input you will receive: Transcription/Summary:\n";
+    Here is the input you will receive: Summary:\n";
 }
