@@ -1,3 +1,6 @@
+// Update only the relevant part of the page.tsx file
+// In the features array, update the quizlet component to pass the showcase flag
+
 "use client";
 
 import { memo, useState } from "react";
@@ -198,6 +201,7 @@ const features = [
           questions={mockQuizQuestions}
           onNewQuestions={() => console.log("New questions requested")}
           summary={mockSummary}
+          showcase={true} // Enable showcase mode
         />
       </ScrollArea>
     ),

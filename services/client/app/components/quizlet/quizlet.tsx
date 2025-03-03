@@ -2,38 +2,19 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import type { QuizAnswerResponse, QuizQuestion } from "@/types/api-types";
 import { RefreshCw, Send } from "lucide-react";
 import { Spinner } from "@/app/components/spinner";
-
-// Define TypeScript interfaces to match the existing types
-interface QuizOption {
-  option_index: number;
-  option_text: string;
-}
-
-interface QuizQuestion {
-  question_uuid: string;
-  question_text: string;
-  options: QuizOption[];
-}
-
-interface QuestionData {
-  question_uuid: string;
-  correct_option: number;
-}
-
-interface QuizAnswerResponse {
-  data: {
-    score: number;
-    questions_data: QuestionData[];
-  };
-}
+import { toast } from "react-hot-toast";
+import useSWR from "swr";
+import api from "@/lib/api";
 
 interface QuizletProps {
   quizId: string;
   questions: QuizQuestion[];
   onNewQuestions: () => void;
   summary?: string;
+  showcase?: boolean; // Added showcase flag
 }
 
 interface QuizState {
@@ -48,93 +29,173 @@ const initialQuizState: QuizState = {
   score: 0,
 };
 
-// Mock correct answers for showcase
-const mockCorrectAnswers: Record<string, number> = {
-  q1: 1, // The correct answer for question 1 is option index 1
-  q2: 2, // The correct answer for question 2 is option index 2
-  q3: 1, // The correct answer for question 3 is option index 1
-};
-
 export function Quizlet({
   quizId,
   questions: initialQuestions,
   onNewQuestions,
   summary,
+  showcase = false, // Default to false
 }: QuizletProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [questions, setQuestions] =
     React.useState<QuizQuestion[]>(initialQuestions);
-  const [quizState, setQuizState] = React.useState<QuizState>(initialQuizState);
-  const [quizResults, setQuizResults] = React.useState<
+  const [localQuizState, setLocalQuizState] =
+    React.useState<QuizState>(initialQuizState);
+  const [localQuizResults, setLocalQuizResults] = React.useState<
     QuizAnswerResponse | undefined
   >(undefined);
+
+  // Only use SWR if not in showcase mode
+  const {
+    data: apiQuizState,
+    mutate: mutateQuizState,
+    isLoading: apiIsLoading,
+    isValidating: apiIsValidating,
+  } = useSWR<QuizState>(!showcase ? `quiz-state-${quizId}` : null, null, {
+    fallbackData: initialQuizState,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
+  const { data: apiQuizResults, mutate: mutateResults } =
+    useSWR<QuizAnswerResponse>(
+      !showcase && apiQuizState?.submitted ? `/quiz/answer/${quizId}` : null,
+      null,
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+      },
+    );
+
+  // Use either API state or local state depending on showcase mode
+  const quizState = showcase ? localQuizState : apiQuizState;
+  const quizResults = showcase ? localQuizResults : apiQuizResults;
+  const isLoading = showcase ? false : apiIsLoading;
+  const isValidating = showcase ? false : apiIsValidating;
 
   React.useEffect(() => {
     setQuestions(initialQuestions);
   }, [initialQuestions]);
 
-  const handleOptionClick = (questionId: string, optionNumber: number) => {
-    if (quizState.submitted) return;
+  // Mock correct answers for showcase mode - one per question
+  const mockCorrectAnswers = React.useMemo(() => {
+    return questions?.reduce(
+      (acc, question) => {
+        // Assign option index 1 (second option) as correct answer for all questions in showcase
+        acc[question.question_uuid] = 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+  }, [questions]);
 
-    setQuizState((prevState) => ({
-      ...prevState,
-      answers: { ...prevState.answers, [questionId]: optionNumber },
+  const handleOptionClick = async (
+    questionId: string,
+    optionNumber: number,
+  ) => {
+    if (quizState?.submitted) return;
+
+    const newState: QuizState = {
+      answers: { ...(quizState?.answers || {}), [questionId]: optionNumber },
       submitted: false,
       score: 0,
-    }));
+    };
+
+    if (showcase) {
+      setLocalQuizState(newState);
+    } else {
+      await mutateQuizState(newState, false);
+    }
   };
 
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+      const answers = quizState?.answers || {};
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (showcase) {
+        // Calculate score locally for showcase mode
+        let correctCount = 0;
+        const totalQuestions = questions.length;
 
-      // Calculate score based on mock correct answers
-      let correctCount = 0;
-      const questionsData: QuestionData[] = [];
+        const questionsData = questions.map((question) => {
+          const isCorrect =
+            answers[question.question_uuid] ===
+            mockCorrectAnswers[question.question_uuid];
+          if (isCorrect) correctCount++;
 
-      Object.entries(quizState.answers).forEach(([questionId, answer]) => {
-        const correctAnswer = mockCorrectAnswers[questionId];
-        questionsData.push({
-          question_uuid: questionId,
-          correct_option: correctAnswer,
+          return {
+            question_uuid: question.question_uuid,
+            correct_option: mockCorrectAnswers[question.question_uuid],
+            selected_option: answers[question.question_uuid],
+            is_correct: isCorrect,
+          };
         });
 
-        if (answer === correctAnswer) {
-          correctCount++;
-        }
-      });
+        const score =
+          totalQuestions > 0
+            ? Math.round((correctCount / totalQuestions) * 100)
+            : 0;
 
-      const score = Math.round((correctCount / questions.length) * 100);
+        // Create mock API response
+        const mockResponse: QuizAnswerResponse = {
+          data: {
+            quiz_id: quizId,
+            score,
+            // @ts-ignore
+            questions_data: questionsData,
+          },
+          status: 200,
+          message: "Success",
+        };
 
-      // Create mock quiz results
-      const mockResults: QuizAnswerResponse = {
-        data: {
+        setLocalQuizResults(mockResponse);
+        setLocalQuizState({
+          answers,
+          submitted: true,
           score,
-          questions_data: questionsData,
-        },
-      };
+        });
+      } else {
+        // Real API call for non-showcase mode
+        const answersBody = Object.entries(answers).map(
+          ([question_uuid, answer]) => ({
+            question_uuid,
+            answer,
+          }),
+        );
 
-      setQuizState((prevState) => ({
-        ...prevState,
-        submitted: true,
-        score,
-      }));
+        const { data: res } = await api.put<QuizAnswerResponse>(
+          `/quiz/answer/${quizId}`,
+          {
+            answers: answersBody,
+          },
+        );
 
-      setQuizResults(mockResults);
+        const newState: QuizState = {
+          answers,
+          submitted: true,
+          score: res.data.score,
+        };
+
+        await mutateQuizState(newState, false);
+        await mutateResults(res);
+      }
     } catch (error) {
-      console.error("Failed to submit quiz answers:", error);
+      toast.error("Failed to submit quiz answers. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleRestart = () => {
-    setQuizState(initialQuizState);
-    setQuizResults(undefined);
+  const handleRestart = async () => {
+    if (showcase) {
+      setLocalQuizState(initialQuizState);
+      setLocalQuizResults(undefined);
+    } else {
+      await mutateQuizState(initialQuizState, false);
+      await mutateResults(undefined);
+    }
   };
 
   const handleGenerateNewQuestions = async () => {
@@ -142,19 +203,45 @@ export function Quizlet({
 
     try {
       setIsGenerating(true);
-      setQuizState(initialQuizState);
-      setQuizResults(undefined);
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (showcase) {
+        setLocalQuizState(initialQuizState);
+        setLocalQuizResults(undefined);
 
-      // For the showcase, we'll just reuse the same questions
-      // In a real implementation, this would generate new questions
-      setQuestions(questions);
-      onNewQuestions();
+        // For showcase, simulate a brief delay and then show the same questions
+        // In a real implementation, you might want to rotate through multiple sets
+        setTimeout(() => {
+          setIsGenerating(false);
+          // Could add logic here to rotate through multiple sets of demo questions
+        }, 1500);
+      } else {
+        await mutateQuizState(initialQuizState, false);
+        await mutateResults(undefined);
+
+        const { data } = await api.put<{ questions: QuizQuestion[] }>(
+          `/quiz/generate-new-questions/${quizId}`,
+          {
+            summary,
+          },
+        );
+
+        setQuestions(data.questions);
+        onNewQuestions();
+        setIsGenerating(false);
+      }
     } catch (error) {
+      setQuestions(initialQuestions);
+
+      if (showcase) {
+        setLocalQuizState(initialQuizState);
+        setLocalQuizResults(undefined);
+      } else {
+        await mutateQuizState(initialQuizState, false);
+        await mutateResults(undefined);
+      }
+
+      toast.error("Failed to generate new questions. Please try again.");
       console.error("Failed to generate new questions:", error);
-    } finally {
       setIsGenerating(false);
     }
   };
@@ -166,6 +253,17 @@ export function Quizlet({
         <p className="mt-4 text-center">
           Please wait while we generate new questions for you
         </p>
+        <img src="/quiz.png" alt="Quiz" className="w-48 h-48 mt-4" />
+      </div>
+    );
+  }
+
+  if (isLoading || isValidating) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[80vh]">
+        <Spinner full={false} />
+        <p className="mt-4 text-center">We're preparing the quiz for you 🚀</p>
+        <img src="/quiz.png" alt="Quiz" className="w-48 h-48 mt-4" />
       </div>
     );
   }
@@ -192,41 +290,38 @@ export function Quizlet({
               {question.question_text}
             </p>
             <div className="grid grid-cols-1 gap-2">
-              {question.options.map((option) => {
+              {question.options.map((option, optionIdx) => {
                 let additionalClasses = "";
-                if (quizState.submitted) {
-                  if (
+                if (quizState?.submitted) {
+                  // Determine if this is the selected answer
+                  const isSelected =
                     quizState.answers[question.question_uuid] ===
-                      option.option_index &&
-                    quizState.answers[question.question_uuid] ===
-                      quizResults?.data.questions_data.find(
+                    option.option_index;
+
+                  // Determine if this is the correct answer
+                  const correctOption = showcase
+                    ? mockCorrectAnswers[question.question_uuid]
+                    : quizResults?.data.questions_data.find(
                         (q) => q.question_uuid === question.question_uuid,
-                      )?.correct_option
-                  ) {
+                      )?.correct_option;
+
+                  const isCorrect = option.option_index === correctOption;
+
+                  if (isSelected && isCorrect) {
+                    // Selected and correct
                     additionalClasses = "bg-green-500/10 border-green-500";
-                  } else if (
-                    quizState.answers[question.question_uuid] ===
-                      option.option_index &&
-                    option.option_index !==
-                      quizResults?.data.questions_data.find(
-                        (q) => q.question_uuid === question.question_uuid,
-                      )?.correct_option
-                  ) {
+                  } else if (isSelected && !isCorrect) {
+                    // Selected but incorrect
                     additionalClasses =
                       "bg-destructive/50 border-destructive/60";
-                  } else {
-                    if (
-                      option.option_index ===
-                      quizResults?.data.questions_data.find(
-                        (q) => q.question_uuid === question.question_uuid,
-                      )?.correct_option
-                    ) {
-                      additionalClasses = "bg-green-500/10 border-green-500";
-                    }
+                  } else if (!isSelected && isCorrect) {
+                    // Not selected but is correct
+                    additionalClasses = "bg-green-500/10 border-green-500";
                   }
                 } else {
+                  // Not submitted yet, just highlight selected
                   if (
-                    quizState.answers[question.question_uuid] ===
+                    quizState?.answers[question.question_uuid] ===
                     option.option_index
                   ) {
                     additionalClasses = "bg-primary/10 border-primary";
@@ -235,7 +330,7 @@ export function Quizlet({
 
                 return (
                   <Button
-                    key={option.option_index}
+                    key={optionIdx}
                     variant="outline"
                     className={`justify-start text-left break-words whitespace-pre-wrap h-auto min-h-10 py-2 px-3 flex-wrap ${additionalClasses} hover:bg-primary/50`}
                     onClick={() =>
@@ -244,7 +339,7 @@ export function Quizlet({
                         option.option_index,
                       )
                     }
-                    disabled={quizState.submitted}
+                    disabled={quizState?.submitted}
                   >
                     <span className="w-full overflow-hidden text-wrap">
                       {option.option_text}
@@ -257,16 +352,16 @@ export function Quizlet({
         </div>
       ))}
       <div className="sticky bottom-0 bg-background p-4 border-t flex flex-col gap-2">
-        {quizState.submitted && (
+        {quizState?.submitted && (
           <p className="text-center text-lg font-semibold">
             Final Score: {quizState.score}%
           </p>
         )}
         <div className="flex justify-end gap-2">
-          {quizState.submitted ? (
+          {quizState?.submitted ? (
             <>
               <Button onClick={handleRestart}>Restart Test</Button>
-              {summary && (
+              {!showcase && (
                 <Button
                   variant="secondary"
                   onClick={handleGenerateNewQuestions}
@@ -289,8 +384,8 @@ export function Quizlet({
               ) : (
                 <Button
                   disabled={
-                    Object.keys(quizState.answers).length < questions.length ||
-                    isSubmitting
+                    Object.keys(quizState?.answers || {}).length <
+                      questions.length || isSubmitting
                   }
                   onClick={handleSubmit}
                   className="min-w-[100px]"
