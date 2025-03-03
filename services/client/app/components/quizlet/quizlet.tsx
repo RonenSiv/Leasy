@@ -185,7 +185,7 @@ export function Quizlet({
           </div>
           <div className="bg-muted p-4 rounded-lg">
             <p className="text-sm font-medium mb-4 break-words whitespace-pre-wrap max-w-full">
-              {question.question_text}
+              {question.question_text} lr
             </p>
             <div className="grid grid-cols-1 gap-2">
               {question.options.map((option, optionIdx) => {
@@ -232,7 +232,7 @@ export function Quizlet({
                   <Button
                     key={optionIdx}
                     variant="outline"
-                    className={`justify-start text-left break-words whitespace-pre-wrap ${additionalClasses} hover:bg-primary/50`}
+                    className={`justify-start text-left break-words whitespace-pre-wrap h-auto min-h-10 py-2 px-3 flex-wrap ${additionalClasses} hover:bg-primary/50`}
                     onClick={() =>
                       handleOptionClick(
                         question.question_uuid,
@@ -241,7 +241,9 @@ export function Quizlet({
                     }
                     disabled={quizState?.submitted}
                   >
-                    <span className="w-full">{option.option_text}</span>
+                    <span className="w-full overflow-hidden text-wrap">
+                      {option.option_text}
+                    </span>
                   </Button>
                 );
               })}
