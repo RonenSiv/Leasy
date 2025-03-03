@@ -17,9 +17,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Brain, FileText, MessageSquare, Sparkles } from "lucide-react";
+import { Brain, FileText, MessageSquare, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VideoChat } from "@/app/components/video/video-chat";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Quizlet } from "@/app/components/quizlet/quizlet";
 
 // For demo purposes, use a public sample video URL.
 const SAMPLE_VIDEO_URL = "https://www.w3schools.com/html/mov_bbb.mp4";
@@ -73,6 +75,84 @@ const summaryDetails = (
   </div>
 );
 
+// Mock quiz questions for the showcase
+const mockQuizQuestions = [
+  {
+    question_uuid: "q1",
+    question_text:
+      "How does Leasy enhance the learning experience compared to traditional video platforms?",
+    options: [
+      {
+        option_index: 0,
+        option_text: "By providing longer videos",
+      },
+      {
+        option_index: 1,
+        option_text:
+          "Through AI-powered features like transcription, summarization, and quizzes",
+      },
+      {
+        option_index: 2,
+        option_text: "By offering more video content",
+      },
+      {
+        option_index: 3,
+        option_text: "Through social media integration",
+      },
+    ],
+  },
+  {
+    question_uuid: "q2",
+    question_text:
+      "What unique feature does Leasy offer to help users understand video content better?",
+    options: [
+      {
+        option_index: 0,
+        option_text: "Background music",
+      },
+      {
+        option_index: 1,
+        option_text: "Subtitles in multiple languages",
+      },
+      {
+        option_index: 2,
+        option_text:
+          "An AI-powered chatbot for asking questions about the video",
+      },
+      {
+        option_index: 3,
+        option_text: "Virtual reality experiences",
+      },
+    ],
+  },
+  {
+    question_uuid: "q3",
+    question_text: "How does Leasy's summarization feature benefit learners?",
+    options: [
+      {
+        option_index: 0,
+        option_text: "It provides longer video content",
+      },
+      {
+        option_index: 1,
+        option_text: "It offers concise overviews of key points from the video",
+      },
+      {
+        option_index: 2,
+        option_text: "It translates the video into different languages",
+      },
+      {
+        option_index: 3,
+        option_text: "It adds background music to the video",
+      },
+    ],
+  },
+];
+
+// Mock summary for quiz generation
+const mockSummary =
+  "This video discusses Leasy's AI-powered learning platform which enhances video-based learning through automatic transcription, summarization, interactive chatbots, and smart quizzes.";
+
 // For the other features, we keep the same component definitions.
 const features = [
   {
@@ -102,64 +182,26 @@ const features = [
     details:
       "Our AI-powered chatbot allows learners to ask questions and receive instant, contextually relevant answers about the video content.",
     icon: <MessageSquare className="w-6 h-6" />,
-    component: <VideoChat chatUuid={"123"} showCase={true} />,
+    component: <VideoChat chatUuid={"123"} showCase={true} summary={""} />,
   },
-  // TODO: fix later the quiz feature
-  // {
-  //   id: "quizlet",
-  //   title: "Smart Quizzes",
-  //   description: "Automatically generate quizzes from your video content.",
-  //   details:
-  //     "Our system automatically generates quizzes based on the video content, helping reinforce learning and assess understanding.",
-  //   icon: <Zap className="w-6 h-6" />,
-  //   component: (
-  //     <ScrollArea className="h-[400px] w-full border p-4">
-  //       <Quizlet
-  //         questions={[
-  //           {
-  //             id: "q1",
-  //             question:
-  //               "How does Leasy enhance the learning experience compared to traditional video platforms?",
-  //             options: [
-  //               "By providing longer videos",
-  //               "Through AI-powered features like transcription, summarization, and quizzes",
-  //               "By offering more video content",
-  //               "Through social media integration",
-  //             ],
-  //             correctAnswer:
-  //               "Through AI-powered features like transcription, summarization, and quizzes",
-  //           },
-  //           {
-  //             id: "q2",
-  //             question:
-  //               "What unique feature does Leasy offer to help users understand video content better?",
-  //             options: [
-  //               "Background music",
-  //               "Subtitles in multiple languages",
-  //               "An AI-powered chatbot for asking questions about the video",
-  //               "Virtual reality experiences",
-  //             ],
-  //             correctAnswer:
-  //               "An AI-powered chatbot for asking questions about the video",
-  //           },
-  //           {
-  //             id: "q3",
-  //             question:
-  //               "How does Leasy's summarization feature benefit learners?",
-  //             options: [
-  //               "It provides longer video content",
-  //               "It offers concise overviews of key points from the video",
-  //               "It translates the video into different languages",
-  //               "It adds background music to the video",
-  //             ],
-  //             correctAnswer:
-  //               "It offers concise overviews of key points from the video",
-  //           },
-  //         ]}
-  //       />
-  //     </ScrollArea>
-  //   ),
-  // },
+  {
+    id: "quizlet",
+    title: "Smart Quizzes",
+    description: "Automatically generate quizzes from your video content.",
+    details:
+      "Our system automatically generates quizzes based on the video content, helping reinforce learning and assess understanding.",
+    icon: <Zap className="w-6 h-6" />,
+    component: (
+      <ScrollArea className="h-[400px] w-full border p-4">
+        <Quizlet
+          quizId="showcase-123"
+          questions={mockQuizQuestions}
+          onNewQuestions={() => console.log("New questions requested")}
+          summary={mockSummary}
+        />
+      </ScrollArea>
+    ),
+  },
 ];
 
 export default function FeatureShowcasePage() {
