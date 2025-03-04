@@ -5,34 +5,34 @@ namespace App\Enums;
 enum JsonSchemesEnum
 {
     public const QUIZ_JSON_SCHEMA = [
-        'type' => 'json_schema',
-        'json_schema' => [
-            'name' => 'quiz',
-            'strict' => true,
-            'schema' => [
-                'type' => 'array',
-                'minItems' => 10,
-                'maxItems' => 10,
-                'items' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'question' => ['type' => 'string'],
-                        'options' => [
-                            'type' => 'object',
-                            'patternProperties' => [
-                                '^[1-9][0-9]*$' => ['type' => 'string']
-                            ],
-                            'additionalProperties' => false
+        'name' => 'quiz',
+        'strict' => true,
+        'schema' => [
+            'type' => 'array',
+            'minItems' => 10,
+            'maxItems' => 10,
+            'items' => [
+                'type' => 'object',
+                'properties' => [
+                    'question' => ['type' => 'string'],
+                    'options' => [
+                        'type' => 'object',
+                        'patternProperties' => [
+                            '^[1-9][0-9]*$' => ['type' => 'string']
                         ],
-                        'correct_answer' => ['type' => 'integer']
+                        'additionalProperties' => false
                     ],
-                    'required' => ['question', 'options', 'correct_answer']
-                ]
+                    'correct_answer' => ['type' => 'integer']
+                ],
+                'required' => ['question', 'options', 'correct_answer'],
+                'additionalProperties' => false
             ]
-        ]
+        ],
+        'additionalProperties' => false
     ];
 
-    public const MIND_MAP_SCHEMA = [
+
+    public const MIND_MAP_JSON_SCHEMA = [
         "title" => "Tree Structure",
         "type" => "object",
         "properties" => [
@@ -55,14 +55,16 @@ enum JsonSchemesEnum
                                     "description" => ["type" => "string"]
                                 ],
                                 "required" => ["id", "label", "description"],
-                                'additionalProperties' => false
+                                "additionalProperties" => false
                             ]
                         ]
                     ],
-                    "required" => ["id", "label", "description", "children"]
+                    "required" => ["id", "label", "description", "children"],
+                    "additionalProperties" => false
                 ]
             ]
         ],
-        "required" => ["title", "nodes"]
+        "required" => ["title", "nodes"],
+        "additionalProperties" => false
     ];
 }

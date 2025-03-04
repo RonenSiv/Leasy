@@ -38,19 +38,39 @@ class LectureService
 
             $newVideo = $this->videoService->storeVideo($video);
 
+            if ($newVideo == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('storeVideo');
+            }
+
             $transcription = $this->gptService->getTranscription($newVideo);
 
-            if (is_null($transcription)) {
-                $transcription = WhisperFailedEnum::TRANSCRIPTION_FAILED->value;
+            if ($transcription == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('getTranscription');
             }
 
             $summary = $this->gptService->getSummary($transcription);
 
+            if ($summary == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('getSummary');
+            }
+
             $mindMap = $this->gptService->getMindMapJson($summary);
+
+            if ($mindMap == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('getMindMapJson');
+            }
 
             $newChat = $this->chatService->storeChat($title);
 
+            if ($newChat == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('storeChat');
+            }
+
             $newQuiz = $this->quizService->storeQuiz($title, $summary);
+
+            if ($newQuiz == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('storeQuiz');
+            }
 
             $newLecture = Lecture::create([
                 'uuid' => Str::uuid(),
@@ -189,5 +209,12 @@ class LectureService
             'incomplete_lectures' => $totalVideos - $numOfCompletedVideos,
             'num_of_pages' => $totalVideos % PaginationEnum::VIDEOS_PER_PAGE->value > 0 ? $numOfPages + 1 : $numOfPages,
         ];
+    }
+
+    private function errorDuringUpload(string $failedFunc)
+    {
+        DB::rollBack();
+        Log::error('Error in ' . $failedFunc . ' function');
+        return HttpStatusEnum::ERROR;
     }
 }

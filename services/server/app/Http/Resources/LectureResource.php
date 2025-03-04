@@ -20,7 +20,7 @@ class LectureResource extends JsonResource
             'description' => $this->description,
             'user' => $this->user->full_name,
             'video' => new VideoResource($this->video),
-            'transcription' => $this->transcription,
+            'transcription' => json_decode($this->transcription),
             'summary' => $this->summary,
             'quiz' => new QuizResource($this->quiz),
             'chat' => new ChatResource($this->chat),

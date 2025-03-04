@@ -20,11 +20,8 @@ class GptService
     public function getTranscription(Video $video): mixed
     {
         try {
-            return DemoDataEnum::DEMO_TRANSCRIPTION;
+            // return DemoDataEnum::DEMO_TRANSCRIPTION;
 
-            if (is_null($video)) {
-                return HttpStatusEnum::NOT_FOUND;
-            }
             $output = null;
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
                 $audioName = $video->audio_name;
@@ -36,10 +33,12 @@ class GptService
 
                 if ($output == "error" || is_null($output)) {
                     Log::error('Error in transcription python script');
-                    return null;
+                    return HttpStatusEnum::ERROR;
                 }
             }
-            Log::alert($output);
+
+            Log::alert('Transcription: ' . $output);
+
             return $output;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -47,19 +46,15 @@ class GptService
         }
     }
 
-    public function getSummary(string|null $transcription)
+    public function getSummary(string $transcription)
     {
         try {
             // return 'summary';
 
-            if ($transcription == WhisperFailedEnum::TRANSCRIPTION_FAILED->value) {
-                return WhisperFailedEnum::SUMMARY_FAILED->value;
-            }
-            $prompt = GptPropmtsEnum::GET_SUMMARY_PROMPT->value . $transcription;
-
-            $summary = $this->getGptResponse($prompt);
+            $summary = $this->getGptResponse(GptPropmtsEnum::GET_SUMMARY_PROMPT->value . $transcription);
 
             Log::alert('SUMMARY: ' . $summary);
+
             return $summary;
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -67,15 +62,39 @@ class GptService
         }
     }
 
+    public function getMindMapJson(string $summary)
+    {
+        // return json_encode(self::DEMO_MIND_MAP);
+
+        $mindMap = $this->getGptResponse(
+            GptPropmtsEnum::GET_MIND_MAP->value . $summary,
+            [],
+            JsonSchemesEnum::MIND_MAP_JSON_SCHEMA
+        );
+
+        if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
+            $jsonMindMap = $matches[1];
+            return json_encode($jsonMindMap);
+        }
+
+        $mindMapJson = json_encode($mindMap);
+
+        Log::alert('MIND MAP: ' . $mindMapJson);
+
+        return $mindMapJson;
+    }
+
     public function generateQuiz(string|null $summary)
     {
         try {
-            // return 'quiz';
-            if ($summary == WhisperFailedEnum::SUMMARY_FAILED->value) {
-                return WhisperFailedEnum::QUIZ_FAILED->value;
-            }
+            // return DemoDataEnum::DEMO_QUIZ;
 
-            $quiz = $this->getGptResponse(GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary, [], JsonSchemesEnum::QUIZ_JSON_SCHEMA);
+            $quiz = $this->getGptResponse(
+                GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary,
+                [],
+                JsonSchemesEnum::QUIZ_JSON_SCHEMA
+            );
+
             Log::alert('QUIZ ' . $quiz);
 
             $quiz = trim($quiz);
@@ -112,19 +131,6 @@ class GptService
             Log::error($e->getMessage());
             return HttpStatusEnum::ERROR;
         }
-    }
-
-    public function getMindMapJson(string $summary)
-    {
-        // return json_encode(self::DEMO_MIND_MAP);
-
-        $mindMap = $this->getGptResponse(GptPropmtsEnum::GET_MIND_MAP->value . $summary, [], JsonSchemesEnum::MIND_MAP_SCHEMA);
-        Log::alert('MIND MAP: ' . $mindMap);
-        if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
-            $jsonMindMap = $matches[1];
-            return json_encode($jsonMindMap);
-        }
-        return json_encode($mindMap);
     }
 
     // ------------------- private Functions -------------------
@@ -174,7 +180,6 @@ class GptService
             $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', $bodyRequest);
 
             $responseData = json_decode($response->getBody(), true);
-            Log::alert($responseData);
             $answer = $responseData['choices'][0]['message']['content'];
 
             return $answer;
