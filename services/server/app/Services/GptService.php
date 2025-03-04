@@ -69,7 +69,7 @@ class GptService
         $mindMap = $this->getGptResponse(
             GptPropmtsEnum::GET_MIND_MAP->value . $summary,
             [],
-            JsonSchemesEnum::MIND_MAP_JSON_SCHEMA
+            // JsonSchemesEnum::MIND_MAP_JSON_SCHEMA
         );
 
         if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
@@ -92,7 +92,7 @@ class GptService
             $quiz = $this->getGptResponse(
                 GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary,
                 [],
-                JsonSchemesEnum::QUIZ_JSON_SCHEMA
+                // JsonSchemesEnum::QUIZ_JSON_SCHEMA
             );
 
             Log::alert('QUIZ ' . $quiz);
