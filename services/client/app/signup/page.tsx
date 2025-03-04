@@ -1,69 +1,26 @@
-import Image from "next/image";
-import { CardGrid } from "@/app/components/CardGrid";
-import React from "react";
-import { Card } from "@/app/components/Card";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { FormData, getClient, SignupFormData } from "@/app/auth/client";
-import { SignupForm } from "@/app/components/SignupForm";
-import { encrypt } from "@/app/auth/auth-utils";
+import { Suspense } from "react";
+import { SignupForm } from "@/app/components/forms/signup-form";
 
-interface SignUpFormData extends FormData {
-  fullName: string;
-}
-
-export default function Signup() {
-  const setFormData = async (data: SignupFormData) => {
-    "use server";
-    // TODO: handle logic when DB is present
-    if (process.env.NODE_ENV === "development") {
-      const token = await encrypt({
-        email: data.email,
-        password: data.password,
-      });
-      console.log(token);
-      return token;
-    }
-    const response = await fetch("/api/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${await getClient().auth().getAccessToken()}`,
-      },
-      body: JSON.stringify(data),
-    });
-
-    redirect("/");
-  };
-
+export default function SignupPage() {
   return (
-    <CardGrid cols={2}>
-      <div className="my-auto">
-        <Card
-          title="Sign Up"
-          subtitle={
-            <p>
-              Already have an account?{" "}
-              <Link href={"/login"} className={"text-action"}>
-                {" "}
-                Login Up
-              </Link>
-            </p>
-          }
-        >
-          <SignupForm setFormData={setFormData} />
-        </Card>
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/10 to-background p-4">
+      <div className="w-full max-w-md">
+        <div className="backdrop-blur-lg bg-background/60 rounded-3xl shadow-2xl p-8 border border-border">
+          <h1 className="text-3xl font-bold text-foreground text-center mb-2">
+            Create Account
+          </h1>
+          <p className="text-muted-foreground text-center mb-8">
+            Sign up to get started
+          </p>
+          <Suspense
+            fallback={
+              <div className="text-foreground text-center">Loading...</div>
+            }
+          >
+            <SignupForm />
+          </Suspense>
+        </div>
       </div>
-      <div className="flex flex-col justify-center items-center">
-        <Image
-          src="/signup.png"
-          width="1600"
-          height="1600"
-          className="w-[30vw] max-sm:w-[50vw] h-auto"
-          alt="auth picture"
-          priority
-        />
-      </div>
-    </CardGrid>
+    </div>
   );
 }
