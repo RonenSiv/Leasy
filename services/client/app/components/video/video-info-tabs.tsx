@@ -4,18 +4,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Quizlet } from "@/app/components/quizlet/quizlet";
 import { TreeMindMap } from "@/app/components/mind-map/mind-map";
-import { MarkDownViewer } from "@/app/components/mark-down-viewer";
 import { Spinner } from "@/app/components/spinner";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuizQuestions } from "@/hooks/use-quiz";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LinkifiedWikiContent } from "@/app/components/wiki/linkified-wiki-content";
+import { cn } from "@/lib/utils";
 
 interface VideoData {
   uuid: string;
-  transcription: string;
+  transcription: string | Array<{ start: string; end: string; text: string }>;
   summary: string;
-  mind_map: any; // Replace 'any' with the correct type for mind_map
+  mind_map: any;
   quiz: {
     uuid: string;
   };
@@ -23,9 +23,10 @@ interface VideoData {
 
 interface VideoInfoTabsProps {
   videoData: VideoData;
+  currentTime?: number;
 }
 
-export function VideoInfoTabs({ videoData }: VideoInfoTabsProps) {
+export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
   const {
     questions,
     isError,
@@ -33,9 +34,64 @@ export function VideoInfoTabs({ videoData }: VideoInfoTabsProps) {
     mutate,
   } = useQuizQuestions(videoData.quiz.uuid);
   const [activeTab, setActiveTab] = useState<string>("transcription");
+  const [parsedTranscription, setParsedTranscription] = useState<
+    Array<{
+      start: string;
+      end: string;
+      text: string;
+    }>
+  >([]);
+  const activeSegmentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      // Handle both cases: when transcription is already an object or when it's a JSON string
+      if (typeof videoData.transcription === "string") {
+        const parsed = JSON.parse(videoData.transcription);
+        setParsedTranscription(parsed);
+      } else if (Array.isArray(videoData.transcription)) {
+        setParsedTranscription(videoData.transcription);
+      }
+    } catch (error) {
+      console.error("Failed to parse transcription:", error);
+      setParsedTranscription([]);
+    }
+  }, [videoData.transcription]);
+
+  // Scroll to active segment
+  useEffect(() => {
+    if (activeSegmentRef.current && activeTab === "transcription") {
+      activeSegmentRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [activeTab]); // Removed currentTime as a dependency
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+  };
+
+  const isTimeInSegment = (currentTime: number, start: string, end: string) => {
+    const startSeconds = timeToSeconds(start);
+    const endSeconds = timeToSeconds(end);
+    return currentTime >= startSeconds && currentTime <= endSeconds;
+  };
+
+  const timeToSeconds = (timeString: string) => {
+    const [hours, minutes, seconds] = timeString.split(":").map((part) => {
+      if (part.includes(",")) {
+        return Number.parseFloat(part.replace(",", "."));
+      }
+      return Number.parseInt(part, 10);
+    });
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  const formatTime = (timeString: string) => {
+    // Convert "00:00:00,000" to "00:00:00"
+    const parts = timeString.split(",")[0].split(":");
+    return parts.join(":");
   };
 
   return (
@@ -55,7 +111,31 @@ export function VideoInfoTabs({ videoData }: VideoInfoTabsProps) {
 
           <TabsContent value="transcription" className="h-[calc(100%-3rem)]">
             <ScrollArea className="h-full p-4">
-              <MarkDownViewer>{videoData.transcription}</MarkDownViewer>
+              <div className="space-y-4">
+                {parsedTranscription.map((segment, index) => {
+                  const isActive = currentTime
+                    ? isTimeInSegment(currentTime, segment.start, segment.end)
+                    : false;
+
+                  return (
+                    <div
+                      key={index}
+                      ref={isActive ? activeSegmentRef : null}
+                      className={cn(
+                        "p-2 rounded transition-colors",
+                        isActive
+                          ? "bg-primary/20 font-medium"
+                          : "hover:bg-muted",
+                      )}
+                    >
+                      <div className="text-xs text-muted-foreground">
+                        {formatTime(segment.start)} - {formatTime(segment.end)}
+                      </div>
+                      <p>{segment.text}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </ScrollArea>
           </TabsContent>
 

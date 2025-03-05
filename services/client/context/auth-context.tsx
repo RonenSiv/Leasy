@@ -28,7 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       full_name: response.full_name,
       email: response.email,
     });
-    return response.json();
+    console.log(response);
+    return response;
   };
 
   const register = async ({
@@ -42,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       full_name,
     });
     await mutate();
-    return response.json();
+    return response;
   };
 
   const logout = async () => {

@@ -14,6 +14,7 @@ import { fetcher } from "@/app/actions/fetcher";
 export default function VideoPage() {
   const params = useParams();
   const [isTheaterMode, setIsTheaterMode] = useState(false);
+  const [currentVideoTime, setCurrentVideoTime] = useState(0);
   const {
     data: cachedData,
     error,
@@ -28,6 +29,7 @@ export default function VideoPage() {
   const { data } = cachedData;
 
   const onTimeUpdate = async (time: number) => {
+    setCurrentVideoTime(time);
     try {
       // If you worry about the unload, you can use navigator.sendBeacon here
       await fetcher.put(`/video/last-watched-time/${data.video.uuid}`, {
@@ -37,6 +39,19 @@ export default function VideoPage() {
       console.error("Failed to update last watched time", error);
     }
   };
+
+  // Handle both cases: when transcription is already an object or when it's a JSON string
+  const parsedTranscription = (() => {
+    if (typeof data.transcription === "string") {
+      try {
+        return JSON.parse(data.transcription);
+      } catch (error) {
+        console.error("Failed to parse transcription:", error);
+        return [];
+      }
+    }
+    return data.transcription; // It's already an object
+  })();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -60,6 +75,7 @@ export default function VideoPage() {
               video={data.video}
               onTimeUpdate={onTimeUpdate}
               onTheaterModeChange={setIsTheaterMode}
+              transcription={parsedTranscription}
             />
           </Suspense>
         </motion.div>
@@ -77,7 +93,7 @@ export default function VideoPage() {
             isTheaterMode ? "h-96" : "h-[820px]",
           )}
         >
-          <VideoInfoTabs videoData={data} />
+          <VideoInfoTabs videoData={data} currentTime={currentVideoTime} />
         </motion.div>
       </motion.div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -40,6 +41,7 @@ interface VideoPlayerProps {
   video: Video;
   onTimeUpdate?: (time: number) => void;
   onTheaterModeChange?: (isTheaterMode: boolean) => void;
+  transcription: Array<{ start: string; end: string; text: string }>;
 }
 
 const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -49,6 +51,7 @@ export function VideoPlayer({
   video,
   onTimeUpdate,
   onTheaterModeChange,
+  transcription,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,6 +77,8 @@ export function VideoPlayer({
   } | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
+  const [showTranscription, setShowTranscription] = useState(false);
+  const [currentTranscription, setCurrentTranscription] = useState<string>("");
 
   const isVideoFocused = () => {
     const activeElement = document.activeElement;
@@ -438,16 +443,23 @@ export function VideoPlayer({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, currentTime, seek]);
+  }, [isDragging, seek]);
 
   const handleTimeUpdate = () => {
     const time = videoRef.current?.currentTime || 0;
     setCurrentTime(time);
 
-    // Throttle: only update if THROTTLE_INTERVAL seconds have passed since last throttle call
+    // Always update the parent component with the current time for transcription highlighting
+    onTimeUpdate?.(Math.floor(time));
+
+    // Update current transcription
+    if (transcription) {
+      updateCurrentTranscription(time);
+    }
+
+    // Throttle weekly progress updates to avoid too many API calls
     if (time - lastThrottleCallRef.current >= THROTTLE_INTERVAL) {
-      onTimeUpdate?.(Math.floor(currentTime));
-      const delta = currentTime - lastUpdateTimeRef.current;
+      const delta = time - lastUpdateTimeRef.current;
       // Only update if there's at least a 0.5-second increase
       if (delta >= 0.5) {
         // Round the delta to the nearest whole number
@@ -456,14 +468,13 @@ export function VideoPlayer({
           timeSpent: Math.round(delta),
         });
       }
-      lastThrottleCallRef.current = currentTime;
+      lastThrottleCallRef.current = time;
     }
 
     if (
       videoRef.current &&
       videoRef.current.currentTime >= videoRef.current.duration
     ) {
-      onTimeUpdate?.(Math.floor(time));
       const delta = time - lastUpdateTimeRef.current;
       if (delta >= 0.5) {
         updateWeeklyProgress({
@@ -495,6 +506,41 @@ export function VideoPlayer({
     }
   }, [showControls]);
 
+  const toggleTranscription = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowTranscription(!showTranscription);
+    showHudAction(
+      <Subtitles className="h-8 w-8" />,
+      showTranscription ? "Hide Transcription" : "Show Transcription",
+    );
+  };
+
+  const updateCurrentTranscription = (time: number) => {
+    if (!transcription || !Array.isArray(transcription)) return;
+
+    const currentSegment = transcription.find((segment) => {
+      const startTime = timeToSeconds(segment.start);
+      const endTime = timeToSeconds(segment.end);
+      return time >= startTime && time <= endTime;
+    });
+
+    if (currentSegment) {
+      setCurrentTranscription(currentSegment.text);
+    } else {
+      setCurrentTranscription("");
+    }
+  };
+
+  const timeToSeconds = (timeString: string) => {
+    const [hours, minutes, seconds] = timeString.split(":").map((part) => {
+      if (part.includes(",")) {
+        return Number.parseFloat(part.replace(",", "."));
+      }
+      return Number.parseInt(part, 10);
+    });
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
   return (
     <div
       ref={containerRef}
@@ -523,6 +569,13 @@ export function VideoPlayer({
           <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
+      )}
+
+      {/* Transcription Overlay */}
+      {showTranscription && currentTranscription && (
+        <div className="absolute bottom-20 left-0 right-0 px-6 py-3 bg-black/80 text-white text-center z-10 transition-opacity duration-300 animate-fade-in">
+          <p className="text-lg font-medium">{currentTranscription}</p>
+        </div>
       )}
 
       {/* Video Controls */}
@@ -687,9 +740,14 @@ export function VideoPlayer({
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-white hover:bg-white/20"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleTranscription(e);
+              }}
             >
-              <Subtitles className="h-5 w-5" />
+              <Subtitles
+                className={cn("h-5 w-5", showTranscription && "text-primary")}
+              />
             </Button>
 
             <Button
