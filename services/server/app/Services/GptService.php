@@ -69,7 +69,7 @@ class GptService
         $mindMap = $this->getGptResponse(
             GptPropmtsEnum::GET_MIND_MAP->value . $summary,
             [],
-            // JsonSchemesEnum::MIND_MAP_JSON_SCHEMA
+            // JsonSchemesEnum::MIND_MAP_JSON_SCHEMA_OPENAI
         );
 
         if (preg_match('/```json\n(.*?)\n```/s', $mindMap, $matches)) {
@@ -92,7 +92,7 @@ class GptService
             $quiz = $this->getGptResponse(
                 GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary,
                 [],
-                // JsonSchemesEnum::QUIZ_JSON_SCHEMA
+                // JsonSchemesEnum::QUIZ_JSON_SCHEMA_OPENAI
             );
 
             Log::alert('QUIZ ' . $quiz);
@@ -160,24 +160,25 @@ class GptService
 
             $bodyRequest = [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . config('app.openrouter_api_key'),
+                    'Authorization' => 'Bearer ' . config('app.openai_api_key'),
                     'Content-Type' => 'application/json'
                 ],
                 'json' => [
-                    "model" => config('app.deepseek_model'),
+                    "model" => config('app.openai_model'),
                     'messages' => $messages,
-                    // 'max_tokens' => config('app.openai_max_tokens'),
-                    // 'temperature' => config('app.openai_temperature'),
                 ],
                 'verify' => false,
                 'timeout' => 3000,
             ];
 
             if (!empty($jsonSchema)) {
-                $bodyRequest['json']['response_format'] = ['type' => 'json_schema', 'json_schema' => $jsonSchema];
+                // $bodyRequest['json']['response_format'] = ['type' => 'json_schema', 'json_schema' => json_encode($jsonSchema)];
+                $bodyRequest['json']['functions'] = $jsonSchema;
+                $bodyRequest['json']["function_call"] = "auto";
+                $bodyRequest['json']["temperature"] = 0.0;
             }
-
-            $response = $client->post(config('app.openrouter_base_uri') . 'chat/completions', $bodyRequest);
+            Log::alert($bodyRequest);
+            $response = $client->post(config('app.openai_base_uri') . 'chat/completions', $bodyRequest);
 
             $responseData = json_decode($response->getBody(), true);
             $answer = $responseData['choices'][0]['message']['content'];
