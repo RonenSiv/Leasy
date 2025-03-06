@@ -20,6 +20,9 @@ export default function VideoPage() {
     error,
     isLoading,
   } = useSWR(`/lecture/${params.id}`, fetcher.get);
+  const videoPlayerRef = useRef<{ seekTo: (time: number) => void } | null>(
+    null,
+  );
 
   // We'll use a ref to measure the chat element's rendered height.
   const chatRef = useRef(null);
@@ -30,13 +33,22 @@ export default function VideoPage() {
 
   const onTimeUpdate = async (time: number) => {
     setCurrentVideoTime(time);
-    try {
-      // If you worry about the unload, you can use navigator.sendBeacon here
-      await fetcher.put(`/video/last-watched-time/${data.video.uuid}`, {
-        last_watched_time: time,
-      });
-    } catch (error) {
-      console.error("Failed to update last watched time", error);
+
+    // Only make API call every 5 seconds
+    if (Math.floor(time) % 5 === 0) {
+      try {
+        await fetcher.put(`/video/last-watched-time/${data.video.uuid}`, {
+          last_watched_time: time,
+        });
+      } catch (error) {
+        console.error("Failed to update last watched time", error);
+      }
+    }
+  };
+
+  const handleSeekTo = (time: number) => {
+    if (videoPlayerRef.current) {
+      videoPlayerRef.current.seekTo(time);
     }
   };
 
@@ -72,6 +84,7 @@ export default function VideoPage() {
         >
           <Suspense fallback={<VideoSkeleton />}>
             <VideoPlayer
+              ref={videoPlayerRef}
               video={data.video}
               onTimeUpdate={onTimeUpdate}
               onTheaterModeChange={setIsTheaterMode}
@@ -93,7 +106,11 @@ export default function VideoPage() {
             isTheaterMode ? "h-96" : "h-[820px]",
           )}
         >
-          <VideoInfoTabs videoData={data} currentTime={currentVideoTime} />
+          <VideoInfoTabs
+            videoData={data}
+            currentTime={currentVideoTime}
+            onSeekTo={handleSeekTo}
+          />
         </motion.div>
       </motion.div>
     </div>

@@ -24,9 +24,14 @@ interface VideoData {
 interface VideoInfoTabsProps {
   videoData: VideoData;
   currentTime?: number;
+  onSeekTo?: (time: number) => void;
 }
 
-export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
+export function VideoInfoTabs({
+  videoData,
+  currentTime,
+  onSeekTo,
+}: VideoInfoTabsProps) {
   const {
     questions,
     isError,
@@ -42,6 +47,8 @@ export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
     }>
   >([]);
   const activeSegmentRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastActiveSegmentIndex = useRef<number | null>(null);
 
   useEffect(() => {
     try {
@@ -61,12 +68,43 @@ export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
   // Scroll to active segment
   useEffect(() => {
     if (activeSegmentRef.current && activeTab === "transcription") {
-      activeSegmentRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      // Get the viewport element inside the ScrollArea
+      const viewport = scrollAreaRef.current?.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      ) as HTMLElement;
+
+      if (viewport) {
+        // Find the current active segment index
+        const currentIndex = parsedTranscription.findIndex((segment) =>
+          currentTime
+            ? isTimeInSegment(currentTime, segment.start, segment.end)
+            : false,
+        );
+
+        // Only scroll if we have a new active segment
+        if (
+          currentIndex !== -1 &&
+          currentIndex !== lastActiveSegmentIndex.current
+        ) {
+          // Calculate the center position
+          const offsetTop = activeSegmentRef.current.offsetTop;
+          const centerPosition =
+            offsetTop -
+            viewport.clientHeight / 2 +
+            activeSegmentRef.current.clientHeight / 2;
+
+          // Always scroll to center the active line
+          viewport.scroll({
+            top: centerPosition,
+            behavior: "smooth",
+          });
+
+          // Update the last active segment index
+          lastActiveSegmentIndex.current = currentIndex;
+        }
+      }
     }
-  }, [activeTab]); // Removed currentTime as a dependency
+  }, [activeTab, currentTime, parsedTranscription]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -94,6 +132,13 @@ export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
     return parts.join(":");
   };
 
+  const handleSegmentClick = (startTime: string) => {
+    if (onSeekTo) {
+      const seconds = timeToSeconds(startTime);
+      onSeekTo(seconds);
+    }
+  };
+
   return (
     <Card className="h-full">
       <CardContent className="p-0 h-full">
@@ -110,7 +155,7 @@ export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
           </TabsList>
 
           <TabsContent value="transcription" className="h-[calc(100%-3rem)]">
-            <ScrollArea className="h-full p-4">
+            <ScrollArea ref={scrollAreaRef} className="h-full p-4">
               <div className="space-y-4">
                 {parsedTranscription.map((segment, index) => {
                   const isActive = currentTime
@@ -122,11 +167,12 @@ export function VideoInfoTabs({ videoData, currentTime }: VideoInfoTabsProps) {
                       key={index}
                       ref={isActive ? activeSegmentRef : null}
                       className={cn(
-                        "p-2 rounded transition-colors",
+                        "p-2 rounded transition-colors cursor-pointer",
                         isActive
                           ? "bg-primary/20 font-medium"
                           : "hover:bg-muted",
                       )}
+                      onClick={() => handleSegmentClick(segment.start)}
                     >
                       <div className="text-xs text-muted-foreground">
                         {formatTime(segment.start)} - {formatTime(segment.end)}
