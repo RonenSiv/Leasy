@@ -114,52 +114,67 @@ enum JsonSchemesEnum
     public const MIND_MAP_JSON_SCHEMA_OPENAI = [
         [
             "name" => "generate_mind_map",
+            "description" => "Generates a mind map with a title and a hierarchy of nodes (only one level of children).",
             "parameters" => [
                 "type" => "object",
                 "properties" => [
-                    "title" => [
-                        "type" => "string"
-                    ],
-                    "nodes" => [
-                        "type" => "array",
-                        "items" => [
-                            "type" => "object",
-                            "properties" => [
-                                "id" => [
-                                    "type" => "integer"
-                                ],
-                                "label" => [
-                                    "type" => "string"
-                                ],
-                                "description" => [
-                                    "type" => "string"
-                                ],
-                                "children" => [
-                                    "type" => "array",
-                                    "items" => [
-                                        "type" => "object",
-                                        "properties" => [
-                                            "id" => [
-                                                "type" => "integer"
-                                            ],
-                                            "label" => [
-                                                "type" => "string"
-                                            ],
-                                            "description" => [
-                                                "type" => "string"
-                                            ]
-                                        ],
-                                        "required" => ["id", "label", "description"],
-                                        "additionalProperties" => false
-                                    ]
-                                ]
+                    "mind_map" => [
+                        "type" => "object",
+                        "properties" => [
+                            "title" => [
+                                "type" => "string",
+                                "description" => "The title of the mind map."
                             ],
-                            "required" => ["id", "label", "description", "children"],
-                            "additionalProperties" => false
-                        ]
+                            "nodes" => [
+                                "type" => "array",
+                                "items" => [
+                                    "type" => "object",
+                                    "properties" => [
+                                        "id" => [
+                                            "type" => "integer",
+                                            "description" => "Unique identifier for the node."
+                                        ],
+                                        "label" => [
+                                            "type" => "string",
+                                            "description" => "The label or name of the node."
+                                        ],
+                                        "description" => [
+                                            "type" => "string",
+                                            "description" => "A brief description of the node."
+                                        ],
+                                        "children" => [
+                                            "type" => "array",
+                                            "items" => [
+                                                "type" => "object",
+                                                "properties" => [
+                                                    "id" => [
+                                                        "type" => "integer",
+                                                        "description" => "Unique identifier for the child node."
+                                                    ],
+                                                    "label" => [
+                                                        "type" => "string",
+                                                        "description" => "The label or name of the child node."
+                                                    ],
+                                                    "description" => [
+                                                        "type" => "string",
+                                                        "description" => "A brief description of the child node."
+                                                    ]
+                                                ],
+                                                "required" => ["id", "label", "description"],
+                                                "additionalProperties" => false
+                                            ]
+                                        ]
+                                    ],
+                                    "required" => ["id", "label", "description", "children"],
+                                    "additionalProperties" => false
+                                ]
+                            ]
+                        ],
+                        "required" => ["title", "nodes"],
+                        "additionalProperties" => false
                     ]
                 ],
-                "required" => ["title", "nodes"],
+                "required" => ["mind_map"],
                 "additionalProperties" => false
             ]
         ]
