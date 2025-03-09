@@ -73,7 +73,7 @@ export const VideoPlayer = forwardRef<
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [isTheaterMode, setIsTheaterMode] = useState(false); // Fixed: Initialize with false instead of isTheaterMode
+  const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(1);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hudAction, setHudAction] = useState<{
@@ -585,12 +585,13 @@ export const VideoPlayer = forwardRef<
         </video>
       )}
 
-      {/* Transcription Overlay */}
+      {/* Transcription Overlay - Pass showControls state */}
       {showTranscription && currentTranscription && (
         <TranscriptionOverlay
           text={currentTranscription}
           isVisible={showTranscription}
           position="bottom"
+          showControls={showControls}
         />
       )}
 

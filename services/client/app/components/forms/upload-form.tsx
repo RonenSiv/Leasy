@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -12,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { UploadProgress as UploadProgressType } from "@/types/components";
 import { DragDropFile } from "../drag-drop-file";
-import { UploadProgress } from "../upload/upload-progress";
+import { UploadProgress, type UploadStatus } from "../upload/upload-progress";
 
 function UploadFormSkeleton() {
   return (
@@ -38,13 +39,20 @@ export function VideoUpload() {
     total: 0,
     percentage: 0,
   });
-  // New state for status text below the percentage
-  const [uploadStatus, setUploadStatus] = useState("Uploading video");
+
+  // New state for detailed upload status
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
+    phase: "preparing",
+    message: "Preparing your file for upload",
+    progress: 0,
+  });
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Ref to store the slow increment interval
   const slowIncrementIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Ref to track server-side processing
+  const processingStageRef = useRef<number>(0);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -87,6 +95,53 @@ export function VideoUpload() {
     reader.readAsDataURL(selectedFile);
   };
 
+  // Function to simulate server-side processing stages
+  const simulateProcessingStages = () => {
+    if (slowIncrementIntervalRef.current) {
+      clearInterval(slowIncrementIntervalRef.current);
+    }
+
+    processingStageRef.current = 0;
+    const stages = [
+      { phase: "processing", message: "Processing video file", progress: 60 },
+      {
+        phase: "transcribing",
+        message: "Generating transcription",
+        progress: 75,
+      },
+      { phase: "analyzing", message: "Analyzing video content", progress: 85 },
+      {
+        phase: "finalizing",
+        message: "Finalizing and saving your video",
+        progress: 95,
+      },
+    ];
+
+    let baseDelay = 1500; // Start with 1.5 seconds between stages
+
+    const advanceStage = () => {
+      if (processingStageRef.current < stages.length) {
+        const stage = stages[processingStageRef.current];
+        setUploadStatus({
+          phase: stage.phase as any,
+          message: stage.message,
+          progress: stage.progress,
+        });
+        setUploadProgress((prev) => ({ ...prev, percentage: stage.progress }));
+        processingStageRef.current++;
+
+        // Increase delay for each subsequent stage
+        baseDelay += 500;
+
+        // Schedule next stage
+        setTimeout(advanceStage, baseDelay);
+      }
+    };
+
+    // Start the simulation after a short delay
+    setTimeout(advanceStage, 1000);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -97,7 +152,11 @@ export function VideoUpload() {
 
     setUploading(true);
     setUploadProgress({ loaded: 0, total: 0, percentage: 0 });
-    setUploadStatus("Uploading video");
+    setUploadStatus({
+      phase: "preparing",
+      message: "Preparing your file for upload",
+      progress: 0,
+    });
     abortControllerRef.current = new AbortController();
 
     const formData = new FormData();
@@ -111,6 +170,13 @@ export function VideoUpload() {
     }
 
     try {
+      // Update status to uploading
+      setUploadStatus({
+        phase: "uploading",
+        message: "Starting upload to server",
+        progress: 0,
+      });
+
       const response = await api.post("/lecture", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -118,55 +184,57 @@ export function VideoUpload() {
         onUploadProgress: (progressEvent) => {
           const total = progressEvent.total || 0;
           const loaded = progressEvent.loaded || 0;
-          let computedPercentage = Math.round((loaded * 100) / total);
+          const computedPercentage = Math.round((loaded * 100) / total);
 
-          // If not fully uploaded yet, update normally
-          if (computedPercentage < 100) {
-            // Clear any existing slow increment interval if new progress comes in
-            if (slowIncrementIntervalRef.current) {
-              clearInterval(slowIncrementIntervalRef.current);
-              slowIncrementIntervalRef.current = null;
-            }
-            setUploadStatus("Uploading video");
-            setUploadProgress({
-              loaded,
-              total,
-              percentage: computedPercentage,
-            });
+          // Cap upload percentage at 50% - the rest will be for processing
+          const cappedPercentage = Math.min(computedPercentage, 50);
+
+          // Update upload status messages based on progress
+          let uploadMessage = "Uploading video file";
+          if (computedPercentage < 10) {
+            uploadMessage = "Starting upload to server";
+          } else if (computedPercentage < 25) {
+            uploadMessage = "Uploading video data";
+          } else if (computedPercentage < 40) {
+            uploadMessage = "Uploading video content";
           } else {
-            // When upload is done client-side, switch to "Processing video"
-            setUploadStatus("Processing video");
-            // Start a slow increment if not already started
-            let timeout = 500;
-            if (!slowIncrementIntervalRef.current) {
-              slowIncrementIntervalRef.current = setInterval(() => {
-                timeout += 50;
-                setUploadProgress((prev) => {
-                  let newPerc = prev.percentage + 1;
-                  if (newPerc >= 98) {
-                    newPerc = 98;
-                    if (slowIncrementIntervalRef.current) {
-                      clearInterval(slowIncrementIntervalRef.current);
-                      slowIncrementIntervalRef.current = null;
-                    }
-                  }
-                  return { ...prev, percentage: newPerc };
-                });
-              }, timeout);
-            }
+            uploadMessage = "Finalizing upload";
+          }
+
+          // Update both the detailed status and the legacy progress
+          setUploadStatus({
+            phase: "uploading",
+            message: uploadMessage,
+            progress: cappedPercentage,
+          });
+
+          setUploadProgress({
+            loaded,
+            total,
+            percentage: cappedPercentage,
+          });
+
+          // When upload reaches 50%, start simulating processing stages
+          if (computedPercentage >= 50 && processingStageRef.current === 0) {
+            simulateProcessingStages();
           }
         },
         signal: abortControllerRef.current.signal,
       });
 
-      // Clear slow increment (if still running) and force progress to 100%
+      // Clear any intervals and set progress to 100%
       if (slowIncrementIntervalRef.current) {
         clearInterval(slowIncrementIntervalRef.current);
         slowIncrementIntervalRef.current = null;
       }
+
+      // Set final status
+      setUploadStatus({
+        phase: "finalizing",
+        message: "Upload complete! Redirecting...",
+        progress: 100,
+      });
       setUploadProgress((prev) => ({ ...prev, percentage: 100 }));
-      // Update status text to indicate processing is done
-      setUploadStatus("Processing video");
 
       // Reset form fields
       setTitle("");
@@ -178,20 +246,33 @@ export function VideoUpload() {
       }
       await mutate();
       toast.success(response.data.message);
-      router.push(`/video/${response.data.data.uuid}`);
+
+      // Short delay before redirect to show completion message
+      setTimeout(() => {
+        router.push(`/video/${response.data.data.uuid}`);
+      }, 1000);
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error("Failed to upload video. Please try again.");
     } finally {
       setUploading(false);
       setUploadProgress({ loaded: 0, total: 0, percentage: 0 });
-      setUploadStatus("Uploading video");
+      setUploadStatus({
+        phase: "preparing",
+        message: "Preparing your file for upload",
+        progress: 0,
+      });
     }
   };
 
   const handleCancelUpload = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
+    }
+
+    if (slowIncrementIntervalRef.current) {
+      clearInterval(slowIncrementIntervalRef.current);
+      slowIncrementIntervalRef.current = null;
     }
   };
 
@@ -270,10 +351,9 @@ export function VideoUpload() {
         </form>
       </motion.div>
 
-      {/* Pass both the progress percentage and status text to your UploadProgress component */}
+      {/* Pass the detailed upload status to the UploadProgress component */}
       <UploadProgress
         open={uploading}
-        progress={uploadProgress.percentage}
         status={uploadStatus}
         onCancel={handleCancelUpload}
       />

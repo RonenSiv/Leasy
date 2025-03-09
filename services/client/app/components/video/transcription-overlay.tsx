@@ -6,26 +6,28 @@ interface TranscriptionOverlayProps {
   text: string;
   isVisible: boolean;
   position?: "top" | "bottom" | "middle";
+  showControls?: boolean;
 }
 
 export function TranscriptionOverlay({
   text,
   isVisible,
   position = "bottom",
+  showControls = true,
 }: TranscriptionOverlayProps) {
   if (!isVisible || !text) return null;
 
-  // Position classes
+  // Position classes - adjust bottom position based on controls visibility
   const positionClasses = {
     top: "top-4",
     middle: "top-1/2 -translate-y-1/2",
-    bottom: "bottom-20", // Keep it above controls
+    bottom: showControls ? "bottom-20" : "bottom-4", // Move to bottom of video when controls are hidden
   };
 
   return (
     <div
       className={cn(
-        "absolute left-0 right-0 mx-auto px-4 py-2 z-10 transition-opacity duration-300 max-w-[90%] w-fit",
+        "absolute left-0 right-0 mx-auto px-4 py-2 z-10 transition-all duration-300 max-w-[90%] w-fit",
         positionClasses[position],
         isVisible ? "opacity-100" : "opacity-0",
       )}
