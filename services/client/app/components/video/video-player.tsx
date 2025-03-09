@@ -1,7 +1,13 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -36,6 +42,7 @@ import { cn } from "@/lib/utils";
 import type { Video } from "@/types/api-types";
 import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
 import { Spinner } from "@/app/components/spinner";
+import { TranscriptionOverlay } from "@/app/components/video/transcription-overlay";
 
 interface VideoPlayerProps {
   video: Video;
@@ -47,12 +54,10 @@ interface VideoPlayerProps {
 const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-export function VideoPlayer({
-  video,
-  onTimeUpdate,
-  onTheaterModeChange,
-  transcription,
-}: VideoPlayerProps) {
+export const VideoPlayer = forwardRef<
+  { seekTo: (time: number) => void },
+  VideoPlayerProps
+>(({ video, onTimeUpdate, onTheaterModeChange, transcription }, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
@@ -68,7 +73,7 @@ export function VideoPlayer({
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [isTheaterMode, setIsTheaterMode] = useState(false);
+  const [isTheaterMode, setIsTheaterMode] = useState(false); // Fixed: Initialize with false instead of isTheaterMode
   const [previousVolume, setPreviousVolume] = useState(1);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hudAction, setHudAction] = useState<{
@@ -79,6 +84,13 @@ export function VideoPlayer({
   const [isDragging, setIsDragging] = useState(false);
   const [showTranscription, setShowTranscription] = useState(false);
   const [currentTranscription, setCurrentTranscription] = useState<string>("");
+
+  // Expose the seekTo method to parent components
+  useImperativeHandle(ref, () => ({
+    seekTo: (time: number) => {
+      seek(time);
+    },
+  }));
 
   const isVideoFocused = () => {
     const activeElement = document.activeElement;
@@ -443,14 +455,15 @@ export function VideoPlayer({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, seek]);
+  }, [isDragging]);
 
   const handleTimeUpdate = () => {
     const time = videoRef.current?.currentTime || 0;
     setCurrentTime(time);
 
     // Always update the parent component with the current time for transcription highlighting
-    onTimeUpdate?.(Math.floor(time));
+    // but don't make API calls on every frame
+    onTimeUpdate?.(time);
 
     // Update current transcription
     if (transcription) {
@@ -469,6 +482,7 @@ export function VideoPlayer({
         });
       }
       lastThrottleCallRef.current = time;
+      lastUpdateTimeRef.current = time;
     }
 
     if (
@@ -488,7 +502,7 @@ export function VideoPlayer({
   const handleSeeked = () => {
     if (videoRef.current) {
       const time = videoRef.current.currentTime || 0;
-      onTimeUpdate?.(Math.floor(time));
+      onTimeUpdate?.(time);
       lastUpdateTimeRef.current = time;
     }
   };
@@ -573,9 +587,11 @@ export function VideoPlayer({
 
       {/* Transcription Overlay */}
       {showTranscription && currentTranscription && (
-        <div className="absolute bottom-20 left-0 right-0 px-6 py-3 bg-black/80 text-white text-center z-10 transition-opacity duration-300 animate-fade-in">
-          <p className="text-lg font-medium">{currentTranscription}</p>
-        </div>
+        <TranscriptionOverlay
+          text={currentTranscription}
+          isVisible={showTranscription}
+          position="bottom"
+        />
       )}
 
       {/* Video Controls */}
@@ -823,4 +839,6 @@ export function VideoPlayer({
       )}
     </div>
   );
-}
+});
+
+VideoPlayer.displayName = "VideoPlayer";
