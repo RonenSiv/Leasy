@@ -50,23 +50,32 @@ class ChatService
         try {
             DB::beginTransaction();
 
-            $chat = Chat::with('messages')
+            $chat = Chat::with([
+                'messages',
+                'lectures' => function ($query) {
+                    $query->select('id', 'uuid', 'summary', 'chat_id');
+                }
+            ])
                 ->where('uuid', $uuid)
                 ->first();
 
-            $chatHistory = $chat->messages->map(function ($message) {
-                return [
-                    'role' => $message['sender'],
-                    'content' => $message['message'],
-                ];
-            })->toArray();
-
+            $summary = $chat['lectures'][0]['summary'];
             $maxMessages = 20;
-            if (count($chatHistory) > $maxMessages) {
-                $chatHistory = array_slice($chatHistory, -$maxMessages);
-            }
 
-            $chatResponse = $this->gptService->getChatResponse($message, $chatHistory);
+            $chatHistory = $chat->messages
+                ->sortByDesc('created_at')
+                ->take($maxMessages)
+                ->map(function ($message) {
+                    return [
+                        'role' => $message['sender'],
+                        'content' => $message['message'],
+                    ];
+                })
+                ->reverse()
+                ->values()
+                ->toArray();
+
+            $chatResponse = $this->gptService->getChatResponse($message, $chatHistory, $summary);
 
             if ($chatResponse instanceof HttpStatusEnum) {
                 Log::error('Error with GPT integration');

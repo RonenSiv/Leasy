@@ -105,12 +105,12 @@ class GptService
         }
     }
 
-    public function getChatResponse(string $message, array $chatHistory)
+    public function getChatResponse(string $message, array $chatHistory, string $summary)
     {
         try {
             // return 'chat response';
 
-            return $this->getGptResponse($message, $chatHistory);
+            return $this->getGptResponse($message, $chatHistory, [], '', $summary);
         } catch (\Exception $e) {
             Log::error('GptService - getChatResponse - ' . $e->getMessage());
             return HttpStatusEnum::ERROR;
@@ -119,7 +119,7 @@ class GptService
 
     // ------------------- private Functions -------------------
 
-    private function getGptResponse(string $prompt, array $chatHistory = [], array $jsonSchema = [], string $jsonSchemaFunctionName = '')
+    private function getGptResponse(string $prompt, array $chatHistory = [], array $jsonSchema = [], string $jsonSchemaFunctionName = '', string $lectureSummary = '')
     {
         try {
             $client = new Client();
@@ -127,6 +127,10 @@ class GptService
             $messages = [
                 ['role' => 'system', 'content' => 'You are a helpful assistant.'],
             ];
+
+            if (!empty($lectureSummary)) {
+                $messages[] = ['role' => 'system', 'content' => "Here is a summary of the lecture:\n" . $lectureSummary];
+            }
 
             if (!empty($chatHistory)) {
                 foreach ($chatHistory as $message) {
