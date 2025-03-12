@@ -242,12 +242,11 @@ const calculateLayout = (data: any, theme: string | undefined) => {
 export const TreeMindMap = (params: any) => {
   const { theme, systemTheme } = useTheme();
   const data = params.data;
-  const parsedData = JSON.parse(data);
   const currentTheme = theme === "system" ? systemTheme : theme;
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => calculateLayout(parsedData, currentTheme),
-    [parsedData, currentTheme],
+    () => calculateLayout(data, currentTheme),
+    [data, currentTheme],
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -256,7 +255,7 @@ export const TreeMindMap = (params: any) => {
   // Update nodes and edges when theme changes
   useEffect(() => {
     const { nodes: newNodes, edges: newEdges } = calculateLayout(
-      parsedData,
+      data,
       currentTheme,
     );
     setNodes(newNodes);
