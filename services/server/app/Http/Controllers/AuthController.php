@@ -179,7 +179,6 @@ class AuthController extends Controller
 
     public function googleLogin(Request $request)
     {
-        // return Socialite::driver('google')->redirect();
         $result = $this->service->googleLogin(
             token: $request->token,
         );
@@ -202,37 +201,4 @@ class AuthController extends Controller
             ->json($filteredResult, Response::HTTP_OK)
             ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
     }
-
-    // /**
-    //  * @OA\Get(
-    //  *     path="/auth/google-callback",
-    //  *     summary="Handle Google OAuth callback",
-    //  *     description="Retrieves the authenticated user information from Google after successful authentication.",
-    //  *     operationId="googleAuthentication",
-    //  *     tags={"Authentication"},
-    //  *     @OA\Response(
-    //  *         response=200,
-    //  *         description="Successful authentication, returns user data from Google"
-    //  *     ),
-    //  *     @OA\Response(
-    //  *         response=401,
-    //  *         description="Unauthorized if authentication fails"
-    //  *     )
-    //  * )
-    //  */
-
-    // public function googleAuthentication()
-    // {
-    //     $result = $this->service->googleAuthentication();
-
-    //     if ($result instanceof HttpStatusEnum) {
-    //         return match ($result) {
-    //             HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
-    //             HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
-    //             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
-    //         };
-    //     }
-
-    //     return redirect("http://localhost:3000/auth?token=" . $result['accessToken']);
-    // }
 }
