@@ -9,12 +9,7 @@ import { AuthProvider } from "@/context/auth-context";
 export function LayoutProvider({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <SWRConfig
-        value={{
-          revalidateOnFocus: true,
-          revalidateOnReconnect: true,
-        }}
-      >
+      <SWRConfig>
         <AuthProvider>
           <SettingsProvider>
             {children}

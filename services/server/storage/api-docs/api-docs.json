@@ -140,24 +140,6 @@
                 }
             }
         },
-        "/auth/google-callback": {
-            "get": {
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Handle Google OAuth callback",
-                "description": "Retrieves the authenticated user information from Google after successful authentication.",
-                "operationId": "googleAuthentication",
-                "responses": {
-                    "200": {
-                        "description": "Successful authentication, returns user data from Google"
-                    },
-                    "401": {
-                        "description": "Unauthorized if authentication fails"
-                    }
-                }
-            }
-        },
         "/api/chat/send-message/{uuid}": {
             "post": {
                 "tags": [

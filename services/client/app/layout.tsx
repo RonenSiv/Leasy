@@ -6,6 +6,7 @@ import ScrollToTopButton from "./components/home/scroll-to-button";
 import Footer from "./components/footer";
 import { LayoutProvider } from "./providers/layout-provider";
 import React from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-main" });
 const poppins = Poppins({
@@ -31,13 +32,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground flex flex-col min-h-screen">
-        <LayoutProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <ScrollToTopButton />
-          <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
-        </LayoutProvider>
+        <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
+          <LayoutProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <ScrollToTopButton />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{ duration: 3000 }}
+            />
+          </LayoutProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
