@@ -97,7 +97,7 @@ class AuthService
     $payload = $client->verifyIdToken($token);
 
     if (!$payload) {
-      return response()->json(['error' => 'Invalid token'], 401);
+      return HttpStatusEnum::UNAUTHORIZED;
     }
 
     // Get user info from Google
