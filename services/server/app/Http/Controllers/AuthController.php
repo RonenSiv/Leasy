@@ -8,7 +8,6 @@ use App\Http\Requests\RegisterRequest;
 
 use App\Enums\HttpStatusEnum;
 
-
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -178,51 +177,62 @@ class AuthController extends Controller
      * )
      */
 
-    public function googleLogin()
+    public function googleLogin(Request $request)
     {
-        return Socialite::driver('google')->redirect();
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/auth/google-callback",
-     *     summary="Handle Google OAuth callback",
-     *     description="Retrieves the authenticated user information from Google after successful authentication.",
-     *     operationId="googleAuthentication",
-     *     tags={"Authentication"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful authentication, returns user data from Google"
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized if authentication fails"
-     *     )
-     * )
-     */
-
-    public function googleAuthentication()
-    {
-        $result = $this->service->googleAuthentication();
+        // return Socialite::driver('google')->redirect();
+        $result = $this->service->googleLogin(
+            token: $request->token,
+        );
 
         if ($result instanceof HttpStatusEnum) {
             return match ($result) {
                 HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
+                HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect google account'], Response::HTTP_UNAUTHORIZED),
+                HttpStatusEnum::BAD_REQUEST => response()->json(['message' => 'Token is required'], Response::HTTP_BAD_REQUEST),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
 
-        // $filteredResult = [
-        //     "email" => $result["email"],
-        //     "full_name" => $result["full_name"],
-        // ];
+        $filteredResult = [
+            "email" => $result["email"],
+            "full_name" => $result["full_name"],
+        ];
 
-        // return response()
-        //     ->json($filteredResult, Response::HTTP_OK)
-        //     ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
-
-        return redirect("http://localhost:3000/auth?token=" . $result['accessToken']);
-        // ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+        return response()
+            ->json($filteredResult, Response::HTTP_OK)
+            ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
     }
+
+    // /**
+    //  * @OA\Get(
+    //  *     path="/auth/google-callback",
+    //  *     summary="Handle Google OAuth callback",
+    //  *     description="Retrieves the authenticated user information from Google after successful authentication.",
+    //  *     operationId="googleAuthentication",
+    //  *     tags={"Authentication"},
+    //  *     @OA\Response(
+    //  *         response=200,
+    //  *         description="Successful authentication, returns user data from Google"
+    //  *     ),
+    //  *     @OA\Response(
+    //  *         response=401,
+    //  *         description="Unauthorized if authentication fails"
+    //  *     )
+    //  * )
+    //  */
+
+    // public function googleAuthentication()
+    // {
+    //     $result = $this->service->googleAuthentication();
+
+    //     if ($result instanceof HttpStatusEnum) {
+    //         return match ($result) {
+    //             HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+    //             HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
+    //             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+    //         };
+    //     }
+
+    //     return redirect("http://localhost:3000/auth?token=" . $result['accessToken']);
+    // }
 }
