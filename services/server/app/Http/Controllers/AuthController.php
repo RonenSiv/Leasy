@@ -188,7 +188,7 @@ class AuthController extends Controller
             return match ($result) {
                 HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect google account'], Response::HTTP_UNAUTHORIZED),
-                HttpStatusEnum::BAD_REQUEST => response()->json(['message' => 'Token is required'], Response::HTTP_BAD_REQUEST),
+                HttpStatusEnum::BAD_REQUEST => response()->json(['message' => 'Invalid Google token'], Response::HTTP_BAD_REQUEST),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }

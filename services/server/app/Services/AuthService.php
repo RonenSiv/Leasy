@@ -13,6 +13,7 @@ use App\Models\User;
 use Laravel\Passport\Token;
 
 use Google_Client;
+use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthService
@@ -93,17 +94,23 @@ class AuthService
       return HttpStatusEnum::BAD_REQUEST;
     }
 
-    $client = new Google_Client(['client_id' => config('services.google.client_id')]);
-    $payload = $client->verifyIdToken($token);
+    // Make a request to Google's user info endpoint
+    $response = Http::get("https://www.googleapis.com/oauth2/v1/userinfo?access_token={$token}");
 
-    if (!$payload) {
-      return HttpStatusEnum::UNAUTHORIZED;
+    if ($response->failed()) {
+      return HttpStatusEnum::BAD_REQUEST;
     }
 
-    // Get user info from Google
-    $googleId = $payload['sub'];
-    $email = $payload['email'];
-    $fullName = $payload['name'];
+    $userData = $response->json();
+
+    // Extract user details
+    $googleId = $userData['id'] ?? null;
+    $email = $userData['email'] ?? null;
+    $fullName = $userData['name'] ?? null;
+
+    if (!$googleId || !$email) {
+      return HttpStatusEnum::UNAUTHORIZED;
+    }
 
     $user = User::updateOrCreate(
       [
