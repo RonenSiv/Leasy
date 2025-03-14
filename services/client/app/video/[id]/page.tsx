@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { fetcher } from "@/app/actions/fetcher";
 import api from "@/lib/api";
+import { revalidateLecture, revalidateVideo } from "@/app/actions/mutations";
 
 export default function VideoPage() {
   const params = useParams();
@@ -59,6 +60,8 @@ export default function VideoPage() {
           last_watched_time: currentTime,
         },
       );
+      revalidateLecture();
+      revalidateVideo();
       lastUpdatedTimeRef.current = currentTime;
     } catch (error) {
       console.error("Failed to update last watched time", error);
