@@ -776,7 +776,9 @@ export const VideoPlayer = forwardRef<
                 toggleTheaterMode();
               }}
             >
-              <MonitorPlay className="h-5 w-5" />
+              <MonitorPlay
+                className={cn("h-5 w-5", isTheaterMode && "text-primary")}
+              />
             </Button>
 
             <Button
