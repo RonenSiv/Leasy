@@ -74,8 +74,8 @@ class GptService
                 'generate_mind_map'
             );
 
-            Log::alert('MIND MAP');
-            Log::alert($mindMap);
+            // Log::alert('MIND MAP');
+            // Log::alert($mindMap);
 
             return json_encode($mindMap['mind_map'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (\Exception $e) {
@@ -169,8 +169,6 @@ class GptService
             $responseData = json_decode($response->getBody(), true);
 
             if (isset($responseData['choices'][0]['message']['function_call'])) {
-                Log::alert("ronen gay");
-                Log::alert(json_decode($responseData['choices'][0]['message']['function_call']['arguments'], true));
                 return json_decode($responseData['choices'][0]['message']['function_call']['arguments'], true);
             }
 
