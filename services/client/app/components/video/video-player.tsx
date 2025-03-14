@@ -573,7 +573,7 @@ export const VideoPlayer = forwardRef<
         <video
           ref={videoRef}
           className="w-full h-full cursor-pointer"
-          poster={video.preview_image_url}
+          // poster={video.preview_image_url}
           preload="metadata"
           playsInline
           onTimeUpdate={handleTimeUpdate}

@@ -8,9 +8,7 @@ import useSWR from "swr";
 import { fetcher } from "@/app/actions/fetcher";
 
 export function HeaderContent() {
-  const { data: user, isLoading } = useSWR("/user", fetcher.get, {
-    revalidateOnFocus: true,
-  });
+  const { data: user, isLoading } = useSWR("/user", fetcher.get);
 
   if (isLoading) {
     return (
