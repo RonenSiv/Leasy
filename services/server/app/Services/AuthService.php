@@ -13,6 +13,7 @@ use App\Models\User;
 use Laravel\Passport\Token;
 
 use Google_Client;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -94,8 +95,9 @@ class AuthService
       return HttpStatusEnum::BAD_REQUEST;
     }
 
-    // Make a request to Google's user info endpoint
-    $response = Http::get("https://www.googleapis.com/oauth2/v1/userinfo?access_token={$token}");
+    $response = Http::withOptions([
+      'verify' => false,
+    ])->get("https://www.googleapis.com/oauth2/v1/userinfo?access_token={$token}");
 
     if ($response->failed()) {
       return HttpStatusEnum::BAD_REQUEST;
