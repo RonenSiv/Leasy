@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -21,7 +21,6 @@ import { toast } from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
 import zxcvbn from "zxcvbn";
 import { useAuth } from "@/context/auth-context";
-import { useGoogleAuthPopup } from "@/hooks/use-google-auth-popup";
 
 const signupSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -40,9 +39,9 @@ export function SignupForm() {
   // we'll now store the percentage strength (0–100)
   const [passwordStrength, setPasswordStrength] = useState(0);
   const router = useRouter();
-  const { register } = useAuth();
-  const { loading: googleAuthLoading, openGooglePopup } = useGoogleAuthPopup();
-
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const { register, loginWithGoogle, googleLoginState, resetGoogleLoginState } =
+    useAuth();
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -51,6 +50,28 @@ export function SignupForm() {
       password: "",
     },
   });
+
+  useEffect(() => {
+    if (googleLoginState === "success") {
+      setIsGoogleLoading(false);
+      resetGoogleLoginState();
+    } else if (
+      googleLoginState === "error" ||
+      googleLoginState === "cancelled"
+    ) {
+      setIsGoogleLoading(false);
+      resetGoogleLoginState();
+
+      if (googleLoginState === "cancelled") {
+        toast.error("Google login was cancelled");
+      }
+    }
+  }, [googleLoginState, resetGoogleLoginState]);
+
+  const startGoogleLoginFlow = () => {
+    setIsGoogleLoading(true);
+    loginWithGoogle();
+  };
 
   // Use zxcvbn to get a real strength score (0 to 4) and convert it to percentage
   const calculatePasswordStrength = (password: string) => {
@@ -70,10 +91,6 @@ export function SignupForm() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    openGooglePopup(`${authURL}/google`);
   };
 
   return (
@@ -178,10 +195,10 @@ export function SignupForm() {
         <Button
           variant="outline"
           className="w-full mt-6"
-          onClick={handleGoogleLogin}
-          disabled={googleAuthLoading}
+          disabled={isLoading || isGoogleLoading}
+          onClick={startGoogleLoginFlow}
         >
-          {googleAuthLoading ? (
+          {isGoogleLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Loading...
