@@ -50,8 +50,13 @@ class GptService
     {
         try {
             // return 'summary';
-
-            $summary = $this->getGptResponse(GptPropmtsEnum::GET_SUMMARY_PROMPT->value . $transcription);
+            $chatHistory =  [
+                [
+                    'role' => 'user',
+                    'content' => GptPropmtsEnum::GET_SUMMARY_PROMPT->value,
+                ]
+            ];
+            $summary = $this->getGptResponse($transcription, $chatHistory);
 
             // Log::alert('SUMMARY: ' . $summary);
 
