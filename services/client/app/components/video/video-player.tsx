@@ -43,6 +43,7 @@ import type { Video } from "@/types/api-types";
 import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
 import { Spinner } from "@/app/components/spinner";
 import { TranscriptionOverlay } from "@/app/components/video/transcription-overlay";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface VideoPlayerProps {
   video: Video;
@@ -63,7 +64,7 @@ export const VideoPlayer = forwardRef<
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
   const hudTimeoutRef = useRef<NodeJS.Timeout>();
   const progressBarRef = useRef<HTMLDivElement>(null);
-  const lastUpdateTimeRef = useRef<number>(video.last_watched_time || 0);
+  const lastUpdateTimeRef = useRef<number>(video?.last_watched_time || 0);
   const lastThrottleCallRef = useRef<number>(0);
   const THROTTLE_INTERVAL = 5;
 
@@ -76,6 +77,7 @@ export const VideoPlayer = forwardRef<
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(1);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMetadataLoaded, setIsMetadataLoaded] = useState(false);
   const [hudAction, setHudAction] = useState<{
     icon: React.ReactNode;
     text: string;
@@ -229,6 +231,7 @@ export const VideoPlayer = forwardRef<
 
     const handleLoadedMetadata = () => {
       setDuration(videoElement.duration);
+      setIsMetadataLoaded(true);
     };
     const handleLoadedData = () => {
       setIsLoaded(true);
@@ -251,8 +254,10 @@ export const VideoPlayer = forwardRef<
     if (videoElement.readyState >= 3) {
       setIsLoaded(true);
     }
-    handleLoadedMetadata();
-    handleLoadedData();
+    if (videoElement.readyState >= 1) {
+      setIsMetadataLoaded(true);
+      setDuration(videoElement.duration);
+    }
 
     return () => {
       videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
@@ -266,12 +271,12 @@ export const VideoPlayer = forwardRef<
 
   // Set initial video time
   useEffect(() => {
-    if (videoRef.current && video.last_watched_time > 0) {
+    if (videoRef.current && video?.last_watched_time > 0) {
       videoRef.current.currentTime = video.last_watched_time;
       lastUpdateTimeRef.current = video.last_watched_time;
       lastThrottleCallRef.current = video.last_watched_time;
     }
-  }, [video.last_watched_time]);
+  }, [video?.last_watched_time]);
 
   // Controls visibility
   useEffect(() => {
@@ -404,6 +409,8 @@ export const VideoPlayer = forwardRef<
   };
 
   const formatTime = (time: number) => {
+    if (!isFinite(time)) return "0:00"; // Handle NaN or Infinity
+
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
@@ -463,7 +470,6 @@ export const VideoPlayer = forwardRef<
     setCurrentTime(time);
 
     // Always update the parent component with the current time for transcription highlighting
-    // but don't make API calls on every frame
     onTimeUpdate?.(time);
 
     // Update current transcription
@@ -509,7 +515,7 @@ export const VideoPlayer = forwardRef<
   };
 
   const VolumeIcon = volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
-  const videoUrl = `/video/stream/${video.uuid}`;
+  const videoUrl = video ? `/video/stream/${video.uuid}` : "";
 
   useEffect(() => {
     if (showControls) {
@@ -556,6 +562,18 @@ export const VideoPlayer = forwardRef<
     return hours * 3600 + minutes * 60 + seconds;
   };
 
+  // Render a skeleton loader when video is not loaded
+  if (!video) {
+    return (
+      <div className="relative bg-black aspect-video">
+        <Skeleton className="w-full h-full" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Spinner className="h-12 w-12" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -566,25 +584,32 @@ export const VideoPlayer = forwardRef<
       onClick={togglePlay}
       tabIndex={-1} // Make the container focusable
     >
-      {!video ? (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Spinner className="h-12 w-12" />
+      {/* Show skeleton while video is loading */}
+      {!isLoaded && (
+        <div className="absolute inset-0 z-10 bg-black">
+          <Skeleton className="w-full h-full" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Spinner className="h-12 w-12" />
+          </div>
         </div>
-      ) : (
-        <video
-          ref={videoRef}
-          className="w-full h-full cursor-pointer"
-          // poster={video.preview_image_url}
-          preload="metadata"
-          playsInline
-          onTimeUpdate={handleTimeUpdate}
-          onSeeked={handleSeeked}
-          tabIndex={0} // Add this line to make the video focusable
-        >
-          <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
       )}
+
+      <video
+        ref={videoRef}
+        className={cn(
+          "w-full h-full cursor-pointer",
+          !isLoaded && "opacity-0", // Hide video until loaded
+        )}
+        poster={video.preview_image_url}
+        preload="metadata"
+        playsInline
+        onTimeUpdate={handleTimeUpdate}
+        onSeeked={handleSeeked}
+        tabIndex={0} // Add this line to make the video focusable
+      >
+        <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
       {isFixingVideo && (
         <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-30">
@@ -710,7 +735,7 @@ export const VideoPlayer = forwardRef<
             />
 
             <span className="text-xs sm:text-sm text-white/90 min-w-[50px] sm:min-w-[85px]">
-              {video
+              {isMetadataLoaded
                 ? `${formatTime(currentTime)} / ${formatTime(duration)}`
                 : "Loading..."}
             </span>
