@@ -84,6 +84,7 @@ export const VideoPlayer = forwardRef<
   const [isDragging, setIsDragging] = useState(false);
   const [showTranscription, setShowTranscription] = useState(false);
   const [currentTranscription, setCurrentTranscription] = useState<string>("");
+  const [isFixingVideo, setIsFixingVideo] = useState(false);
 
   // Expose the seekTo method to parent components
   useImperativeHandle(ref, () => ({
@@ -585,6 +586,16 @@ export const VideoPlayer = forwardRef<
         </video>
       )}
 
+      {isFixingVideo && (
+        <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center z-30">
+          <Spinner className="h-12 w-12 mb-4" />
+          <p className="text-white text-lg font-medium">Fixing video...</p>
+          <p className="text-white/70 text-sm mt-2">
+            This may take a few moments
+          </p>
+        </div>
+      )}
+
       {/* Transcription Overlay - Pass showControls state */}
       {showTranscription && currentTranscription && (
         <TranscriptionOverlay
@@ -749,7 +760,47 @@ export const VideoPlayer = forwardRef<
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
-                <DropdownMenuItem>Quality</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    try {
+                      setIsFixingVideo(true);
+                      showHudAction(
+                        <Settings className="h-8 w-8" />,
+                        "Fixing video...",
+                      );
+                      const response = await fetch(
+                        `${baseURL}/video/fix-video/${video.uuid}`,
+                        {
+                          method: "POST",
+                        },
+                      );
+
+                      if (response.ok) {
+                        showHudAction(
+                          <Check className="h-8 w-8" />,
+                          "Video fixed successfully",
+                        );
+                      } else {
+                        const errorData = await response.json();
+                        showHudAction(
+                          <Settings className="h-8 w-8" />,
+                          `Error: ${errorData.message || "Failed to fix video"}`,
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Failed to fix video:", error);
+                      showHudAction(
+                        <Settings className="h-8 w-8" />,
+                        "Failed to fix video",
+                      );
+                    } finally {
+                      setIsFixingVideo(false);
+                    }
+                  }}
+                  className="cursor-pointer flex items-center justify-between"
+                >
+                  Fix Video
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
