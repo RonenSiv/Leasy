@@ -16,8 +16,8 @@ return new class extends Migration
             $table->uuid();
             $table->string('email')->unique();
             $table->string('full_name');
-            $table->string('phone_number');
             $table->string('password');
+            $table->string('google_id')->nullable();
             $table->timestamps();
         });
 

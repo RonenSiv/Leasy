@@ -22,21 +22,16 @@
                                 "required": [
                                     "email",
                                     "full_name",
-                                    "phone_number",
                                     "password"
                                 ],
                                 "properties": {
                                     "email": {
                                         "type": "string",
-                                        "example": "ofirgoldofir@gmail.com"
+                                        "example": "leasy.helpdesk@gmail.com"
                                     },
                                     "full_name": {
                                         "type": "string",
                                         "example": "Ofir Goldberg"
-                                    },
-                                    "phone_number": {
-                                        "type": "string",
-                                        "example": "0527576444"
                                     },
                                     "password": {
                                         "type": "string",
@@ -53,7 +48,7 @@
                         "description": "User created successfully"
                     },
                     "500": {
-                        "description": "An error occurred while creating the user"
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"
@@ -81,7 +76,7 @@
                                 "properties": {
                                     "email": {
                                         "type": "string",
-                                        "example": "ofirgoldofir@gmail.com"
+                                        "example": "leasy.helpdesk@gmail.com"
                                     },
                                     "password": {
                                         "type": "string",
@@ -109,10 +104,46 @@
                 }
             }
         },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "description": "Logout the authenticated user by revoking the user's access token",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "User logged out successfully"
+                    },
+                    "500": {
+                        "description": "An error occurred while logging out"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/auth/google": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Redirect to Google OAuth",
+                "description": "Redirects the user to Google's OAuth authentication page.",
+                "operationId": "googleLogin",
+                "responses": {
+                    "302": {
+                        "description": "Redirect to Google authentication page"
+                    }
+                }
+            }
+        },
         "/api/chat/send-message/{uuid}": {
             "post": {
                 "tags": [
-                    "Chat"
+                    "Chats"
                 ],
                 "summary": "Send a message to a chat",
                 "description": "Sends a message to a specific chat identified by its UUID.",
@@ -161,12 +192,53 @@
                 }
             }
         },
+        "/api/chat/messages/{uuid}": {
+            "get": {
+                "tags": [
+                    "Chats"
+                ],
+                "description": "Retrieve messages records. Supports pagination.",
+                "operationId": "getChatMessages",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the chat",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with messages of the chat"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
         "/api/lecture": {
             "get": {
                 "tags": [
                     "Lectures"
                 ],
-                "description": "Retrieve lecture records. Supports pagination.",
+                "description": "Retrieve lecture records. Supports pagination and sorting.",
                 "operationId": "getLectures",
                 "parameters": [
                     {
@@ -177,6 +249,53 @@
                         "schema": {
                             "type": "integer",
                             "example": 2
+                        }
+                    },
+                    {
+                        "name": "only_favorites",
+                        "in": "query",
+                        "description": "Filter only favorite lectures (true or false).",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "search_by_title",
+                        "in": "query",
+                        "description": "Search lectures by title prefix (e.g., 'Intro' matches 'Introduction to Physics').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Intro"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "Sort by column (e.g., 'date', 'name', 'progress').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "date",
+                                "name",
+                                "progress"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort_direction",
+                        "in": "query",
+                        "description": "Sort direction (e.g., 'asc', 'desc').",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
                         }
                     }
                 ],
@@ -204,13 +323,25 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "video"
+                                    "video",
+                                    "title",
+                                    "description"
                                 ],
                                 "properties": {
                                     "video": {
                                         "description": "The video file to upload",
                                         "type": "string",
                                         "format": "binary"
+                                    },
+                                    "title": {
+                                        "description": "The title of the lecture",
+                                        "type": "string",
+                                        "example": "Introduction to Physics"
+                                    },
+                                    "description": {
+                                        "description": "The description of the lecture",
+                                        "type": "string",
+                                        "example": "An introductory lecture on the fundamentals of physics."
                                     }
                                 },
                                 "type": "object"
@@ -220,10 +351,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "lecture created successfully"
+                        "description": "Lecture created successfully"
                     },
                     "500": {
                         "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
                     }
                 }
             }
@@ -259,14 +393,135 @@
                 }
             }
         },
-        "/api/quiz/next-question/{uuid}": {
+        "/api/lecture/favorite/{uuid}": {
+            "put": {
+                "tags": [
+                    "Lectures"
+                ],
+                "description": "Add a lecture to the user's favorites.",
+                "operationId": "addLectureToFavorites",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID of the lecture to add to favorites.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Payload containing the favorite status.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "favorite"
+                                ],
+                                "properties": {
+                                    "favorite": {
+                                        "description": "Set to true to add to favorites, false to remove.",
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lecture has been successfully added to or removed from favorites"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "description": "Lecture Not Found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/mail/support": {
+            "post": {
+                "tags": [
+                    "Mails"
+                ],
+                "summary": "Send a support email",
+                "description": "Sends an email to the support team with the provided details.",
+                "operationId": "551a32fef3105c86bb3e5eac7b0e2940",
+                "requestBody": {
+                    "description": "Details of the email to be sent",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mail_subject",
+                                    "mail_content",
+                                    "sender_mail_address",
+                                    "sender_full_name"
+                                ],
+                                "properties": {
+                                    "mail_subject": {
+                                        "description": "The subject of the support email",
+                                        "type": "string",
+                                        "maxLength": 50,
+                                        "example": "Issue with account login"
+                                    },
+                                    "mail_content": {
+                                        "description": "The content of the support email",
+                                        "type": "string",
+                                        "maxLength": 200,
+                                        "example": "Hello, I'm unable to log in to my account. I tried resetting my password but still can't access it. Please assist."
+                                    },
+                                    "sender_mail_address": {
+                                        "description": "The email address of the sender",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "omer.groman123@gmail.com"
+                                    },
+                                    "sender_full_name": {
+                                        "description": "The full name of the sender",
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "Omer Groman"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The email was sent successfully"
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    }
+                }
+            }
+        },
+        "/api/quiz/questions/{uuid}": {
             "get": {
                 "tags": [
-                    "Quiz"
+                    "Quizzes"
                 ],
-                "summary": "Get the next question in a quiz",
-                "description": "Fetches the next question of a quiz based on the question index.",
-                "operationId": "2c256004ebf95ae3f93dde3edf00e3dc",
+                "summary": "Get the questions of the quiz",
+                "description": "Fetches all questions of a quiz.",
+                "operationId": "0365c35651f8003e815d93e90099a89a",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -277,22 +532,11 @@
                             "type": "string",
                             "format": "uuid"
                         }
-                    },
-                    {
-                        "name": "question_index",
-                        "in": "query",
-                        "description": "The index of the question to retrieve",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "example": 1
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Question retrieved successfully"
+                        "description": "Questions retrieved successfully"
                     },
                     "404": {
                         "description": "Quiz not found"
@@ -309,11 +553,11 @@
         "/api/quiz/answer/{uuid}": {
             "put": {
                 "tags": [
-                    "Quiz"
+                    "Quizzes"
                 ],
-                "summary": "Answer a question in a quiz",
-                "description": "Submits an answer to a quiz question based on the quiz UUID, question UUID, and selected option index.",
-                "operationId": "c4ad1e3826e1cffeb324df3fc5fab499",
+                "summary": "Answer quiz",
+                "description": "Submits answers for a quiz",
+                "operationId": "38686818dfd03ee9489dae4c0bd15c43",
                 "parameters": [
                     {
                         "name": "uuid",
@@ -327,22 +571,137 @@
                     }
                 ],
                 "requestBody": {
+                    "description": "Answers for the quiz questions",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "answers": {
+                                        "description": "List of answers",
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "question_uuid",
+                                                "answer"
+                                            ],
+                                            "properties": {
+                                                "question_uuid": {
+                                                    "description": "The UUID of the question",
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                },
+                                                "answer": {
+                                                    "type": "string",
+                                                    "example": "2"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "example": {
+                                "answers": [
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa1",
+                                        "answer": "1"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa2",
+                                        "answer": "3"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa3",
+                                        "answer": "4"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa4",
+                                        "answer": "2"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa5",
+                                        "answer": "1"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                        "answer": "5"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+                                        "answer": "2"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+                                        "answer": "4"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+                                        "answer": "3"
+                                    },
+                                    {
+                                        "question_uuid": "3fa85f64-5717-4562-b3fc-2c963f66af10",
+                                        "answer": "1"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Answers submitted successfully"
+                    },
+                    "400": {
+                        "description": "This question cannot be answered"
+                    },
+                    "404": {
+                        "description": "Some of the quiz properties not found"
+                    },
+                    "500": {
+                        "description": "An error occurred"
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/quiz/generate-new-questions/{uuid}": {
+            "put": {
+                "tags": [
+                    "Quizzes"
+                ],
+                "summary": "Generate a new questions to the quiz",
+                "description": "Generates new questions to the quiz based on a summary",
+                "operationId": "05694b34345e345a5a7e668e3652e32e",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the quiz to generate new questions",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "The details required to generate a new quiz",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "question_uuid",
-                                    "option_index"
+                                    "summary"
                                 ],
                                 "properties": {
-                                    "question_uuid": {
+                                    "summary": {
+                                        "description": "Summary for the new questions",
                                         "type": "string",
-                                        "format": "uuid"
-                                    },
-                                    "option_index": {
-                                        "type": "Integer",
-                                        "example": 1
+                                        "example": "This quiz will test basic knowledge of programming languages including Python, Java, and C++."
                                     }
                                 },
                                 "type": "object"
@@ -352,19 +711,59 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Answer submitted successfully"
+                        "description": "Quiz generated successfully"
                     },
                     "400": {
-                        "description": "This question cannot be answered"
+                        "description": "Invalid request data"
                     },
                     "404": {
-                        "description": "Some of the quiz properties not found"
+                        "description": "Quiz not found"
                     },
                     "500": {
-                        "description": "An error occurred while processing the answer"
+                        "description": "An error occurred"
                     },
                     "204": {
                         "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/test/ai": {
+            "post": {
+                "tags": [
+                    "AI"
+                ],
+                "summary": "Test AI API",
+                "description": "Send a prompt to the AI API and receive a response.",
+                "operationId": "testAI",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "prompt"
+                                ],
+                                "properties": {
+                                    "prompt": {
+                                        "description": "The prompt to send to GPT API.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }
@@ -385,7 +784,7 @@
                         "description": "User not found"
                     },
                     "500": {
-                        "description": "An error occurred while fetching the user"
+                        "description": "An error occurred"
                     }
                 }
             }
@@ -474,6 +873,141 @@
                     },
                     "204": {
                         "description": "No content"
+                    }
+                }
+            }
+        },
+        "/api/video/stream/{uuid}": {
+            "get": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Stream a video file",
+                "description": "Streams a video file stored on the server. Supports range requests for efficient playback.",
+                "operationId": "streamVideo",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to stream",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Full video stream",
+                        "headers": {
+                            "Content-Type": {
+                                "description": "MIME type of the video",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Accept-Ranges": {
+                                "description": "Indicates byte-range support",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Content-Length": {
+                                "description": "Total file size",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "Content-Range": {
+                                "description": "Byte range for partial content",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "video/mp4": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "206": {
+                        "description": "Partial video stream (for range requests)",
+                        "headers": {
+                            "Content-Range": {
+                                "description": "Byte range served",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "video/mp4": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/video/preview/{uuid}": {
+            "get": {
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Get the preview image for a video",
+                "description": "Retrieves the preview image associated with a given video UUID.",
+                "operationId": "getPreviewImage",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "The UUID of the video to retrieve the preview image for",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with the preview image",
+                        "headers": {
+                            "Content-Type": {
+                                "description": "Image MIME type",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "image/jpeg": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Video not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
                     }
                 }
             }

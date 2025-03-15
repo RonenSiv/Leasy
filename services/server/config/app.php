@@ -123,9 +123,20 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'max_execution_time' => env('APP_MAX_EXECUTION_TIME', 30),
+
     'openai_api_key' => env("OPENAI_API_KEY"),
     'openai_base_uri' => env("OPENAI_BASE_URI"),
     'openai_model' => env("OPENAI_MODEL"),
     'openai_max_tokens' => (int)env("OPENAI_MAX_TOKENS"),
     'openai_temperature' => (float)env("OPENAI_TEMPERATURE"),
+
+    'openrouter_base_uri' => env("OPENROUTER_BASE_URI"),
+    'openrouter_api_key' => env("OPENROUTER_API_KEY"),
+
+    'microsoft_model' => env("MICROSOFT_MODEL"),
+    'deepseek_model' => env("DEEPSEEK_MODEL"),
+
+    'fix_audio_python_script' => env("FIX_AUDIO_PYTHON_SCRIPT"),
+    'transcription_from_whisper_python_script' => env("TRANSCRIPTION_FROM_WHISPER_PYTHON_SCRIPT"),
 ];

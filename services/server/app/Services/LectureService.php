@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Lecture;
 
+use App\Enums\SortingParametersEnum;
+use App\Enums\WhisperFailedEnum;
 use App\Enums\PaginationEnum;
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
 
 use App\Http\Resources\LecturesPreviewResource;
 use App\Http\Resources\LectureResource;
@@ -29,35 +31,58 @@ class LectureService
         $this->quizService = new QuizService();
     }
 
-    public function store($video): HTTP_Status|array
+    public function store($video, string $title, string $description): HttpStatusEnum|array
     {
         try {
             DB::beginTransaction();
 
             $newVideo = $this->videoService->storeVideo($video);
 
-            $transcription = $this->gptService->getTranscription();
+            if ($newVideo == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('storeVideo');
+            }
 
-            $summary = $this->gptService->getSummary();
+            $transcription = $this->gptService->getTranscription($newVideo);
 
-            $lectureTitle = $this->gptService->getLectureTitle($summary);
+            if ($transcription == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('getTranscription');
+            }
 
-            $lecturedescription = $this->gptService->getLectureDescription($summary);
+            $summary = $this->gptService->getSummary($transcription);
 
-            $newChat = $this->chatService->storeChat($lectureTitle);
+            if ($summary == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('getSummary');
+            }
 
-            $newQuiz = $this->quizService->storeQuiz($lectureTitle, $summary);
+            $mindMap = $this->gptService->getMindMapJson($summary);
+
+            if ($mindMap == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('getMindMapJson');
+            }
+
+            $newChat = $this->chatService->storeChat($title);
+
+            if ($newChat == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('storeChat');
+            }
+
+            $newQuiz = $this->quizService->storeQuiz($title, $summary);
+
+            if ($newQuiz == HttpStatusEnum::ERROR) {
+                return $this->errorDuringUpload('storeQuiz');
+            }
 
             $newLecture = Lecture::create([
                 'uuid' => Str::uuid(),
-                'title' => $lectureTitle,
-                'description' => $lecturedescription,
+                'title' => $title,
+                'description' => $description,
                 'user_id' => Auth::id(),
                 'video_id' => $newVideo->id,
                 'chat_id' => $newChat->id,
                 'quiz_id' => $newQuiz->id,
                 'transcription' => $transcription,
                 'summary' => $summary,
+                'mind_map' => $mindMap,
             ]);
 
             DB::commit();
@@ -66,7 +91,7 @@ class LectureService
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
@@ -75,35 +100,121 @@ class LectureService
         try {
             $lecture = Lecture::with(
                 'user',
-                'quiz.questions.questionOptions',
-                'chat.messages',
+                'quiz',
+                'chat',
                 'video.videoUserProgresses'
             )
                 ->where('uuid', $uuid)
                 ->first();
 
             if (is_null($lecture)) {
-                return HTTP_Status::NOT_FOUND;
+                return HttpStatusEnum::NOT_FOUND;
             }
 
             return new LectureResource($lecture);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function index()
+    public function index(string|null $searchByTitle, string $sortBy, string $sortDirection, bool $onlyFavorites): HttpStatusEnum|array
     {
         try {
-            $lectures = Lecture::with('video.videoUserProgresses')
-                ->where('user_id', Auth::id())
-                ->paginate(PaginationEnum::PER_PAGE->value);
+            $sortableColumns = [
+                'date' => 'lectures.created_at',
+                'name' => 'lectures.title',
+                'progress' => 'video_user_progress.progress',
+            ];
 
-            return LecturesPreviewResource::collection($lectures);
+            $sortColumn = $sortableColumns[$sortBy] ?? 'lectures.created_at';
+
+            $lecturesQuery = Lecture::with('video.videoUserProgresses')
+                ->where('lectures.user_id', Auth::id());
+
+            if ($onlyFavorites) {
+                $lecturesQuery->where('lectures.is_favorite', true);
+            }
+
+            if (!is_null($searchByTitle)) {
+                $lecturesQuery->where('lectures.title', 'LIKE', "{$searchByTitle}%");
+            }
+
+            if ($sortBy === SortingParametersEnum::PROGRESS->value) {
+                $lecturesQuery->leftJoin('videos', 'lectures.video_id', '=', 'videos.id')
+                    ->leftJoin('video_user_progress', 'videos.id', '=', 'video_user_progress.video_id');
+            }
+
+            $dashboard = $this->getLecturesDashboard($lecturesQuery);
+
+            $lectures = $lecturesQuery->orderBy($sortColumn, $sortDirection)
+                ->paginate(PaginationEnum::VIDEOS_PER_PAGE->value);
+
+            return [
+                'dashboard' => $dashboard,
+                'lectures' => LecturesPreviewResource::collection($lectures)
+            ];
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            return HttpStatusEnum::ERROR;
         }
+    }
+
+    public function addToOrRemoveFromFavorites(string $uuid, bool $favorite): HttpStatusEnum
+    {
+        try {
+            $lecture = Lecture::where('uuid', $uuid)->first();
+
+            if (is_null($lecture)) {
+                return HttpStatusEnum::NOT_FOUND;
+            }
+
+            $lecture->update([
+                'is_favorite' => $favorite,
+            ]);
+
+            return HttpStatusEnum::OK;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return HttpStatusEnum::ERROR;
+        }
+    }
+
+    // ------------------- private Functions -------------------
+
+    private function getLecturesDashboard($lecturesQuery): array
+    {
+        $lectures = $lecturesQuery->get();
+
+        $totalVideos = $lectures->count();
+
+        $totalFavoriteLectures = Lecture::where('user_id', Auth::id())->where('is_favorite', true)->count();
+
+        $sumProgress = 0;
+        $numOfCompletedVideos = 0;
+        foreach ($lectures as $lecture) {
+            $sumProgress += $lecture->video->videoUserProgresses->first()->progress;
+            $lecture->video->videoUserProgresses->first()->progress == 100 ? $numOfCompletedVideos++ : null;
+        }
+
+        $overallProgress = $totalVideos == 0 ? 0 : (int)round($sumProgress / $totalVideos);
+
+        $numOfPages = floor($totalVideos / PaginationEnum::VIDEOS_PER_PAGE->value);
+
+        return [
+            'total_lectures' => $totalVideos,
+            'total_favorite_lectures' => $totalFavoriteLectures,
+            'overall_progress' => $overallProgress,
+            'completed_lectures' => $numOfCompletedVideos,
+            'incomplete_lectures' => $totalVideos - $numOfCompletedVideos,
+            'num_of_pages' => $totalVideos % PaginationEnum::VIDEOS_PER_PAGE->value > 0 ? $numOfPages + 1 : $numOfPages,
+        ];
+    }
+
+    private function errorDuringUpload(string $failedFunc)
+    {
+        DB::rollBack();
+        Log::error('Error in ' . $failedFunc . ' function');
+        return HttpStatusEnum::ERROR;
     }
 }

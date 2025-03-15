@@ -19,6 +19,8 @@ class Lecture extends Model
         'quiz_id',
         'transcription',
         'summary',
+        'is_favorite',
+        'mind_map',
     ];
     protected $hidden = [
         'created_at',

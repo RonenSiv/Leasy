@@ -2,114 +2,185 @@
 
 namespace App\Services;
 
+use App\Models\Video;
+
+use App\Enums\WhisperFailedEnum;
+use App\Enums\JsonSchemesEnum;
 use App\Enums\GptPropmtsEnum;
-use App\Enums\HTTP_Status;
+use App\Enums\HttpStatusEnum;
+use App\Enums\DemoDataEnum;
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use GuzzleHttp\Client;
 
-use Illuminate\Support\Facades\Log;
-
 class GptService
 {
-    protected $client;
-    public function __construct()
-    {
-        $this->client = new Client([
-            'base_uri' => config('app.openai_base_uri'),
-        ]);
-    }
-
-    public function getTranscription()
+    public function getTranscription(Video $video): mixed
     {
         try {
-            return 'transcription';
+            // return DemoDataEnum::DEMO_TRANSCRIPTION;
+
+            $output = null;
+            if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
+                $audioName = $video->audio_name;
+                ini_set('max_execution_time', config('app.max_execution_time'));
+                $audioPath = storage_path("app/public/{$audioName}");
+
+                $command = config('app.transcription_from_whisper_python_script') . ' ' . $audioPath . ' ' . config('app.openai_api_key');
+                $output = shell_exec($command);
+
+                if ($output == "error" || is_null($output)) {
+                    Log::error('Error in transcription python script');
+                    return HttpStatusEnum::ERROR;
+                }
+            }
+
+            // Log::alert('Transcription: ' . $output);
+
+            return $output;
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            Log::error('GptService - getTranscription - ' . $e->getMessage());
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function getSummary()
+    public function getSummary(string $transcription)
     {
         try {
-            return 'summary';
+            // return 'summary';
+            $chatHistory =  [
+                [
+                    'role' => 'user',
+                    'content' => GptPropmtsEnum::GET_SUMMARY_PROMPT->value,
+                ]
+            ];
+            $summary = $this->getGptResponse($transcription, $chatHistory);
+
+            // Log::alert('SUMMARY: ' . $summary);
+
+            return $summary;
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            Log::error('GptService - getSummary - ' . $e->getMessage());
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function getLectureTitle(string $summary)
+    public function getMindMapJson(string $summary)
     {
         try {
-            return 'lecture title';
+            // return json_encode(self::DEMO_MIND_MAP);
+
+            $mindMap = $this->getGptResponse(
+                GptPropmtsEnum::GET_MIND_MAP->value . $summary,
+                [],
+                JsonSchemesEnum::MIND_MAP_JSON_SCHEMA_OPENAI,
+                'generate_mind_map'
+            );
+
+            // Log::alert('MIND MAP');
+            // Log::alert($mindMap);
+
+            return json_encode($mindMap['mind_map'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            Log::error('GptService - getMindMapJson - ' . $e->getMessage());
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function getLectureDescription(string $summary)
+    public function generateQuiz(string|null $summary)
     {
         try {
-            return 'lecture description';
+            // return DemoDataEnum::DEMO_QUIZ;
+
+            $quiz = $this->getGptResponse(
+                GptPropmtsEnum::GENERATE_QUIZ_PROMPT->value . $summary,
+                [],
+                JsonSchemesEnum::QUIZ_JSON_SCHEMA_OPENAI,
+                'generate_quiz'
+            );
+            // Log::alert("Quiz");
+            // Log::alert($quiz);
+
+            return $quiz['quiz'];
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            Log::error('GptService - generateQuiz - ' . $e->getMessage());
+            return HttpStatusEnum::ERROR;
         }
     }
 
-    public function generateQuiz(string $summary)
+    public function getChatResponse(string $message, array $chatHistory, string $summary)
     {
         try {
-            $prompt = GptPropmtsEnum::GENERATE_QUIZ->value . $summary;
-            return 'quiz';
-            return $this->getGptResponse($prompt);
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
-        }
-    }
+            // return 'chat response';
 
-    public function getChatResponse(string $message)
-    {
-        try {
-            return 'chat response';
-            return $this->getGptResponse(GptPropmtsEnum::GET_CHAT_RESPONSE->value . $message);
+            return $this->getGptResponse($message, $chatHistory, [], '', $summary);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            Log::error('GptService - getChatResponse - ' . $e->getMessage());
+            return HttpStatusEnum::ERROR;
         }
     }
 
     // ------------------- private Functions -------------------
 
-    private function getGptResponse(string $prompt)
+    private function getGptResponse(string $prompt, array $chatHistory = [], array $jsonSchema = [], string $jsonSchemaFunctionName = '', string $lectureSummary = '')
     {
         try {
-            $response = $this->client->post('chat/completions', [
+            $client = new Client();
+
+            $messages = [
+                ['role' => 'system', 'content' => 'You are a helpful assistant.'],
+            ];
+
+            if (!empty($lectureSummary)) {
+                $messages[] = ['role' => 'system', 'content' => "Here is a summary of the lecture:\n" . $lectureSummary];
+            }
+
+            if (!empty($chatHistory)) {
+                foreach ($chatHistory as $message) {
+                    $messages[] = [
+                        'role' => $message['role'],
+                        'content' => $message['content'],
+                    ];
+                }
+            }
+
+            $messages[] = [
+                'role' => 'user',
+                'content' => $prompt,
+            ];
+
+            $bodyRequest = [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . config('app.openai_api_key')
+                    'Authorization' => 'Bearer ' . config('app.openai_api_key'),
+                    'Content-Type' => 'application/json'
                 ],
                 'json' => [
-                    'model' => config('app.openai_model'),
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'You are a helpful assistant.'],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
-                    'max_tokens' => config('app.openai_max_tokens'),
-                    'temperature' => config('app.openai_temperature'),
+                    "model" => config('app.openai_model'),
+                    'messages' => $messages,
                 ],
                 'verify' => false,
-            ]);
+                'timeout' => 3000,
+            ];
 
-            $respnseData = json_decode($response->getBody(), true);
-            $answer = $respnseData['choices'][0]['message']['content'];
+            if (!empty($jsonSchema) && !empty($jsonSchemaFunctionName)) {
+                $bodyRequest['json']['functions'] = $jsonSchema;
+                $bodyRequest['json']["function_call"] = ["name" => $jsonSchemaFunctionName];
+            }
 
-            return $answer;
+            $response = $client->post(config('app.openai_base_uri') . 'chat/completions', $bodyRequest);
+
+            $responseData = json_decode($response->getBody(), true);
+
+            if (isset($responseData['choices'][0]['message']['function_call'])) {
+                return json_decode($responseData['choices'][0]['message']['function_call']['arguments'], true);
+            }
+
+            return $responseData['choices'][0]['message']['content'];
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return HTTP_Status::ERROR;
+            Log::error('GptService - getGptResponse - ' . $e->getMessage());
+            return HttpStatusEnum::ERROR;
         }
     }
 }

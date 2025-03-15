@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('video_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->integer('last_watched_time')->default(0); // in seconds
+            $table->integer('progress')->default(0); // in percentage
             $table->timestamps();
         });
     }

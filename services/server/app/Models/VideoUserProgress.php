@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class VideoUserProgress extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'video_id',
         'user_id',
         'last_watched_time',
+        'progress',
     ];
 
     protected $hidden = [

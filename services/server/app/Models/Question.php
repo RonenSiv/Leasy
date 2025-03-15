@@ -12,7 +12,7 @@ class Question extends Model
         'uuid',
         'quiz_id',
         'question_text',
-        'is_answered',
+        'is_deleted',
     ];
     protected $hidden = [
         'created_at',

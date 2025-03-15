@@ -22,7 +22,22 @@ class StoreLectureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'video' => 'required|file|mimes:mp4|max:512000',
+            'video' => [
+                'required',
+                'file',
+                'mimes:mp4',
+                'max:512000',
+            ],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'max:5000',
+            ],
         ];
     }
 
@@ -37,7 +52,15 @@ class StoreLectureRequest extends FormRequest
             'video.required' => 'The lecture video must be uploaded',
             'video.file' => 'The video is invalid',
             'video.mimes' => 'Invalid file extension. Only mp4 files are allowed',
-            'video.max' => 'The video is too large'
+            'video.max' => 'The video is too large',
+
+            'title.required' => 'The lecture title is required',
+            'title.string' => 'The title must be a valid string',
+            'title.max' => 'The title may not be longer than 255 characters',
+
+            'description.required' => 'The lecture description is required',
+            'description.string' => 'The description must be a valid string',
+            'description.max' => 'The description may not be longer than 5000 characters',
         ];
     }
 }

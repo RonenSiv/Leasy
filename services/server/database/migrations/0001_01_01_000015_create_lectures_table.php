@@ -22,6 +22,8 @@ return new class extends Migration
             $table->foreignId('quiz_id')->constrained('quizzes')->onDelete('cascade');
             $table->longText('transcription');
             $table->longText('summary');
+            $table->json('mind_map');
+            $table->boolean('is_favorite')->default(false);
             $table->timestamps();
         });
     }

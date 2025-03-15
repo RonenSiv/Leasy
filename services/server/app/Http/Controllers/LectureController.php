@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Services\LectureService;
 
-use App\Enums\HTTP_Status;
+use App\Enums\SortingParametersEnum;
+use App\Enums\HttpStatusEnum;
 
+use App\Http\Requests\addToOrRemoveFromFavoritesRequest;
 use App\Http\Requests\StoreLectureRequest;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,39 +34,54 @@ class LectureController extends Controller
      *          @OA\MediaType(
      *              mediaType="multipart/form-data",
      *              @OA\Schema(
-     *                  required={"video"},
+     *                  required={"video", "title", "description"},
      *                  @OA\Property(
      *                      property="video",
      *                      type="string",
      *                      format="binary",
      *                      description="The video file to upload"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="title",
+     *                      type="string",
+     *                      description="The title of the lecture",
+     *                      example="Introduction to Physics"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="description",
+     *                      type="string",
+     *                      description="The description of the lecture",
+     *                      example="An introductory lecture on the fundamentals of physics."
      *                  )
      *              )
      *          )
      *      ),
      *      @OA\Response(
      *          response=201,
-     *          description="lecture created successfully",
+     *          description="Lecture created successfully",
      *      ),
      *      @OA\Response(
      *          response=500,
      *          description="An error occurred",
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="No content"
      *      )
      * )
-     *
-     * @param  StoreUnitRequest  $request
-     * @return \Illuminate\Http\JsonResponse
      */
 
     public function store(StoreLectureRequest $request): JsonResponse
     {
         $result = $this->lectureService->store(
             video: $request->file('video'),
+            title: $request->title,
+            description: $request->description,
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
@@ -105,10 +123,10 @@ class LectureController extends Controller
             uuid: $uuid
         );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::NOT_FOUND => response()->json(['message' => 'Lecture not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Lecture not found'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
@@ -119,7 +137,7 @@ class LectureController extends Controller
     /**
      * @OA\Get(
      *     path="/api/lecture",
-     *     description="Retrieve lecture records. Supports pagination.",
+     *     description="Retrieve lecture records. Supports pagination and sorting.",
      *     operationId="getLectures",
      *     tags={"Lectures"},
      *     @OA\Parameter(
@@ -128,6 +146,34 @@ class LectureController extends Controller
      *         required=false,
      *         description="Page number for pagination.",
      *         @OA\Schema(type="integer", example=2)
+     *     ),
+     *     @OA\Parameter(
+     *         name="only_favorites",
+     *         in="query",
+     *         required=false,
+     *         description="Filter only favorite lectures (true or false).",
+     *         @OA\Schema(type="boolean", example=true)
+     *     ),
+     *     @OA\Parameter(
+     *         name="search_by_title",
+     *         in="query",
+     *         required=false,
+     *         description="Search lectures by title prefix (e.g., 'Intro' matches 'Introduction to Physics').",
+     *         @OA\Schema(type="string", example="Intro")
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_by",
+     *         in="query",
+     *         required=false,
+     *         description="Sort by column (e.g., 'date', 'name', 'progress').",
+     *         @OA\Schema(type="string", enum={"date", "name", "progress"})
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort_direction",
+     *         in="query",
+     *         required=false,
+     *         description="Sort direction (e.g., 'asc', 'desc').",
+     *         @OA\Schema(type="string", enum={"asc", "desc"})
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -144,17 +190,79 @@ class LectureController extends Controller
      * )
      */
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $result = $this->lectureService->index();
+        $result = $this->lectureService->index(
+            searchByTitle: $request->query('search_by_title', null),
+            sortBy: $request->query('sort_by', SortingParametersEnum::DATE->value),
+            sortDirection: $request->query('sort_direction', 'asc'),
+            onlyFavorites: $request->boolean('only_favorites', false),
+        );
 
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
                 default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
             };
         }
 
         return response()->json(['data' => $result], Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Put(
+     *     path="/api/lecture/favorite/{uuid}",
+     *     description="Add a lecture to the user's favorites.",
+     *     operationId="addLectureToFavorites",
+     *     tags={"Lectures"},
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="path",
+     *         required=true,
+     *         description="UUID of the lecture to add to favorites.",
+     *         @OA\Schema(type="string", format="uuid", example="123e4567-e89b-12d3-a456-426614174000")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Payload containing the favorite status.",
+     *         @OA\JsonContent(
+     *             required={"favorite"},
+     *             @OA\Property(property="favorite", type="boolean", example=true, description="Set to true to add to favorites, false to remove.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lecture has been successfully added to or removed from favorites",
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="No content"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Lecture Not Found",
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="An error occurred",
+     *     )
+     * )
+     */
+
+    public function addToOrRemoveFromFavorites(string $uuid, addToOrRemoveFromFavoritesRequest $request)
+    {
+        $status = $this->lectureService->addToOrRemoveFromFavorites(
+            uuid: $uuid,
+            favorite: $request->favorite,
+        );
+
+        $addedOrRemove = $request->favorite ? 'added to' : 'removed from';
+        
+        return match ($status) {
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::NOT_FOUND => response()->json(['message' => 'Lecture Not Found'], Response::HTTP_NOT_FOUND),
+            HttpStatusEnum::OK => response()->json(['message' => 'Lecture has been successfully ' . $addedOrRemove . ' favorites'], Response::HTTP_OK),
+            default => response()->json(['message' => 'no content'], Response::HTTP_NO_CONTENT)
+        };
     }
 }

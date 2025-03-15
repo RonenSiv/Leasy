@@ -1,60 +1,26 @@
-"use client";
+import { Suspense } from "react";
+import { LoginForm } from "@/app/components/forms/login-form";
 
-import Image from "next/image";
-import { CardGrid } from "@/app/components/CardGrid";
-import React from "react";
-import { Card } from "@/app/components/Card";
-import Link from "next/link";
-import { LoginForm } from "@/app/components/LoginForm";
-import { FormData, getClient } from "@/app/auth/client";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-
-const LoginNoSsr = dynamic(() => Promise.resolve(LoginComp), {
-  ssr: false,
-});
-
-function LoginComp() {
-  const router = useRouter();
-
-  const setFormData = async (data: FormData) => {
-    const { email, password } = data;
-    await getClient().login({ email, password });
-    router.push("/dashboard");
-  };
-
+export default function LoginPage() {
   return (
-    <CardGrid cols={2}>
-      <div className="my-auto">
-        <Card
-          title="Login"
-          subtitle={
-            <p>
-              Doesn’t have an account?{" "}
-              <Link href={"/signup"} className={"text-action"}>
-                {" "}
-                Sign Up
-              </Link>
-            </p>
-          }
-        >
-          <LoginForm setFormData={setFormData} />
-        </Card>
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-primary/20 via-primary/10 to-background p-4">
+      <div className="w-full max-w-md">
+        <div className="backdrop-blur-lg bg-background/60 rounded-3xl shadow-2xl p-8 border border-border">
+          <h1 className="text-3xl font-bold text-foreground text-center mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-muted-foreground text-center mb-8">
+            Log in to your account
+          </p>
+          <Suspense
+            fallback={
+              <div className="text-foreground text-center">Loading...</div>
+            }
+          >
+            <LoginForm />
+          </Suspense>
+        </div>
       </div>
-      <div className="flex flex-col justify-center items-center">
-        <Image
-          src="/signup.png"
-          width="1600"
-          height="1600"
-          className="w-[30vw] max-sm:w-[50vw] h-auto"
-          alt="auth picture"
-          priority
-        />
-      </div>
-    </CardGrid>
+    </div>
   );
-}
-
-export default function Login() {
-  return <LoginNoSsr />;
 }

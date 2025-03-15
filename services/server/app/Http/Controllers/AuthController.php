@@ -4,14 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 
-use App\Enums\HTTP_Status;
-
 use App\Http\Requests\RegisterRequest;
+
+use App\Enums\HttpStatusEnum;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use Symfony\Component\HttpFoundation\Response;
+
+use Laravel\Socialite\Facades\Socialite;
 
 use Illuminate\Support\Facades\Cookie;
 
@@ -33,10 +35,9 @@ class AuthController extends Controller
      *         required=true,
      *         description="User data",
      *         @OA\JsonContent(
-     *             required={"email", "full_name", "phone_number", "password"},
-     *             @OA\Property(property="email", type="string", example="ofirgoldofir@gmail.com"),
+     *             required={"email", "full_name", "password"},
+     *             @OA\Property(property="email", type="string", example="leasy.helpdesk@gmail.com"),
      *             @OA\Property(property="full_name", type="string", example="Ofir Goldberg"),
-     *             @OA\Property(property="phone_number", type="string", example="0527576444"),
      *             @OA\Property(property="password", type="string", example="Aa123!@#"),
      *         ),
      *     ),
@@ -46,7 +47,7 @@ class AuthController extends Controller
      *     ),
      *     @OA\Response(
      *         response=500,
-     *         description="An error occurred while creating the user",
+     *         description="An error occurred",
      *     ),
      *     @OA\Response(
      *         response=204,
@@ -59,13 +60,12 @@ class AuthController extends Controller
         $status = $this->service->register(
             email: $request->email,
             fullName: $request->full_name,
-            phoneNumber: $request->phone_number,
             password: $request->password,
         );
 
         return match ($status) {
-            HTTP_Status::CREATED => response()->json(['message' => 'User created successfully'], Response::HTTP_OK),
-            HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while creating the user'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::CREATED => response()->json(['message' => 'User created successfully'], Response::HTTP_OK),
             default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
         };
     }
@@ -81,7 +81,7 @@ class AuthController extends Controller
      *          required=true,
      *          @OA\JsonContent(
      *              required={"email", "password"},
-     *              @OA\Property(property="email", type="string", example="ofirgoldofir@gmail.com"),
+     *              @OA\Property(property="email", type="string", example="leasy.helpdesk@gmail.com"),
      *              @OA\Property(property="password", type="string", example="Aa123!@#")
      *          )
      *      ),
@@ -113,18 +113,90 @@ class AuthController extends Controller
             email: $request->email,
             password: $request->password,
         );
-        if ($result instanceof HTTP_Status) {
+        if ($result instanceof HttpStatusEnum) {
             return match ($result) {
-                HTTP_Status::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
-                HTTP_Status::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect username or password'], Response::HTTP_UNAUTHORIZED),
                 default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
             };
         }
+
         $filteredResult = [
             "email" => $result["email"],
             "full_name" => $result["full_name"],
-            // 'token' => $result['accessToken'],
         ];
+
+        return response()
+            ->json($filteredResult, Response::HTTP_OK)
+            ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/logout",
+     *      operationId="logout",
+     *      tags={"Authentication"},
+     *      summary="Logout user",
+     *      description="Logout the authenticated user by revoking the user's access token",
+     *      @OA\Response(
+     *          response=200,
+     *          description="User logged out successfully",
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="An error occurred while logging out",
+     *      ),
+     *      @OA\Response(
+     *          response=204,
+     *          description="No content",
+     *      ),
+     * )
+     */
+    public function logout(): JsonResponse
+    {
+        $status = $this->service->logout();
+
+        return match ($status) {
+            HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+            HttpStatusEnum::OK => response()->json(['message' => 'User logged out successfully'], Response::HTTP_OK),
+            default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+        };
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/auth/google",
+     *     summary="Redirect to Google OAuth",
+     *     description="Redirects the user to Google's OAuth authentication page.",
+     *     operationId="googleLogin",
+     *     tags={"Authentication"},
+     *     @OA\Response(
+     *         response=302,
+     *         description="Redirect to Google authentication page"
+     *     )
+     * )
+     */
+
+    public function googleLogin(Request $request)
+    {
+        $result = $this->service->googleLogin(
+            token: $request->token,
+        );
+
+        if ($result instanceof HttpStatusEnum) {
+            return match ($result) {
+                HttpStatusEnum::ERROR => response()->json(['message' => 'An error occurred while user logged in'], Response::HTTP_INTERNAL_SERVER_ERROR),
+                HttpStatusEnum::UNAUTHORIZED => response()->json(['message' => 'Incorrect google account'], Response::HTTP_UNAUTHORIZED),
+                HttpStatusEnum::BAD_REQUEST => response()->json(['message' => 'Invalid Google token'], Response::HTTP_BAD_REQUEST),
+                default => response()->json(['message' => 'No content'], Response::HTTP_NO_CONTENT)
+            };
+        }
+
+        $filteredResult = [
+            "email" => $result["email"],
+            "full_name" => $result["full_name"],
+        ];
+
         return response()
             ->json($filteredResult, Response::HTTP_OK)
             ->withCookie(Cookie::make($result["tokenName"], $result["accessToken"]));
