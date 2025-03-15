@@ -1,6 +1,3 @@
-// Update only the relevant part of the page.tsx file
-// In the features array, update the quizlet component to pass the showcase flag
-
 "use client";
 
 import { memo, useState } from "react";
@@ -26,10 +23,8 @@ import { VideoChat } from "@/app/components/video/video-chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Quizlet } from "@/app/components/quizlet/quizlet";
 
-// For demo purposes, use a public sample video URL.
 const SAMPLE_VIDEO_URL = "https://www.w3schools.com/html/mov_bbb.mp4";
 
-// A shared video player that is memoized so it does not re-render
 // eslint-disable-next-line react/display-name
 const SharedVideoPlayer = memo(() => (
   <video

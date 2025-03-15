@@ -170,7 +170,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       e.preventDefault();
       window.location.href = "/upload";
     }
-    // Add more shortcuts as needed
   };
 
   return (

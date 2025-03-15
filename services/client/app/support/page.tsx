@@ -29,9 +29,7 @@ export default function SupportPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
     console.log("Support form submitted:", { name, email, message });
-    // Reset form fields
     setName("");
     setEmail("");
     setMessage("");

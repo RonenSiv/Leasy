@@ -44,6 +44,8 @@ import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
 import { Spinner } from "@/app/components/spinner";
 import { TranscriptionOverlay } from "@/app/components/video/transcription-overlay";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetcher } from "@/app/actions/fetcher";
+import { revalidateLecture, revalidateVideo } from "@/app/actions/mutations";
 
 interface VideoPlayerProps {
   video: Video;
@@ -87,6 +89,7 @@ export const VideoPlayer = forwardRef<
   const [showTranscription, setShowTranscription] = useState(false);
   const [currentTranscription, setCurrentTranscription] = useState<string>("");
   const [isFixingVideo, setIsFixingVideo] = useState(false);
+  const [videoSource, setVideoSource] = useState("");
 
   // Expose the seekTo method to parent components
   useImperativeHandle(ref, () => ({
@@ -562,6 +565,25 @@ export const VideoPlayer = forwardRef<
     return hours * 3600 + minutes * 60 + seconds;
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Add this effect to handle video source changes
+  useEffect(() => {
+    // Reset loading state when video source changes
+    setIsLoaded(false);
+    setIsMetadataLoaded(false);
+    setIsLoading(true); // Set loading to true when video source changes
+
+    // Force reload of video element when source changes
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [videoUrl]);
+
+  useEffect(() => {
+    setVideoSource(videoUrl);
+  }, [videoUrl]);
+
   // Render a skeleton loader when video is not loaded
   if (!video) {
     return (
@@ -607,7 +629,7 @@ export const VideoPlayer = forwardRef<
         onSeeked={handleSeeked}
         tabIndex={0} // Add this line to make the video focusable
       >
-        <source src={`${baseURL}${videoUrl}`} type="video/mp4" />
+        <source src={`${baseURL}${videoSource}`} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -793,18 +815,20 @@ export const VideoPlayer = forwardRef<
                         <Settings className="h-8 w-8" />,
                         "Fixing video...",
                       );
-                      const response = await fetch(
-                        `${baseURL}/video/fix-video/${video.uuid}`,
-                        {
-                          method: "POST",
-                        },
+                      const response = await fetcher.put(
+                        `${baseURL}/video/fix-audio/${video.uuid}`,
+                        {},
                       );
 
                       if (response.ok) {
                         showHudAction(
                           <Check className="h-8 w-8" />,
-                          "Video fixed successfully",
+                          "Video fixed successfully! Refreshing in 1 minute...",
                         );
+
+                        revalidateLecture();
+                        revalidateVideo();
+                        window.location.reload();
                       } else {
                         const errorData = await response.json();
                         showHudAction(

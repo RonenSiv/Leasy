@@ -27,7 +27,6 @@ const NODE_HEIGHT = 100;
 const BASE_VERTICAL_SPACING = 40;
 const LEVEL_HORIZONTAL_OFFSET = NODE_WIDTH * 2;
 
-// Color palettes for different themes
 const COLOR_PALETTES = {
   light: [
     { base: "hsl(210, 70%, 40%)", child: "hsl(210, 60%, 30%)" },
@@ -72,7 +71,6 @@ const getRootNodeStyle = (theme: string | undefined) => {
   };
 };
 
-// Previous helper functions remain the same...
 const calculateNodeWeight = (node: any): number => {
   if (!node.children || node.children.length === 0) return 1;
   return node.children.reduce(

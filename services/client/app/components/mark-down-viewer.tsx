@@ -19,9 +19,7 @@ export const MarkDownViewer = ({ children }: { children: string }) => {
         "https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css";
       document.head.appendChild(link);
     }
-    return () => {
-      // Clean up is optional since we're checking if it already exists
-    };
+    return () => {};
   }, []);
 
   return (
