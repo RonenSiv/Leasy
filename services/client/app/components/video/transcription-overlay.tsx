@@ -17,11 +17,10 @@ export function TranscriptionOverlay({
 }: TranscriptionOverlayProps) {
   if (!isVisible || !text) return null;
 
-  // Position classes - adjust bottom position based on controls visibility
   const positionClasses = {
     top: "top-4",
     middle: "top-1/2 -translate-y-1/2",
-    bottom: showControls ? "bottom-20" : "bottom-4", // Move to bottom of video when controls are hidden
+    bottom: showControls ? "bottom-20" : "bottom-4",
   };
 
   return (
@@ -39,7 +38,7 @@ export function TranscriptionOverlay({
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         textShadow: "0 1px 2px rgba(0, 0, 0, 0.5)",
       }}
-      onClick={(e) => e.stopPropagation()} // Prevent video play/pause when clicking overlay
+      onClick={(e) => e.stopPropagation()}
     >
       <p className="text-lg font-medium text-white text-center">{text}</p>
     </div>

@@ -23,12 +23,10 @@ export function AccountSettings() {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement password change logic here
     console.log("Password changed");
   };
 
   const handleDeleteAccount = async () => {
-    // Implement account deletion logic here
     console.log("Account deleted");
     setShowDeleteDialog(false);
   };

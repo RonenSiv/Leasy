@@ -36,7 +36,6 @@ const authURL =
 export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  // we'll now store the percentage strength (0–100)
   const [passwordStrength, setPasswordStrength] = useState(0);
   const router = useRouter();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);

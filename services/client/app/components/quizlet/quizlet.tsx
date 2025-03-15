@@ -14,7 +14,7 @@ interface QuizletProps {
   questions: QuizQuestion[];
   onNewQuestions: () => void;
   summary?: string;
-  showcase?: boolean; // Added showcase flag
+  showcase?: boolean;
 }
 
 interface QuizState {
@@ -34,7 +34,7 @@ export function Quizlet({
   questions: initialQuestions,
   onNewQuestions,
   summary,
-  showcase = false, // Default to false
+  showcase = false,
 }: QuizletProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
@@ -46,7 +46,6 @@ export function Quizlet({
     QuizAnswerResponse | undefined
   >(undefined);
 
-  // Only use SWR if not in showcase mode
   const {
     data: apiQuizState,
     mutate: mutateQuizState,
@@ -68,7 +67,6 @@ export function Quizlet({
       },
     );
 
-  // Use either API state or local state depending on showcase mode
   const quizState = showcase ? localQuizState : apiQuizState;
   const quizResults = showcase ? localQuizResults : apiQuizResults;
   const isLoading = showcase ? false : apiIsLoading;
@@ -78,7 +76,6 @@ export function Quizlet({
     setQuestions(initialQuestions);
   }, [initialQuestions]);
 
-  // Mock correct answers for showcase mode - one per question
   const mockCorrectAnswers = React.useMemo(() => {
     return questions?.reduce(
       (acc, question) => {
@@ -208,11 +205,8 @@ export function Quizlet({
         setLocalQuizState(initialQuizState);
         setLocalQuizResults(undefined);
 
-        // For showcase, simulate a brief delay and then show the same questions
-        // In a real implementation, you might want to rotate through multiple sets
         setTimeout(() => {
           setIsGenerating(false);
-          // Could add logic here to rotate through multiple sets of demo questions
         }, 1500);
       } else {
         await mutateQuizState(initialQuizState, false);

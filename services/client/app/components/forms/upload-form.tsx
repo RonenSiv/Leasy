@@ -40,7 +40,6 @@ export function VideoUpload() {
     percentage: 0,
   });
 
-  // New state for detailed upload status
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
     phase: "preparing",
     message: "Preparing your file for upload",
@@ -49,9 +48,7 @@ export function VideoUpload() {
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // Ref to store the slow increment interval
   const slowIncrementIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  // Ref to track server-side processing
   const processingStageRef = useRef<number>(0);
 
   const [mounted, setMounted] = useState(false);
@@ -95,7 +92,6 @@ export function VideoUpload() {
     reader.readAsDataURL(selectedFile);
   };
 
-  // Function to simulate server-side processing stages
   const simulateProcessingStages = () => {
     if (slowIncrementIntervalRef.current) {
       clearInterval(slowIncrementIntervalRef.current);
@@ -130,15 +126,12 @@ export function VideoUpload() {
         setUploadProgress((prev) => ({ ...prev, percentage: stage.progress }));
         processingStageRef.current++;
 
-        // Increase delay for each subsequent stage
         baseDelay += 500;
 
-        // Schedule next stage
         setTimeout(advanceStage, baseDelay);
       }
     };
 
-    // Start the simulation after a short delay
     setTimeout(advanceStage, 1000);
   };
 
@@ -170,7 +163,6 @@ export function VideoUpload() {
     }
 
     try {
-      // Update status to uploading
       setUploadStatus({
         phase: "uploading",
         message: "Starting upload to server",

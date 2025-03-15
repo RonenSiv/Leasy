@@ -21,7 +21,6 @@ import { useAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-// Zod schema for the login form
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
@@ -29,7 +28,6 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  // States for normal email/password flow
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -37,7 +35,6 @@ export function LoginForm() {
     useAuth();
   const router = useRouter();
 
-  // Setup react-hook-form
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
