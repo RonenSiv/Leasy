@@ -44,6 +44,7 @@ import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
 import { Spinner } from "@/app/components/spinner";
 import { TranscriptionOverlay } from "@/app/components/video/transcription-overlay";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetcher } from "@/app/actions/fetcher";
 
 interface VideoPlayerProps {
   video: Video;
@@ -811,11 +812,9 @@ export const VideoPlayer = forwardRef<
                         <Settings className="h-8 w-8" />,
                         "Fixing video...",
                       );
-                      const response = await fetch(
-                        `${baseURL}/video/fix-video/${video.uuid}`,
-                        {
-                          method: "POST",
-                        },
+                      const response = await fetcher.put(
+                        `${baseURL}/video/fix-audio/${video.uuid}`,
+                        {},
                       );
 
                       if (response.ok) {
