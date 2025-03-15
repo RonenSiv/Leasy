@@ -88,6 +88,7 @@ export const VideoPlayer = forwardRef<
   const [showTranscription, setShowTranscription] = useState(false);
   const [currentTranscription, setCurrentTranscription] = useState<string>("");
   const [isFixingVideo, setIsFixingVideo] = useState(false);
+  const [videoSource, setVideoSource] = useState("");
 
   // Expose the seekTo method to parent components
   useImperativeHandle(ref, () => ({
@@ -563,19 +564,20 @@ export const VideoPlayer = forwardRef<
     return hours * 3600 + minutes * 60 + seconds;
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+
   // Add this effect to handle video source changes
   useEffect(() => {
     // Reset loading state when video source changes
     setIsLoaded(false);
     setIsMetadataLoaded(false);
+    setIsLoading(true); // Set loading to true when video source changes
 
     // Force reload of video element when source changes
     if (videoRef.current) {
       videoRef.current.load();
     }
   }, [videoUrl]);
-
-  const [videoSource, setVideoSource] = useState(videoUrl);
 
   useEffect(() => {
     setVideoSource(videoUrl);
@@ -818,51 +820,14 @@ export const VideoPlayer = forwardRef<
                       );
 
                       if (response.ok) {
-                        // Get the updated video data
-                        const updatedData = await response.json();
-
-                        // Reset video state
-                        setIsLoaded(false);
-                        setIsMetadataLoaded(false);
-
-                        // Force video element to reload with new source
-                        if (videoRef.current) {
-                          videoRef.current.pause();
-                          videoRef.current.load();
-                        }
-
-                        // Show success message
                         showHudAction(
                           <Check className="h-8 w-8" />,
-                          "Video fixed successfully",
+                          "Video fixed successfully! Refreshing in 5 seconds...",
                         );
 
-                        // Refresh data in parent components
-                        // This assumes there's a mutate function passed from the parent
-                        // If not available directly, you can use SWR's mutate global function
-                        try {
-                          // Try to use SWR's global mutate if available
-                          const { mutate } = require("swr");
-                          mutate(`/lecture/${video.uuid}`);
-                        } catch (e) {
-                          console.log(
-                            "SWR mutate not available, video will reload on its own",
-                          );
-                        }
-
-                        // Add a small delay to ensure the UI updates properly
                         setTimeout(() => {
-                          if (videoRef.current) {
-                            videoRef.current
-                              .play()
-                              .catch((e) =>
-                                console.error(
-                                  "Couldn't autoplay after fix:",
-                                  e,
-                                ),
-                              );
-                          }
-                        }, 1000);
+                          window.location.reload();
+                        }, 5000);
                       } else {
                         const errorData = await response.json();
                         showHudAction(
