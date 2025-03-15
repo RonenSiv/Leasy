@@ -132,11 +132,17 @@ class VideoService
             }
 
             if (Storage::disk(config('filesystems.storage_service'))->exists($video->video_name)) {
-                $videoPath = $video->video_path;
-                $command = config('app.fix_audio_python_script') . ' ' . $videoPath;
-                $output = shell_exec($command);
+                $videoName = $video->video_name;
+                $command = config('app.fix_audio_python_script') . ' ' . $videoName;
+                // $scriptPath = 'C:\Users\Roei\Documents\Leasy\services\server\public\storage\detectcuts.py';
+                // $videoPath = 'C:\Users\Roei\Documents\Leasy\services\server\storage\app\public\' . $videoName;
 
-                if ($output == "ok") {
+                // $command = 'python ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($videoPath);
+
+                Log::alert($command);
+                $output = shell_exec($command);
+                Log::alert($output);
+                if (str_ends_with(trim($output), "ok")) {
                     return HttpStatusEnum::OK;
                 }
             }
