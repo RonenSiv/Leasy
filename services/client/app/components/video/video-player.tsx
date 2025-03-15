@@ -44,7 +44,6 @@ import { updateWeeklyProgress } from "@/app/utils/weekly-progress";
 import { Spinner } from "@/app/components/spinner";
 import { TranscriptionOverlay } from "@/app/components/video/transcription-overlay";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetcher } from "@/app/actions/fetcher";
 
 interface VideoPlayerProps {
   video: Video;
@@ -814,20 +813,23 @@ export const VideoPlayer = forwardRef<
                         <Settings className="h-8 w-8" />,
                         "Fixing video...",
                       );
-                      const response = await fetcher.put(
+                      const response = await fetch(
                         `${baseURL}/video/fix-audio/${video.uuid}`,
-                        {},
+                        {
+                          method: "POST",
+                        },
                       );
 
                       if (response.ok) {
                         showHudAction(
                           <Check className="h-8 w-8" />,
-                          "Video fixed successfully! Refreshing in 5 seconds...",
+                          "Video fixed successfully! Refreshing in 1 minute...",
                         );
 
+                        // Wait for 1 minute (60 seconds) before refreshing
                         setTimeout(() => {
                           window.location.reload();
-                        }, 5000);
+                        }, 60000);
                       } else {
                         const errorData = await response.json();
                         showHudAction(
