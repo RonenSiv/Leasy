@@ -45,6 +45,7 @@ import { Spinner } from "@/app/components/spinner";
 import { TranscriptionOverlay } from "@/app/components/video/transcription-overlay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetcher } from "@/app/actions/fetcher";
+import { revalidateLecture, revalidateVideo } from "@/app/actions/mutations";
 
 interface VideoPlayerProps {
   video: Video;
@@ -825,10 +826,9 @@ export const VideoPlayer = forwardRef<
                           "Video fixed successfully! Refreshing in 1 minute...",
                         );
 
-                        // Wait for 1 minute (60 seconds) before refreshing
-                        setTimeout(() => {
-                          window.location.reload();
-                        }, 60000);
+                        revalidateLecture();
+                        revalidateVideo();
+                        window.location.reload();
                       } else {
                         const errorData = await response.json();
                         showHudAction(
