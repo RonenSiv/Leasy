@@ -23,7 +23,6 @@ export function VideoModal({ isOpen, onClose }: VideoModalProps) {
             A quick preview of how Leasy can transform your learning.
           </DialogDescription>
         </DialogHeader>
-        {/* Replace with your actual embedded video or image */}
         <div className="aspect-video w-full rounded-md overflow-hidden">
           <iframe
             title="Leasy Demo Video"

@@ -13,7 +13,6 @@ export function ProfileSettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement profile update logic here
     console.log("Profile updated", { name, email });
   };
 

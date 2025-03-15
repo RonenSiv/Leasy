@@ -13,7 +13,6 @@ import { useSettings } from "@/context/settings-context";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-// Define a more detailed status type
 export type UploadStatus = {
   phase:
     | "preparing"
@@ -43,12 +42,10 @@ export function UploadProgress({
   const startTimeRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Start/stop timer based on dialog open state
   useEffect(() => {
     if (open && !startTimeRef.current) {
       startTimeRef.current = Date.now();
 
-      // Start the timer to update elapsed time
       timerRef.current = setInterval(() => {
         if (startTimeRef.current) {
           const elapsed = Math.floor(
@@ -58,7 +55,6 @@ export function UploadProgress({
         }
       }, 1000);
     } else if (!open) {
-      // Reset timer when dialog closes
       setShowWarning(false);
       setElapsedTime(0);
       startTimeRef.current = null;
@@ -76,18 +72,15 @@ export function UploadProgress({
     };
   }, [open]);
 
-  // Format time for display (MM:SS)
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Calculate and format estimated time remaining
   const getTimeEstimate = (): string => {
     if (status.progress <= 0 || elapsedTime <= 0) return "";
 
-    // Calculate estimated total time based on current progress and elapsed time
     const estimatedTotalTime = (elapsedTime / status.progress) * 100;
     const estimatedRemaining = Math.max(
       0,
@@ -119,7 +112,6 @@ export function UploadProgress({
 
   const timeEstimate = elapsedTime > 5 ? getTimeEstimate() : "";
 
-  // Get dialog title based on current phase
   const getDialogTitle = () => {
     switch (status.phase) {
       case "preparing":
@@ -137,7 +129,6 @@ export function UploadProgress({
     }
   };
 
-  // Get dialog description based on current phase
   const getDialogDescription = () => {
     switch (status.phase) {
       case "preparing":

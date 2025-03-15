@@ -1,5 +1,3 @@
-// utils/weeklyProgress.ts
-
 export interface DailyStats {
   timeSpent: number; // in seconds
   watchedVideoIds: string[];
@@ -33,11 +31,6 @@ const dayNames = [
   "Saturday",
 ];
 
-/**
- * Updates the weekly progress stats in localStorage.
- * @param videoId - The ID of the video being watched.
- * @param timeSpent - The amount of time (in seconds) to add to today's total.
- */
 export function updateWeeklyProgress({
   videoId,
   timeSpent,
